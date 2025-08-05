@@ -136,6 +136,7 @@ public class InvoiceReader extends AbstractCIIReader {
     private TotalsInformation extractInvoiceTotals(Document doc) {
         return TotalsInformation.builder()
                 .lineTotalAmount(parseBigDecimal(extractTextContent(doc, "LineTotalAmount")))
+                .taxBasisAmount(parseBigDecimal(extractTextContent(doc, "TaxBasisTotalAmount")))
                 .taxTotalAmount(parseBigDecimal(extractTextContent(doc, "TaxTotalAmount")))
                 .grandTotalAmount(parseBigDecimal(extractTextContent(doc, "GrandTotalAmount")))
                 .duePayableAmount(parseBigDecimal(extractTextContent(doc, "DuePayableAmount")))
