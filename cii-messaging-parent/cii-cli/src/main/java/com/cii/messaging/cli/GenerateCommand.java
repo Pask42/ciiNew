@@ -67,6 +67,12 @@ public class GenerateCommand implements Callable<Integer> {
             message = createSampleMessage();
         }
         
+        // Ensure output directory exists
+        java.io.File parent = outputFile.getParentFile();
+        if (parent != null) {
+            parent.mkdirs();
+        }
+
         // Write output
         if ("JSON".equalsIgnoreCase(format)) {
             String json = service.convertToJson(message);
