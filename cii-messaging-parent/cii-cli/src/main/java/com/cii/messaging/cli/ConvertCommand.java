@@ -6,6 +6,7 @@ import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import picocli.CommandLine.*;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
@@ -39,7 +40,7 @@ public class ConvertCommand implements Callable<Integer> {
         System.out.println("Converting " + inputFile.getName() + " to " + targetFormat + "...");
         
         try {
-            String inputContent = Files.readString(inputFile.toPath());
+            String inputContent = Files.readString(inputFile.toPath(), StandardCharsets.UTF_8);
             boolean isInputJson = inputContent.trim().startsWith("{");
             
             if ("JSON".equalsIgnoreCase(targetFormat)) {
@@ -50,7 +51,7 @@ public class ConvertCommand implements Callable<Integer> {
                 // XML to JSON
                 CIIMessage message = service.readMessage(inputFile);
                 String json = service.convertToJson(message);
-                Files.writeString(outputFile.toPath(), json);
+                Files.writeString(outputFile.toPath(), json, StandardCharsets.UTF_8);
                 
             } else if ("XML".equalsIgnoreCase(targetFormat)) {
                 if (!isInputJson) {

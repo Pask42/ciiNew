@@ -46,7 +46,8 @@ public class ParseCommand implements Callable<Integer> {
             }
             
             if (outputFile != null) {
-                java.nio.file.Files.write(outputFile.toPath(), output.getBytes());
+                java.nio.file.Files.writeString(outputFile.toPath(), output,
+                        java.nio.charset.StandardCharsets.UTF_8);
                 System.out.println("Output saved to: " + outputFile.getAbsolutePath());
             } else {
                 System.out.println("\n" + output);
