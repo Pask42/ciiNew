@@ -17,7 +17,7 @@ public class ValidateCommand implements Callable<Integer> {
     @Parameters(index = "0", description = "XML file(s) to validate", arity = "1..*")
     private File[] inputFiles;
     
-    @Option(names = {"--schema"}, description = "Schema version: D16B, D20B", defaultValue = "D16B")
+    @Option(names = {"--schema"}, description = "Schema version: D16B, D20B, D21B", defaultValue = "D16B")
     private String schemaVersion;
     
     @Option(names = {"-v", "--verbose"}, description = "Show detailed validation results")
@@ -30,17 +30,19 @@ public class ValidateCommand implements Callable<Integer> {
         int totalFiles = inputFiles.length;
         int validFiles = 0;
         
-        System.out.println("Validating " + totalFiles + " file(s) against " + schemaVersion + "...\n");
-        
+        SchemaVersion version = SchemaVersion.valueOf(schemaVersion.toUpperCase());
+        System.out.println("Validating " + totalFiles + " file(s) against " + version.getVersion() + "...\n");
+
         for (File file : inputFiles) {
             if (!file.exists()) {
                 System.err.println("File not found: " + file);
                 continue;
             }
-            
+
             System.out.println("Validating: " + file.getName());
-            
+
             try {
+                service.setSchemaVersion(version);
                 ValidationResult result = service.validateMessage(file);
                 
                 if (result.isValid()) {
