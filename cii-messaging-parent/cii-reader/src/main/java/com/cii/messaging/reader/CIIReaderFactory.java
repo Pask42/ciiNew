@@ -4,6 +4,11 @@ import com.cii.messaging.model.MessageType;
 import com.cii.messaging.reader.impl.DesadvReader;
 import com.cii.messaging.reader.impl.InvoiceReader;
 import com.cii.messaging.reader.impl.OrderResponseReader;
+import java.io.StringReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 public class CIIReaderFactory {
 
@@ -23,15 +28,28 @@ public class CIIReaderFactory {
     }
 
     public static CIIReader createReader(String xmlContent) throws CIIReaderException {
-        // Auto-detect message type from XML content
-        if (xmlContent.contains("CrossIndustryOrder")) {
-            return new com.cii.messaging.reader.impl.OrderReader();
-        } else if (xmlContent.contains("CrossIndustryInvoice")) {
-            return new InvoiceReader();
-        } else if (xmlContent.contains("CrossIndustryDespatchAdvice")) {
-            return new DesadvReader();
-        } else if (xmlContent.contains("CrossIndustryOrderResponse")) {
-            return new OrderResponseReader();
+        try {
+            XMLStreamReader reader = XMLInputFactory.newFactory()
+                    .createXMLStreamReader(new StringReader(xmlContent));
+            while (reader.hasNext()) {
+                if (reader.next() == XMLStreamConstants.START_ELEMENT) {
+                    String localName = reader.getLocalName();
+                    switch (localName) {
+                        case "CrossIndustryOrder":
+                            return new com.cii.messaging.reader.impl.OrderReader();
+                        case "CrossIndustryInvoice":
+                            return new InvoiceReader();
+                        case "CrossIndustryDespatchAdvice":
+                            return new DesadvReader();
+                        case "CrossIndustryOrderResponse":
+                            return new OrderResponseReader();
+                        default:
+                            throw new CIIReaderException("Unsupported message type: " + localName);
+                    }
+                }
+            }
+        } catch (XMLStreamException e) {
+            throw new CIIReaderException("Invalid XML content", e);
         }
         throw new CIIReaderException("Unable to detect message type from XML content");
     }
