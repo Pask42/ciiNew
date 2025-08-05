@@ -32,6 +32,11 @@
             <artifactId>Saxon-HE</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.helger</groupId>
+            <artifactId>ph-schematron</artifactId>
+            <version>${phax.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.helger.cii</groupId>
             <artifactId>ph-cii-d16b</artifactId>
         </dependency>
