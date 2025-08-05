@@ -3,7 +3,6 @@ package com.cii.messaging.cli;
 import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import picocli.CommandLine.*;
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -24,7 +23,6 @@ public class ParseCommand implements Callable<Integer> {
     private String format;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
-    private final ObjectMapper mapper = new ObjectMapper();
     
     @Override
     public Integer call() throws Exception {
