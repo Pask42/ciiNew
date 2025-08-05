@@ -100,6 +100,7 @@ public class InvoiceReader extends AbstractCIIReader {
     private DocumentHeader extractInvoiceHeader(Document doc) {
         return DocumentHeader.builder()
                 .documentNumber(extractTextContent(doc, "ID"))
+                .buyerReference(extractTextContent(doc, "BuyerReference"))
                 .documentDate(LocalDate.now()) // Simplified
                 .currency(extractTextContent(doc, "InvoiceCurrencyCode"))
                 .build();
