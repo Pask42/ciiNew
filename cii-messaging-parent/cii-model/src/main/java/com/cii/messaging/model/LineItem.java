@@ -22,4 +22,5 @@ public class LineItem {
     private BigDecimal lineAmount;
     private BigDecimal taxRate;
     private String taxCategory;
+    private String taxTypeCode;
 }
