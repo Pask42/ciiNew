@@ -2,6 +2,7 @@ package com.cii.messaging.service;
 
 import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.model.MessageType;
+import com.cii.messaging.validator.SchemaVersion;
 import com.cii.messaging.validator.ValidationResult;
 
 import java.io.File;
@@ -23,6 +24,7 @@ public interface CIIMessagingService {
     ValidationResult validateMessage(File xmlFile) throws ServiceException;
     ValidationResult validateMessage(String xmlContent) throws ServiceException;
     ValidationResult validateMessage(CIIMessage message) throws ServiceException;
+    void setSchemaVersion(SchemaVersion version);
     
     // Conversion operations
     String convertToJson(CIIMessage message) throws ServiceException;

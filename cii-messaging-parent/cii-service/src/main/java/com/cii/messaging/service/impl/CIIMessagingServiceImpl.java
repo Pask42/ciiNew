@@ -125,6 +125,11 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             throw new ServiceException("Failed to validate message", e);
         }
     }
+
+    @Override
+    public void setSchemaVersion(SchemaVersion version) {
+        validator.setSchemaVersion(version);
+    }
     
     @Override
     public String convertToJson(CIIMessage message) throws ServiceException {
