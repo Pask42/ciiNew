@@ -1,7 +1,7 @@
 package com.cii.messaging.service;
 
 import com.cii.messaging.model.CIIMessage;
-import com.cii.messaging.reader.OrderReader;
+import com.cii.messaging.reader.CIIReader;
 import com.cii.messaging.validator.MessageValidator;
 import com.cii.messaging.writer.InvoiceWriter;
 
@@ -10,11 +10,11 @@ import com.cii.messaging.writer.InvoiceWriter;
  */
 public class MessageService {
 
-    private final OrderReader reader;
+    private final CIIReader reader;
     private final InvoiceWriter writer;
     private final MessageValidator validator;
 
-    public MessageService(OrderReader reader, InvoiceWriter writer, MessageValidator validator) {
+    public MessageService(CIIReader reader, InvoiceWriter writer, MessageValidator validator) {
         this.reader = reader;
         this.writer = writer;
         this.validator = validator;
