@@ -36,20 +36,24 @@ public class SchematronValidator implements CIIValidator {
     public ValidationResult validate(InputStream inputStream) {
         long startTime = System.currentTimeMillis();
         ValidationResult.ValidationResultBuilder resultBuilder = ValidationResult.builder();
-        List<ValidationError> errors = new ArrayList<>();
-        List<ValidationWarning> warnings = new ArrayList<>();
-        
+
         try {
-            // For now, just perform basic validation
-            // Real Schematron validation would require proper XSLT setup
-            resultBuilder.valid(true);
-            resultBuilder.errors(errors);
-            resultBuilder.warnings(warnings);
-            resultBuilder.validatedAgainst("Schematron EN 16931 (simplified)");
+            if (schematronXslt == null) {
+                return createErrorResult("Schematron rules not loaded");
+            }
+
+            XsltTransformer transformer = schematronXslt.load();
+            transformer.setSource(new StreamSource(inputStream));
+            XdmDestination destination = new XdmDestination();
+            transformer.setDestination(destination);
+            transformer.transform();
+
+            parseSchematronResults(destination.getXdmNode(), resultBuilder);
+
+            resultBuilder.validatedAgainst("Schematron EN 16931");
             resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
-            
+
             return resultBuilder.build();
-            
         } catch (Exception e) {
             logger.error("Schematron validation failed", e);
             return createErrorResult("Validation error: " + e.getMessage());
@@ -73,48 +77,70 @@ public class SchematronValidator implements CIIValidator {
     }
     
     private void loadSchematronRules() {
-        // Simplified - in real implementation would load actual Schematron rules
-        logger.info("Loading Schematron rules for version: " + schemaVersion);
+        String resource = String.format("schematron/%s.xslt", schemaVersion.getVersion());
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
+            if (is == null) {
+                logger.error("Schematron resource not found: {}", resource);
+                schematronXslt = null;
+                return;
+            }
+            logger.info("Loading Schematron rules from {}", resource);
+            XsltCompiler compiler = processor.newXsltCompiler();
+            schematronXslt = compiler.compile(new StreamSource(is));
+        } catch (Exception e) {
+            logger.error("Failed to load Schematron rules", e);
+            schematronXslt = null;
+        }
     }
     
     private void parseSchematronResults(XdmNode resultNode, ValidationResult.ValidationResultBuilder builder) {
-        // Simplified implementation
         try {
             XPathCompiler xpathCompiler = processor.newXPathCompiler();
             xpathCompiler.declareNamespace("svrl", "http://purl.oclc.org/dsdl/svrl");
-            
-            // Create Saxon QName objects
+
             net.sf.saxon.s9api.QName testQName = new net.sf.saxon.s9api.QName("test");
             net.sf.saxon.s9api.QName locationQName = new net.sf.saxon.s9api.QName("location");
-            
-            // Check for failed assertions
+
             XPathSelector failedAssertions = xpathCompiler.compile("//svrl:failed-assert").load();
             failedAssertions.setContextItem(resultNode);
-            
+
             List<ValidationError> errors = new ArrayList<>();
-            boolean hasErrors = false;
-            
             for (XdmItem item : failedAssertions) {
-                hasErrors = true;
                 XdmNode assertion = (XdmNode) item;
-                
                 String test = assertion.getAttributeValue(testQName);
                 String location = assertion.getAttributeValue(locationQName);
                 String text = getTextContent(assertion);
-                
+
                 ValidationError error = ValidationError.builder()
                         .message(text)
                         .location(location)
                         .rule(test)
                         .severity(ValidationError.ErrorSeverity.ERROR)
                         .build();
-                
                 errors.add(error);
             }
-            
+
+            XPathSelector successfulReports = xpathCompiler.compile("//svrl:successful-report").load();
+            successfulReports.setContextItem(resultNode);
+            List<ValidationWarning> warnings = new ArrayList<>();
+            for (XdmItem item : successfulReports) {
+                XdmNode report = (XdmNode) item;
+                String test = report.getAttributeValue(testQName);
+                String location = report.getAttributeValue(locationQName);
+                String text = getTextContent(report);
+
+                ValidationWarning warning = ValidationWarning.builder()
+                        .message(text)
+                        .location(location)
+                        .rule(test)
+                        .build();
+                warnings.add(warning);
+            }
+
             builder.errors(errors);
-            builder.valid(!hasErrors);
-            
+            builder.warnings(warnings);
+            builder.valid(errors.isEmpty());
+
         } catch (Exception e) {
             logger.error("Failed to parse Schematron results", e);
         }
