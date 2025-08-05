@@ -1,0 +1,16 @@
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.idea/
+.settings/
+.classpath
+.project
+.DS_Store
+dist/
+release/
+test-data/
+*.log
+dependency-reduced-pom.xml

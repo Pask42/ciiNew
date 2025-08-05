@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.cii.messaging</groupId>
+		<artifactId>cii-messaging-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>cii-model</artifactId>
+	<packaging>jar</packaging>
+
+	<name>CII Model</name>
+	<description>Data models for CII messages</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.helger.cii</groupId>
+			<artifactId>ph-cii-d16b</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
+	<build>
+	  <plugins>
+	    <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>jaxb2-maven-plugin</artifactId>
+	      <version>3.3.0</version>
+	      <executions>
+	        <execution>
+	          <id>generate-jaxb-sources</id>
+	          <phase>generate-sources</phase>
+	          <goals>
+	            <goal>xjc</goal>
+	          </goals>
+	          <configuration>
+	            <sources>${basedir}/src/main/resources/xsd</sources>
+	            <packageName>com.helger.cii.d16b</packageName>
+			     <xjbSources>
+			      <!-- ici on pointe vers votre fichier bindings.xjb -->
+			      <xjbSource>${basedir}/src/main/resources/bindings/bindings.xjb</xjbSource>
+			    </xjbSources>
+	            <!-- Autoriser les extensions et désactiver la validation stricte -->
+		        <extension>true</extension>
+		        <arguments>
+		          <!-- -nv : non-validating without strict schema checking -->
+		          <argument>-nv</argument>
+		          <!-- résout automatiquement les collisions de noms -->
+          		  <argument>-XautoNameResolution</argument>
+		        </arguments>
+	          </configuration>
+	        </execution>
+	      </executions>
+	    </plugin>
+	
+	    <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>build-helper-maven-plugin</artifactId>
+	      <version>3.4.0</version>
+	      <executions>
+	        <execution>
+	          <id>add-jaxb-sources</id>
+	          <phase>generate-sources</phase>
+	          <goals><goal>add-source</goal></goals>
+	          <configuration>
+	            <sources>
+	              <source>${project.build.directory}/generated-sources/jaxb</source>
+	            </sources>
+	          </configuration>
+	        </execution>
+	      </executions>
+	    </plugin>
+	  </plugins>
+	</build>
+</project>
