@@ -164,6 +164,7 @@ class CIIIntegrationTest {
                 .header(DocumentHeader.builder()
                         .documentNumber("INV-2024-001")
                         .documentDate(LocalDate.now())
+                        .buyerReference("BR-REF-001")
                         .currency("EUR")
                         .paymentTerms(PaymentTerms.builder()
                                 .description("30 days net")

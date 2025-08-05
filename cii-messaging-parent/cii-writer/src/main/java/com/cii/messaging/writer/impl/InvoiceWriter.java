@@ -67,7 +67,14 @@ public class InvoiceWriter extends AbstractCIIWriter {
             root.setAttribute("xmlns:udt",
                     "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B");
             doc.appendChild(root);
-            
+
+            // Add ExchangedDocumentContext
+            Element docContext = doc.createElement("rsm:ExchangedDocumentContext");
+            Element guideline = doc.createElement("ram:GuidelineSpecifiedDocumentContextParameter");
+            addElement(doc, guideline, "ram:ID", "urn:cen.eu:en16931:2017");
+            docContext.appendChild(guideline);
+            root.appendChild(docContext);
+
             // Add ExchangedDocument
             Element exchangedDoc = doc.createElement("rsm:ExchangedDocument");
             root.appendChild(exchangedDoc);
@@ -97,30 +104,29 @@ public class InvoiceWriter extends AbstractCIIWriter {
             // Add header trade agreement
             Element headerAgreement = doc.createElement("ram:ApplicableHeaderTradeAgreement");
             transaction.appendChild(headerAgreement);
-            
-            if (message.getHeader() != null && message.getHeader().getBuyerReference() != null) {
-                addElement(doc, headerAgreement, "ram:BuyerReference", message.getHeader().getBuyerReference());
-            }
+
+            DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
+            addElement(doc, headerAgreement, "ram:BuyerReference",
+                    header.getBuyerReference() != null ? header.getBuyerReference() : "");
             
             // Add seller party
             Element sellerParty = doc.createElement("ram:SellerTradeParty");
-            addElement(doc, sellerParty, "ram:ID", message.getSenderPartyId());
+            addElement(doc, sellerParty, "ram:ID", message.getSenderPartyId() != null ? message.getSenderPartyId() : "");
             addElement(doc, sellerParty, "ram:Name", "Seller Company");
             headerAgreement.appendChild(sellerParty);
             
             // Add buyer party
             Element buyerParty = doc.createElement("ram:BuyerTradeParty");
-            addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId());
+            addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId() != null ? message.getReceiverPartyId() : "");
             addElement(doc, buyerParty, "ram:Name", "Buyer Company");
             headerAgreement.appendChild(buyerParty);
             
             // Add header trade settlement
             Element headerSettlement = doc.createElement("ram:ApplicableHeaderTradeSettlement");
             transaction.appendChild(headerSettlement);
-            
-            if (message.getHeader() != null && message.getHeader().getCurrency() != null) {
-                addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode", message.getHeader().getCurrency());
-            }
+
+            addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode",
+                    header.getCurrency() != null ? header.getCurrency() : "");
             
             // Add monetary summation
             if (message.getTotals() != null) {
