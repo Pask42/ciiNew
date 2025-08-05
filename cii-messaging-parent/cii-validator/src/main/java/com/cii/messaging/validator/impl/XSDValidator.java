@@ -78,10 +78,10 @@ public class XSDValidator implements CIIValidator {
         List<ValidationWarning> warnings = new ArrayList<>();
         
         try {
-            // For now, perform basic XML validation
-            // Real XSD validation would require loading actual XSD files
-            
-            // Simple well-formedness check
+            // Read the input so we can parse and validate with the same content
+            byte[] xmlBytes = inputStream.readAllBytes();
+
+            // Basic well-formedness and XXE protection
             javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -90,16 +90,27 @@ public class XSDValidator implements CIIValidator {
             factory.setXIncludeAware(false);
             factory.setExpandEntityReferences(false);
             javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.parse(inputStream);
-            
-            resultBuilder.valid(true);
+            builder.parse(new ByteArrayInputStream(xmlBytes));
+
+            Schema schema = getSchemaForVersion(schemaVersion);
+            Validator validator = schema.newValidator();
+            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+            ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
+            validator.setErrorHandler(handler);
+
+            Source source = new StreamSource(new ByteArrayInputStream(xmlBytes));
+            validator.validate(source);
+
+            resultBuilder.valid(!handler.hasErrors());
             resultBuilder.errors(errors);
             resultBuilder.warnings(warnings);
-            resultBuilder.validatedAgainst("XSD " + schemaVersion.getVersion() + " (simplified)");
+            resultBuilder.validatedAgainst("XSD " + schemaVersion.getVersion());
             resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
-            
+
             return resultBuilder.build();
-            
+
         } catch (Exception e) {
             logger.error("Validation failed", e);
             resultBuilder.valid(false);
@@ -114,14 +125,27 @@ public class XSDValidator implements CIIValidator {
             return resultBuilder.build();
         }
     }
-    
-    private Schema getSchemaForVersion(SchemaVersion version) throws SAXException {
-        // Simplified - would load real XSD in production
+
+    private Schema getSchemaForVersion(SchemaVersion version) throws SAXException, IOException {
         String key = version.getVersion();
-        if (!schemaCache.containsKey(key)) {
-            logger.warn("XSD schema not available for version: " + version.getVersion());
+        if (schemaCache.containsKey(key)) {
+            return schemaCache.get(key);
         }
-        return null;
+
+        String resourcePath = "/xsd/" + key.toLowerCase() + "/CrossIndustryInvoice.xsd";
+        InputStream xsdStream = XSDValidator.class.getResourceAsStream(resourcePath);
+        if (xsdStream == null) {
+            logger.warn("XSD schema not available for version: {}", version.getVersion());
+            throw new SAXException("XSD schema not found for version: " + version.getVersion());
+        }
+        try (InputStream is = xsdStream) {
+            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            Schema schema = factory.newSchema(new StreamSource(is));
+            schemaCache.put(key, schema);
+            return schema;
+        }
     }
     
     private static class ValidationErrorHandler implements ErrorHandler {
