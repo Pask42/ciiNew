@@ -135,7 +135,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
     @Override
     public String convertToJson(CIIMessage message) throws ServiceException {
         try {
-            return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
+            return jsonMapper.writeValueAsString(message);
         } catch (Exception e) {
             throw new ServiceException("Failed to convert message to JSON", e);
         }
