@@ -147,6 +147,8 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             // Ensure message type is set correctly
             if (message.getMessageType() == null) {
                 message.setMessageType(messageType);
+            } else if (message.getMessageType() != messageType) {
+                throw new ServiceException("Message type mismatch: expected " + messageType + " but found " + message.getMessageType());
             }
             return message;
         } catch (Exception e) {
