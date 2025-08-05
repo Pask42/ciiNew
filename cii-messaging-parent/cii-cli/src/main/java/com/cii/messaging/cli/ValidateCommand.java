@@ -7,6 +7,7 @@ import picocli.CommandLine.*;
 import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.List;
+import java.util.Arrays;
 
 @Command(
     name = "validate",
@@ -30,7 +31,13 @@ public class ValidateCommand implements Callable<Integer> {
         int totalFiles = inputFiles.length;
         int validFiles = 0;
         
-        SchemaVersion version = SchemaVersion.valueOf(schemaVersion.toUpperCase());
+        SchemaVersion version;
+        try {
+            version = SchemaVersion.valueOf(schemaVersion.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid schema version: " + schemaVersion + ". Allowed values: " + Arrays.toString(SchemaVersion.values()));
+            return 1;
+        }
         System.out.println("Validating " + totalFiles + " file(s) against " + version.getVersion() + "...\n");
 
         for (File file : inputFiles) {
