@@ -3,7 +3,7 @@ package com.cii.messaging.service;
 import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.reader.CIIReader;
 import com.cii.messaging.validator.MessageValidator;
-import com.cii.messaging.writer.InvoiceWriter;
+import com.cii.messaging.writer.CIIWriter;
 
 /**
  * Facade for generating, parsing and validating CII messages.
@@ -11,10 +11,10 @@ import com.cii.messaging.writer.InvoiceWriter;
 public class MessageService {
 
     private final CIIReader reader;
-    private final InvoiceWriter writer;
+    private final CIIWriter writer;
     private final MessageValidator validator;
 
-    public MessageService(CIIReader reader, InvoiceWriter writer, MessageValidator validator) {
+    public MessageService(CIIReader reader, CIIWriter writer, MessageValidator validator) {
         this.reader = reader;
         this.writer = writer;
         this.validator = validator;
@@ -29,7 +29,7 @@ public class MessageService {
      */
     public String generate(CIIMessage message) throws Exception {
         validator.validate(message);
-        return writer.write(message);
+        return writer.writeToString(message);
     }
 
     /**
