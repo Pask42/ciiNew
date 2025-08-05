@@ -196,8 +196,9 @@ public class InvoiceWriter extends AbstractCIIWriter {
         
         // Line settlement
         Element lineSettlement = doc.createElement("ram:SpecifiedLineTradeSettlement");
-        if (lineItem.getTaxRate() != null || lineItem.getTaxCategory() != null) {
+        if (lineItem.getTaxRate() != null || lineItem.getTaxCategory() != null || lineItem.getTaxTypeCode() != null) {
             Element tradeTax = doc.createElement("ram:ApplicableTradeTax");
+            addElement(doc, tradeTax, "ram:TypeCode", lineItem.getTaxTypeCode());
             addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate());
             addElement(doc, tradeTax, "ram:CategoryCode", lineItem.getTaxCategory());
             lineSettlement.appendChild(tradeTax);

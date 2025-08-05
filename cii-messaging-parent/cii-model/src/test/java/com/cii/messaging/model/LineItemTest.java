@@ -20,6 +20,7 @@ class LineItemTest {
                 .lineAmount(new BigDecimal("20"))
                 .taxRate(new BigDecimal("0.2"))
                 .taxCategory("VAT")
+                .taxTypeCode("VAT")
                 .build();
 
         assertEquals("1", item.getLineNumber());
@@ -31,6 +32,7 @@ class LineItemTest {
         assertEquals(new BigDecimal("20"), item.getLineAmount());
         assertEquals(new BigDecimal("0.2"), item.getTaxRate());
         assertEquals("VAT", item.getTaxCategory());
+        assertEquals("VAT", item.getTaxTypeCode());
     }
 
     @Test
@@ -45,6 +47,7 @@ class LineItemTest {
                 .lineAmount(new BigDecimal("20"))
                 .taxRate(new BigDecimal("0.2"))
                 .taxCategory("VAT")
+                .taxTypeCode("VAT")
                 .build();
 
         LineItem item2 = LineItem.builder()
@@ -57,6 +60,7 @@ class LineItemTest {
                 .lineAmount(new BigDecimal("20"))
                 .taxRate(new BigDecimal("0.2"))
                 .taxCategory("VAT")
+                .taxTypeCode("VAT")
                 .build();
 
         LineItem item3 = LineItem.builder()
@@ -69,6 +73,7 @@ class LineItemTest {
                 .lineAmount(new BigDecimal("15"))
                 .taxRate(new BigDecimal("0.1"))
                 .taxCategory("VAT")
+                .taxTypeCode("VAT")
                 .build();
 
         assertEquals(item1, item2);

@@ -127,6 +127,9 @@ public class InvoiceReader extends AbstractCIIReader {
                 .unitCode("EA") // Default
                 .unitPrice(parseBigDecimal(extractTextContent(lineElement, "ChargeAmount")))
                 .lineAmount(parseBigDecimal(extractTextContent(lineElement, "LineTotalAmount")))
+                .taxCategory(extractTextContent(lineElement, "CategoryCode"))
+                .taxRate(parseBigDecimal(extractTextContent(lineElement, "RateApplicablePercent")))
+                .taxTypeCode(extractTextContent(lineElement, "TypeCode"))
                 .build();
     }
     
