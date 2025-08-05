@@ -7,6 +7,7 @@ import com.cii.messaging.validator.ValidationResult;
 import org.junit.jupiter.api.*;
 import java.io.File;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -121,14 +122,36 @@ class CIIIntegrationTest {
                 </rsm:ExchangedDocument>
             </rsm:CrossIndustryInvoice>
             """;
-        
+
         File invalidFile = tempDir.resolve("invalid.xml").toFile();
-        Files.writeString(invalidFile.toPath(), invalidXml);
-        
+        Files.writeString(invalidFile.toPath(), invalidXml, StandardCharsets.UTF_8);
+
         ValidationResult result = service.validateMessage(invalidFile);
-        
+
         assertThat(result.isValid()).isFalse();
         assertThat(result.hasErrors()).isTrue();
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Handle non-ASCII characters")
+    void testNonAsciiCharacters() throws Exception {
+        CIIMessage original = createSampleInvoice();
+        original.getLineItems().get(0).setDescription("Täst Prödüct – Größe");
+
+        File xmlFile = tempDir.resolve("unicode.xml").toFile();
+        service.writeMessage(original, xmlFile);
+        CIIMessage read = service.readMessage(xmlFile);
+        assertThat(read.getLineItems().get(0).getDescription())
+                .isEqualTo("Täst Prödüct – Größe");
+
+        String json = service.convertToJson(original);
+        File jsonFile = tempDir.resolve("unicode.json").toFile();
+        Files.writeString(jsonFile.toPath(), json, StandardCharsets.UTF_8);
+        String jsonContent = Files.readString(jsonFile.toPath(), StandardCharsets.UTF_8);
+        CIIMessage fromJson = service.convertFromJson(jsonContent, MessageType.INVOICE);
+        assertThat(fromJson.getLineItems().get(0).getDescription())
+                .isEqualTo("Täst Prödüct – Größe");
     }
     
     private CIIMessage createSampleInvoice() {

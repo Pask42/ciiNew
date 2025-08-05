@@ -70,7 +70,8 @@ public class GenerateCommand implements Callable<Integer> {
         // Write output
         if ("JSON".equalsIgnoreCase(format)) {
             String json = service.convertToJson(message);
-            java.nio.file.Files.write(outputFile.toPath(), json.getBytes());
+            java.nio.file.Files.writeString(outputFile.toPath(), json,
+                    java.nio.charset.StandardCharsets.UTF_8);
         } else {
             service.writeMessage(message, outputFile);
         }
