@@ -28,9 +28,13 @@ public class CIIReaderFactory {
     }
 
     public static CIIReader createReader(String xmlContent) throws CIIReaderException {
+        XMLInputFactory factory = XMLInputFactory.newFactory();
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        factory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
+
+        XMLStreamReader reader = null;
         try {
-            XMLStreamReader reader = XMLInputFactory.newFactory()
-                    .createXMLStreamReader(new StringReader(xmlContent));
+            reader = factory.createXMLStreamReader(new StringReader(xmlContent));
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamConstants.START_ELEMENT) {
                     String localName = reader.getLocalName();
@@ -50,6 +54,14 @@ public class CIIReaderFactory {
             }
         } catch (XMLStreamException e) {
             throw new CIIReaderException("Invalid XML content", e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (XMLStreamException e) {
+                    // ignore
+                }
+            }
         }
         throw new CIIReaderException("Unable to detect message type from XML content");
     }
