@@ -56,11 +56,16 @@ public class InvoiceWriter extends AbstractCIIWriter {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.newDocument();
             
-            // Create root element
-            Element root = doc.createElementNS("urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100", "rsm:CrossIndustryInvoice");
-            root.setAttribute("xmlns:rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100");
-            root.setAttribute("xmlns:ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100");
-            root.setAttribute("xmlns:udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100");
+            // Create root element for D16B namespace
+            Element root = doc.createElementNS(
+                    "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B",
+                    "rsm:CrossIndustryInvoice");
+            root.setAttribute("xmlns:rsm",
+                    "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B");
+            root.setAttribute("xmlns:ram",
+                    "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B");
+            root.setAttribute("xmlns:udt",
+                    "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B");
             doc.appendChild(root);
             
             // Add ExchangedDocument

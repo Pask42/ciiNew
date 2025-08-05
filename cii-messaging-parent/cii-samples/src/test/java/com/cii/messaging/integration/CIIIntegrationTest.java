@@ -116,7 +116,7 @@ class CIIIntegrationTest {
     void testValidationWithErrors() throws Exception {
         String invalidXml = """
             <?xml version="1.0" encoding="UTF-8"?>
-            <rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100">
+            <rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B">
                 <rsm:ExchangedDocument>
                     <!-- Missing required elements -->
                 </rsm:ExchangedDocument>

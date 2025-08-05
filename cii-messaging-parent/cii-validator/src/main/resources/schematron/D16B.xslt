@@ -2,8 +2,8 @@
 <xsl:stylesheet version="2.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:svrl="http://purl.oclc.org/dsdl/svrl"
-    xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
-    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100">
+    xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B"
+    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B">
   <xsl:output method="xml" indent="yes"/>
   <xsl:template match="/">
     <svrl:schematron-output>

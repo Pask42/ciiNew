@@ -24,8 +24,8 @@ class SchematronValidatorTest {
     @Test
     void missingIdAndLineItemProducesWarningAndError() {
         String xml = """
-                <rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100\"
-                    xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100\">
+                <rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B\"
+                    xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B\">
                     <rsm:ExchangedDocument/>
                     <rsm:SupplyChainTradeTransaction/>
                 </rsm:CrossIndustryInvoice>
