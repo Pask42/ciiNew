@@ -2,6 +2,8 @@ package com.cii.messaging.validator.impl;
 
 import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.validator.*;
+import com.cii.messaging.writer.CIIWriter;
+import com.cii.messaging.writer.CIIWriterFactory;
 import net.sf.saxon.s9api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +66,25 @@ public class SchematronValidator implements CIIValidator {
     public ValidationResult validate(String xmlContent) {
         return validate(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
     }
-    
+
     @Override
     public ValidationResult validate(CIIMessage message) {
-        throw new UnsupportedOperationException("Direct CIIMessage validation not implemented");
+        try {
+            CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
+            String xml = writer.writeToString(message);
+            return validate(xml);
+        } catch (Exception e) {
+            ValidationError error = ValidationError.builder()
+                    .message("Failed to serialize message: " + e.getMessage())
+                    .severity(ValidationError.ErrorSeverity.FATAL)
+                    .build();
+            List<ValidationError> errors = new ArrayList<>();
+            errors.add(error);
+            return ValidationResult.builder()
+                    .valid(false)
+                    .errors(errors)
+                    .build();
+        }
     }
     
     @Override

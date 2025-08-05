@@ -3,6 +3,9 @@ package com.cii.messaging.validator.impl;
 import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.model.MessageType;
 import com.cii.messaging.validator.*;
+import com.cii.messaging.writer.CIIWriter;
+import com.cii.messaging.writer.CIIWriterException;
+import com.cii.messaging.writer.CIIWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
@@ -62,8 +65,23 @@ public class XSDValidator implements CIIValidator {
     
     @Override
     public ValidationResult validate(CIIMessage message) {
-        // This would require writing the message to XML first
-        throw new UnsupportedOperationException("Direct CIIMessage validation not yet implemented");
+        try {
+            CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
+            String xml = writer.writeToString(message);
+            return validate(xml);
+        } catch (Exception e) {
+            ValidationError error = ValidationError.builder()
+                    .message("Failed to serialize message: " + e.getMessage())
+                    .severity(ValidationError.ErrorSeverity.FATAL)
+                    .build();
+            List<ValidationError> errors = new ArrayList<>();
+            errors.add(error);
+            return ValidationResult.builder()
+                    .valid(false)
+                    .errors(errors)
+                    .validatedAgainst("XSD " + schemaVersion.getVersion())
+                    .build();
+        }
     }
     
     @Override
