@@ -127,12 +127,27 @@ public class InvoiceWriter extends AbstractCIIWriter {
 
             addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode",
                     header.getCurrency() != null ? header.getCurrency() : "");
-            
+
+            if (header.getPaymentTerms() != null) {
+                PaymentTerms terms = header.getPaymentTerms();
+                Element paymentTerms = doc.createElement("ram:SpecifiedTradeSettlementPaymentTerms");
+                addElement(doc, paymentTerms, "ram:Description", terms.getDescription());
+                if (terms.getDueDate() != null) {
+                    Element dueDate = doc.createElement("ram:DueDateDateTime");
+                    Element dateTime = doc.createElement("udt:DateTimeString");
+                    dateTime.setAttribute("format", "102");
+                    dateTime.setTextContent(terms.getDueDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+                    dueDate.appendChild(dateTime);
+                    paymentTerms.appendChild(dueDate);
+                }
+                headerSettlement.appendChild(paymentTerms);
+            }
+
             // Add monetary summation
             if (message.getTotals() != null) {
                 Element monetarySummation = doc.createElement("ram:SpecifiedTradeSettlementHeaderMonetarySummation");
                 headerSettlement.appendChild(monetarySummation);
-                
+
                 addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount());
                 addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount());
                 addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount());
@@ -181,6 +196,12 @@ public class InvoiceWriter extends AbstractCIIWriter {
         
         // Line settlement
         Element lineSettlement = doc.createElement("ram:SpecifiedLineTradeSettlement");
+        if (lineItem.getTaxRate() != null || lineItem.getTaxCategory() != null) {
+            Element tradeTax = doc.createElement("ram:ApplicableTradeTax");
+            addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate());
+            addElement(doc, tradeTax, "ram:CategoryCode", lineItem.getTaxCategory());
+            lineSettlement.appendChild(tradeTax);
+        }
         Element lineMonetarySummation = doc.createElement("ram:SpecifiedTradeSettlementLineMonetarySummation");
         addAmountElement(doc, lineMonetarySummation, "ram:LineTotalAmount", lineItem.getLineAmount());
         lineSettlement.appendChild(lineMonetarySummation);

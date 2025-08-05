@@ -181,6 +181,7 @@ class CIIIntegrationTest {
                                 .unitPrice(new BigDecimal("100.00"))
                                 .lineAmount(new BigDecimal("1000.00"))
                                 .taxRate(new BigDecimal("20"))
+                                .taxCategory("S")
                                 .build()
                 ))
                 .totals(TotalsInformation.builder()
