@@ -15,6 +15,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -326,8 +327,8 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
                 if (item.getTaxRate() != null) {
                     BigDecimal tax = item.getLineAmount()
                             .multiply(item.getTaxRate())
-                            .divide(BigDecimal.valueOf(100));
-                    taxTotal = taxTotal.add(tax);
+                            .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                    taxTotal = taxTotal.add(tax).setScale(2, RoundingMode.HALF_UP);
                 }
             }
         }
