@@ -43,7 +43,8 @@ public class MessageValidator {
         Processor processor = new Processor(false);
         XsltTransformer transformer = schematronXslt.load();
         transformer.setSource(new StreamSource(new StringReader(xml)));
-        transformer.setDestination(new Serializer(new NullWriter()));
+        Serializer serializer = processor.newSerializer(new NullWriter());
+        transformer.setDestination(serializer);
         transformer.transform();
     }
 
