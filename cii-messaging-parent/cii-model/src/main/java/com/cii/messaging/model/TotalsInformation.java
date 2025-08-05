@@ -1,11 +1,17 @@
 package com.cii.messaging.model;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.jackson.Jacksonized;
 import java.math.BigDecimal;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Jacksonized
 public class TotalsInformation {
     private BigDecimal lineTotalAmount;
     private BigDecimal taxBasisAmount;
