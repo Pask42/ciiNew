@@ -22,9 +22,10 @@
 		<jakarta.xml.bind.version>4.0.1</jakarta.xml.bind.version>
 		<jaxb-runtime.version>4.0.3</jaxb-runtime.version>
 		<jaxb-impl.version>4.0.4</jaxb-impl.version>
-		<mustang.version>2.18.0</mustang.version>
-		<phax.version>3.1.0</phax.version>
-		<xerces.version>2.12.2</xerces.version>
+                <mustang.version>2.18.0</mustang.version>
+                <ph-schematron.version>5.6.5</ph-schematron.version>
+                <ph-cii.version>3.1.0</ph-cii.version>
+                <xerces.version>2.12.2</xerces.version>
 		<saxon.version>12.3</saxon.version>
 		<junit.version>5.10.1</junit.version>
 		<jackson.version>2.16.0</jackson.version>
@@ -64,17 +65,17 @@
 				<version>${mustang.version}</version>
 			</dependency>
 
-			<!-- Phax for CII/UBL conversion -->
-			<dependency>
-				<groupId>com.helger.cii</groupId>
-				<artifactId>ph-cii-d16b</artifactId>
-				<version>${phax.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.helger.cii</groupId>
-				<artifactId>ph-cii-d20b</artifactId>
-				<version>${phax.version}</version>
-			</dependency>
+                        <!-- ph-cii for CII/UBL conversion -->
+                        <dependency>
+                                <groupId>com.helger.cii</groupId>
+                                <artifactId>ph-cii-d16b</artifactId>
+                                <version>${ph-cii.version}</version>
+                        </dependency>
+                        <dependency>
+                                <groupId>com.helger.cii</groupId>
+                                <artifactId>ph-cii-d20b</artifactId>
+                                <version>${ph-cii.version}</version>
+                        </dependency>
 
 			<!-- XML Processing -->
 			<dependency>

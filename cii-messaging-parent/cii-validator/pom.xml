@@ -39,15 +39,17 @@
         <dependency>
             <groupId>com.helger</groupId>
             <artifactId>ph-schematron</artifactId>
-            <version>${phax.version}</version>
+            <version>${ph-schematron.version}</version>
         </dependency>
         <dependency>
             <groupId>com.helger.cii</groupId>
             <artifactId>ph-cii-d16b</artifactId>
+            <version>${ph-cii.version}</version>
         </dependency>
 <!--        <dependency>
             <groupId>com.helger.cii</groupId>
             <artifactId>ph-cii-d20b</artifactId>
+            <version>${ph-cii.version}</version>
         </dependency>-->
         <dependency>
             <groupId>org.slf4j</groupId>
