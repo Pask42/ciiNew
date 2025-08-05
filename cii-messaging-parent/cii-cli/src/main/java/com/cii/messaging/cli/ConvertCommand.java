@@ -42,6 +42,11 @@ public class ConvertCommand implements Callable<Integer> {
         try {
             String inputContent = Files.readString(inputFile.toPath(), StandardCharsets.UTF_8);
             boolean isInputJson = inputContent.trim().startsWith("{");
+
+            java.io.File parent = outputFile.getParentFile();
+            if (parent != null) {
+                parent.mkdirs();
+            }
             
             if ("JSON".equalsIgnoreCase(targetFormat)) {
                 if (isInputJson) {

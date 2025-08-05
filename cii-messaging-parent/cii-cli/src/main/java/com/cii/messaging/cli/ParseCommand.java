@@ -44,6 +44,10 @@ public class ParseCommand implements Callable<Integer> {
             }
             
             if (outputFile != null) {
+                java.io.File parent = outputFile.getParentFile();
+                if (parent != null) {
+                    parent.mkdirs();
+                }
                 java.nio.file.Files.writeString(outputFile.toPath(), output,
                         java.nio.charset.StandardCharsets.UTF_8);
                 System.out.println("Output saved to: " + outputFile.getAbsolutePath());

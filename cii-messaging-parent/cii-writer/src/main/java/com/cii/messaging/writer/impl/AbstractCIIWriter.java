@@ -28,9 +28,13 @@ public abstract class AbstractCIIWriter implements CIIWriter {
     
     protected abstract void initializeJAXBContext() throws JAXBException;
     protected abstract Object createDocument(CIIMessage message) throws CIIWriterException;
-    
+
     @Override
     public void write(CIIMessage message, File outputFile) throws CIIWriterException {
+        java.io.File parent = outputFile.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
         try (OutputStream os = new FileOutputStream(outputFile)) {
             write(message, os);
         } catch (IOException e) {
