@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +20,12 @@ public class BusinessRulesValidator implements CIIValidator {
 
     @Override
     public ValidationResult validate(File xmlFile) {
-        // Implement business rules validation
-        return ValidationResult.builder()
-                .valid(true)
-                .validatedAgainst("Business Rules")
-                .build();
+        try (InputStream is = Files.newInputStream(xmlFile.toPath())) {
+            String xmlContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return validate(xmlContent);
+        } catch (IOException e) {
+            return buildFatalResult("Failed to read XML from file: " + e.getMessage());
+        }
     }
 
     @Override
