@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -112,8 +114,12 @@ public class XSDValidator implements CIIValidator {
 
             Schema schema = getSchemaForVersion(schemaVersion);
             Validator validator = schema.newValidator();
-            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            try {
+                validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+                logger.warn("Validator property not supported", e);
+            }
 
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
             validator.setErrorHandler(handler);
