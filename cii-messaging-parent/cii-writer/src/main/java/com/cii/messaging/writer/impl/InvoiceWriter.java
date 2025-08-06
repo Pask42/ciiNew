@@ -164,11 +164,11 @@ public class InvoiceWriter extends AbstractCIIWriter {
                 Element monetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementHeaderMonetarySummation");
                 headerSettlement.appendChild(monetarySummation);
 
-                addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount(), header.getCurrency());
-                addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount(), header.getCurrency());
-                addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount(), header.getCurrency());
-                addAmountElement(doc, monetarySummation, "ram:GrandTotalAmount", message.getTotals().getGrandTotalAmount(), header.getCurrency());
-                addAmountElement(doc, monetarySummation, "ram:DuePayableAmount", message.getTotals().getDuePayableAmount(), header.getCurrency());
+            addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount(), header.getCurrency(), false);
+                addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount(), header.getCurrency(), false);
+                addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount(), header.getCurrency(), true);
+                addAmountElement(doc, monetarySummation, "ram:GrandTotalAmount", message.getTotals().getGrandTotalAmount(), header.getCurrency(), false);
+                addAmountElement(doc, monetarySummation, "ram:DuePayableAmount", message.getTotals().getDuePayableAmount(), header.getCurrency(), false);
             }
             
             return doc;
@@ -245,7 +245,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
         // Line agreement
         Element lineAgreement = createElement(doc, "ram:SpecifiedLineTradeAgreement");
         Element priceDetails = createElement(doc, "ram:NetPriceProductTradePrice");
-        addAmountElement(doc, priceDetails, "ram:ChargeAmount", lineItem.getUnitPrice(), currency);
+        addAmountElement(doc, priceDetails, "ram:ChargeAmount", lineItem.getUnitPrice(), currency, false);
         lineAgreement.appendChild(priceDetails);
         lineElement.appendChild(lineAgreement);
         
@@ -262,12 +262,12 @@ public class InvoiceWriter extends AbstractCIIWriter {
         if (lineItem.getTaxRate() != null || lineItem.getTaxCategory() != null || lineItem.getTaxTypeCode() != null) {
             Element tradeTax = createElement(doc, "ram:ApplicableTradeTax");
             addElement(doc, tradeTax, "ram:TypeCode", lineItem.getTaxTypeCode());
-            addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate(), null);
+            addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate(), null, false);
             addElement(doc, tradeTax, "ram:CategoryCode", lineItem.getTaxCategory());
             lineSettlement.appendChild(tradeTax);
         }
         Element lineMonetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementLineMonetarySummation");
-        addAmountElement(doc, lineMonetarySummation, "ram:LineTotalAmount", lineItem.getLineAmount(), currency);
+        addAmountElement(doc, lineMonetarySummation, "ram:LineTotalAmount", lineItem.getLineAmount(), currency, false);
         lineSettlement.appendChild(lineMonetarySummation);
         lineElement.appendChild(lineSettlement);
         
@@ -283,14 +283,14 @@ public class InvoiceWriter extends AbstractCIIWriter {
 
     @Override
     protected void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
-        addAmountElement(doc, parent, name, amount, null);
+        addAmountElement(doc, parent, name, amount, null, false);
     }
 
-    private void addAmountElement(Document doc, Element parent, String name, BigDecimal amount, String currency) {
+    private void addAmountElement(Document doc, Element parent, String name, BigDecimal amount, String currency, boolean withCurrency) {
         if (amount != null && amount.compareTo(BigDecimal.ZERO) != 0) {
             Element element = createElement(doc, name);
             element.setTextContent(amount.toPlainString());
-            if (currency != null && !currency.isBlank()) {
+            if (withCurrency && currency != null && !currency.isBlank()) {
                 element.setAttribute("currencyID", currency);
             }
             parent.appendChild(element);
