@@ -7,6 +7,7 @@ import com.cii.messaging.reader.impl.OrderReader;
 import com.cii.messaging.reader.impl.OrderResponseReader;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXParseException;
+import javax.xml.stream.XMLStreamException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -68,5 +69,11 @@ public class XXEReaderTest {
         File file = createTempXml();
         CIIReaderException ex = assertThrows(CIIReaderException.class, () -> reader.read(file));
         assertTrue(ex.getCause() instanceof SAXParseException);
+    }
+
+    @Test
+    void factoryRejectsExternalEntities() {
+        CIIReaderException ex = assertThrows(CIIReaderException.class, () -> CIIReaderFactory.createReader(XXE));
+        assertTrue(ex.getCause() instanceof XMLStreamException);
     }
 }
