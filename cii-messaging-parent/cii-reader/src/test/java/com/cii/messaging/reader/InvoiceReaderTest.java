@@ -1,6 +1,7 @@
 package com.cii.messaging.reader;
 
 import com.cii.messaging.model.CIIMessage;
+import com.cii.messaging.model.Address;
 import com.cii.messaging.reader.impl.InvoiceReader;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class InvoiceReaderTest {
 
     @Test
-    void extractsTaxBasisAmount() throws Exception {
+    void extractsTradePartiesAndTotals() throws Exception {
         InvoiceReader reader = new InvoiceReader();
         URL resource = getClass().getResource("/invoice-sample.xml");
         assertNotNull(resource);
@@ -21,5 +22,15 @@ public class InvoiceReaderTest {
         CIIMessage message = reader.read(file);
         assertNotNull(message.getTotals());
         assertEquals(new BigDecimal("15000.00"), message.getTotals().getTaxBasisAmount());
+        assertNotNull(message.getSeller());
+        assertEquals("Seller Company GmbH", message.getSeller().getName());
+        Address sellerAddr = message.getSeller().getAddress();
+        assertNotNull(sellerAddr);
+        assertEquals("Berlin", sellerAddr.getCity());
+        assertNotNull(message.getSeller().getContact());
+        assertEquals("DE123456789", message.getSeller().getTaxRegistration().getId());
+        assertNotNull(message.getBuyer());
+        assertEquals("Buyer Company SAS", message.getBuyer().getName());
+        assertEquals("Paris", message.getBuyer().getAddress().getCity());
     }
 }

@@ -19,6 +19,8 @@ public class CIIMessage {
     private LocalDateTime creationDateTime;
     private String senderPartyId;
     private String receiverPartyId;
+    private TradeParty seller;
+    private TradeParty buyer;
     private DocumentHeader header;
     private List<LineItem> lineItems;
     private TotalsInformation totals;

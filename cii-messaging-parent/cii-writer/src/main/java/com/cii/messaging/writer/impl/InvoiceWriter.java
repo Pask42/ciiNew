@@ -110,18 +110,16 @@ public class InvoiceWriter extends AbstractCIIWriter {
             Element headerAgreement = createElement(doc, "ram:ApplicableHeaderTradeAgreement");
             transaction.appendChild(headerAgreement);
             addElement(doc, headerAgreement, "ram:BuyerReference", header.getBuyerReference());
-            
+
             // Add seller party
-            Element sellerParty = createElement(doc, "ram:SellerTradeParty");
-            addElement(doc, sellerParty, "ram:ID", message.getSenderPartyId());
-            addElement(doc, sellerParty, "ram:Name", "Seller Company");
-            headerAgreement.appendChild(sellerParty);
-            
+            if (message.getSeller() != null) {
+                headerAgreement.appendChild(createTradePartyElement(doc, "ram:SellerTradeParty", message.getSeller()));
+            }
+
             // Add buyer party
-            Element buyerParty = createElement(doc, "ram:BuyerTradeParty");
-            addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId());
-            addElement(doc, buyerParty, "ram:Name", "Buyer Company");
-            headerAgreement.appendChild(buyerParty);
+            if (message.getBuyer() != null) {
+                headerAgreement.appendChild(createTradePartyElement(doc, "ram:BuyerTradeParty", message.getBuyer()));
+            }
 
             // Add header trade delivery
             if (header.getDelivery() != null) {
@@ -179,7 +177,54 @@ public class InvoiceWriter extends AbstractCIIWriter {
             throw new CIIWriterException("Failed to create invoice document", e);
         }
     }
-    
+
+    private Element createTradePartyElement(Document doc, String tagName, TradeParty party) {
+        Element partyElement = createElement(doc, tagName);
+        addElement(doc, partyElement, "ram:ID", party.getId());
+        addElement(doc, partyElement, "ram:Name", party.getName());
+
+        if (party.getContact() != null) {
+            Contact contact = party.getContact();
+            Element contactEl = createElement(doc, "ram:DefinedTradeContact");
+            addElement(doc, contactEl, "ram:PersonName", contact.getName());
+            if (contact.getTelephone() != null) {
+                Element phone = createElement(doc, "ram:TelephoneUniversalCommunication");
+                addElement(doc, phone, "ram:CompleteNumber", contact.getTelephone());
+                contactEl.appendChild(phone);
+            }
+            if (contact.getEmail() != null) {
+                Element email = createElement(doc, "ram:EmailURIUniversalCommunication");
+                addElement(doc, email, "ram:URIID", contact.getEmail());
+                contactEl.appendChild(email);
+            }
+            partyElement.appendChild(contactEl);
+        }
+
+        if (party.getAddress() != null) {
+            Address addr = party.getAddress();
+            Element addrEl = createElement(doc, "ram:PostalTradeAddress");
+            addElement(doc, addrEl, "ram:PostcodeCode", addr.getPostalCode());
+            addElement(doc, addrEl, "ram:LineOne", addr.getStreet());
+            addElement(doc, addrEl, "ram:CityName", addr.getCity());
+            addElement(doc, addrEl, "ram:CountryID", addr.getCountryCode());
+            partyElement.appendChild(addrEl);
+        }
+
+        if (party.getTaxRegistration() != null) {
+            TaxRegistration reg = party.getTaxRegistration();
+            Element regEl = createElement(doc, "ram:SpecifiedTaxRegistration");
+            Element idEl = createElement(doc, "ram:ID");
+            if (reg.getSchemeId() != null && !reg.getSchemeId().isBlank()) {
+                idEl.setAttribute("schemeID", reg.getSchemeId());
+            }
+            idEl.setTextContent(reg.getId());
+            regEl.appendChild(idEl);
+            partyElement.appendChild(regEl);
+        }
+
+        return partyElement;
+    }
+
     private Element createLineItemElement(Document doc, LineItem lineItem, String currency) {
         Element lineElement = createElement(doc, "ram:IncludedSupplyChainTradeLineItem");
         

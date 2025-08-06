@@ -71,6 +71,41 @@ class CIIMessageTest {
                 .build();
     }
 
+    private TradeParty sampleSeller() {
+        return TradeParty.builder()
+                .id("SENDER")
+                .name("Seller")
+                .address(Address.builder()
+                        .street("1 Seller St")
+                        .city("Sellertown")
+                        .postalCode("1000")
+                        .countryCode("US")
+                        .build())
+                .contact(Contact.builder()
+                        .name("Alice Seller")
+                        .telephone("+1 555 0100")
+                        .email("alice@seller.test")
+                        .build())
+                .taxRegistration(TaxRegistration.builder()
+                        .schemeId("VA")
+                        .id("SENDER-TAX")
+                        .build())
+                .build();
+    }
+
+    private TradeParty sampleBuyer() {
+        return TradeParty.builder()
+                .id("RECEIVER")
+                .name("Buyer")
+                .address(Address.builder()
+                        .street("9 Buyer Ave")
+                        .city("Buyerville")
+                        .postalCode("2000")
+                        .countryCode("US")
+                        .build())
+                .build();
+    }
+
     @Test
     void builderShouldSetFields() {
         DocumentHeader header = sampleHeader();
@@ -84,6 +119,8 @@ class CIIMessageTest {
                 .creationDateTime(timestamp)
                 .senderPartyId("SENDER")
                 .receiverPartyId("RECEIVER")
+                .seller(sampleSeller())
+                .buyer(sampleBuyer())
                 .header(header)
                 .lineItems(List.of(lineItem))
                 .totals(totals)
@@ -94,6 +131,8 @@ class CIIMessageTest {
         assertEquals(timestamp, message.getCreationDateTime());
         assertEquals("SENDER", message.getSenderPartyId());
         assertEquals("RECEIVER", message.getReceiverPartyId());
+        assertEquals("Seller", message.getSeller().getName());
+        assertEquals("Buyer", message.getBuyer().getName());
         assertEquals(header, message.getHeader());
         assertEquals(List.of(lineItem), message.getLineItems());
         assertEquals(totals, message.getTotals());
@@ -115,6 +154,8 @@ class CIIMessageTest {
                 .creationDateTime(timestamp)
                 .senderPartyId("SENDER")
                 .receiverPartyId("RECEIVER")
+                .seller(sampleSeller())
+                .buyer(sampleBuyer())
                 .header(header1)
                 .lineItems(List.of(item1))
                 .totals(totals1)
@@ -126,6 +167,8 @@ class CIIMessageTest {
                 .creationDateTime(timestamp)
                 .senderPartyId("SENDER")
                 .receiverPartyId("RECEIVER")
+                .seller(sampleSeller())
+                .buyer(sampleBuyer())
                 .header(header2)
                 .lineItems(List.of(item2))
                 .totals(totals2)
@@ -137,6 +180,8 @@ class CIIMessageTest {
                 .creationDateTime(timestamp.plusDays(1))
                 .senderPartyId("OTHER")
                 .receiverPartyId("RECEIVER")
+                .seller(sampleSeller())
+                .buyer(sampleBuyer())
                 .header(header1)
                 .lineItems(List.of(item1))
                 .totals(totals1)
