@@ -71,7 +71,7 @@ public class InvoiceReader extends AbstractCIIReader {
         TradeParty seller = extractTradeParty(doc, "SellerTradeParty");
         TradeParty buyer = extractTradeParty(doc, "BuyerTradeParty");
         return CIIMessage.builder()
-                .messageId(extractTextContent(doc, "ID"))
+                .messageId(extractDocumentId(doc))
                 .messageType(MessageType.INVOICE)
                 .creationDateTime(LocalDateTime.now())
                 .senderPartyId(seller != null ? seller.getId() : null)
@@ -143,13 +143,25 @@ public class InvoiceReader extends AbstractCIIReader {
     
     private DocumentHeader extractInvoiceHeader(Document doc) {
         return DocumentHeader.builder()
-                .documentNumber(extractTextContent(doc, "ID"))
+                .documentNumber(extractDocumentId(doc))
                 .buyerReference(extractTextContent(doc, "BuyerReference"))
                 .documentDate(extractIssueDate(doc))
                 .currency(extractTextContent(doc, "InvoiceCurrencyCode"))
                 .paymentTerms(extractPaymentTerms(doc))
                 .delivery(extractDeliveryInformation(doc))
                 .build();
+    }
+
+    private String extractDocumentId(Document doc) {
+        NodeList exchangedDocs = doc.getElementsByTagNameNS("*", "ExchangedDocument");
+        if (exchangedDocs.getLength() > 0) {
+            Element exchangedDoc = (Element) exchangedDocs.item(0);
+            NodeList idNodes = exchangedDoc.getElementsByTagNameNS("*", "ID");
+            if (idNodes.getLength() > 0) {
+                return idNodes.item(0).getTextContent().trim();
+            }
+        }
+        return null;
     }
 
     private LocalDate extractIssueDate(Document doc) {
