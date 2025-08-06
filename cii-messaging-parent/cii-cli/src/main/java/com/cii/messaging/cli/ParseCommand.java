@@ -7,11 +7,16 @@ import picocli.CommandLine.*;
 import java.io.File;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "parse",
     description = "Parse CII messages and extract data"
 )
-public class ParseCommand implements Callable<Integer> {
+public class ParseCommand extends AbstractCommand implements Callable<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ParseCommand.class);
     
     @Parameters(index = "0", description = "Input XML file to parse")
     private File inputFile;
@@ -26,12 +31,14 @@ public class ParseCommand implements Callable<Integer> {
     
     @Override
     public Integer call() throws Exception {
+        configureLogging();
+
         if (!inputFile.exists()) {
-            System.err.println("Input file not found: " + inputFile);
+            logger.error("Input file not found: {}", inputFile);
             return 1;
         }
-        
-        System.out.println("Parsing " + inputFile.getName() + "...");
+
+        logger.info("Parsing {}...", inputFile.getName());
         
         try {
             CIIMessage message = service.readMessage(inputFile);
@@ -50,15 +57,15 @@ public class ParseCommand implements Callable<Integer> {
                 }
                 java.nio.file.Files.writeString(outputFile.toPath(), output,
                         java.nio.charset.StandardCharsets.UTF_8);
-                System.out.println("Output saved to: " + outputFile.getAbsolutePath());
+                logger.info("Output saved to: {}", outputFile.getAbsolutePath());
             } else {
-                System.out.println("\n" + output);
+                logger.info("\n{}", output);
             }
             
             return 0;
             
         } catch (Exception e) {
-            System.err.println("Failed to parse file: " + e.getMessage());
+            logger.error("Failed to parse file: {}", e.getMessage());
             return 1;
         }
     }

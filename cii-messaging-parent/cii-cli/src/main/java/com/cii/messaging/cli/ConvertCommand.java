@@ -10,11 +10,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "convert",
     description = "Convert between XML and JSON formats"
 )
-public class ConvertCommand implements Callable<Integer> {
+public class ConvertCommand extends AbstractCommand implements Callable<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
     
     @Parameters(index = "0", description = "Input file")
     private File inputFile;
@@ -32,12 +37,14 @@ public class ConvertCommand implements Callable<Integer> {
     
     @Override
     public Integer call() throws Exception {
+        configureLogging();
+
         if (!inputFile.exists()) {
-            System.err.println("Input file not found: " + inputFile);
+            logger.error("Input file not found: {}", inputFile);
             return 1;
         }
-        
-        System.out.println("Converting " + inputFile.getName() + " to " + targetFormat + "...");
+
+        logger.info("Converting {} to {}...", inputFile.getName(), targetFormat);
         
         try {
             String inputContent = Files.readString(inputFile.toPath(), StandardCharsets.UTF_8);
@@ -50,7 +57,7 @@ public class ConvertCommand implements Callable<Integer> {
             
             if ("JSON".equalsIgnoreCase(targetFormat)) {
                 if (isInputJson) {
-                    System.err.println("Input is already JSON");
+                    logger.error("Input is already JSON");
                     return 1;
                 }
                 // XML to JSON
@@ -60,29 +67,29 @@ public class ConvertCommand implements Callable<Integer> {
                 
             } else if ("XML".equalsIgnoreCase(targetFormat)) {
                 if (!isInputJson) {
-                    System.err.println("Input is already XML");
+                    logger.error("Input is already XML");
                     return 1;
                 }
                 // JSON to XML
                 if (messageType == null) {
-                    System.err.println("Message type required for JSON to XML conversion (use --type)");
+                    logger.error("Message type required for JSON to XML conversion (use --type)");
                     return 1;
                 }
                 CIIMessage message = service.convertFromJson(inputContent, messageType);
                 service.writeMessage(message, outputFile);
                 
             } else {
-                System.err.println("Invalid target format: " + targetFormat);
+                logger.error("Invalid target format: {}", targetFormat);
                 return 1;
             }
-            
-            System.out.println("Conversion successful! Output saved to: " + outputFile.getAbsolutePath());
+
+            logger.info("Conversion successful! Output saved to: {}", outputFile.getAbsolutePath());
             return 0;
-            
+
         } catch (Exception e) {
-            System.err.println("Conversion failed: " + e.getMessage());
+            logger.error("Conversion failed: {}", e.getMessage());
             if (e.getCause() != null) {
-                System.err.println("Cause: " + e.getCause().getMessage());
+                logger.error("Cause: {}", e.getCause().getMessage());
             }
             return 1;
         }

@@ -9,11 +9,16 @@ import java.util.concurrent.Callable;
 import java.util.List;
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "validate",
     description = "Validate CII messages against XSD and business rules"
 )
-public class ValidateCommand implements Callable<Integer> {
+public class ValidateCommand extends AbstractCommand implements Callable<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
     
     @Parameters(index = "0", description = "XML file(s) to validate", arity = "1..*")
     private File[] inputFiles;
@@ -28,77 +33,79 @@ public class ValidateCommand implements Callable<Integer> {
     
     @Override
     public Integer call() throws Exception {
+        configureLogging();
+
         int totalFiles = inputFiles.length;
         int validFiles = 0;
-        
+
         SchemaVersion version;
         try {
             version = SchemaVersion.valueOf(schemaVersion.toUpperCase());
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid schema version: " + schemaVersion + ". Allowed values: " + Arrays.toString(SchemaVersion.values()));
+            logger.error("Invalid schema version: {}. Allowed values: {}", schemaVersion, Arrays.toString(SchemaVersion.values()));
             return 1;
         }
-        System.out.println("Validating " + totalFiles + " file(s) against " + version.getVersion() + "...\n");
+        logger.info("Validating {} file(s) against {}...\n", totalFiles, version.getVersion());
 
         for (File file : inputFiles) {
             if (!file.exists()) {
-                System.err.println("File not found: " + file);
+                logger.error("File not found: {}", file);
                 continue;
             }
 
-            System.out.println("Validating: " + file.getName());
+            logger.info("Validating: {}", file.getName());
 
             try {
                 service.setSchemaVersion(version);
                 ValidationResult result = service.validateMessage(file);
                 
                 if (result.isValid()) {
-                    System.out.println("✓ VALID");
+                    logger.info("✓ VALID");
                     validFiles++;
                 } else {
-                    System.out.println("✗ INVALID");
+                    logger.warn("✗ INVALID");
                 }
                 
                 if (verbose || !result.isValid()) {
                     printValidationDetails(result);
                 }
-                
-                System.out.println();
+
+                logger.info("");
                 
             } catch (Exception e) {
-                System.err.println("✗ ERROR: " + e.getMessage());
-                System.out.println();
+                logger.error("✗ ERROR: {}", e.getMessage());
+                logger.info("");
             }
         }
-        
+
         // Summary
-        System.out.println("=== Validation Summary ===");
-        System.out.println("Total files: " + totalFiles);
-        System.out.println("Valid files: " + validFiles);
-        System.out.println("Invalid files: " + (totalFiles - validFiles));
+        logger.info("=== Validation Summary ===");
+        logger.info("Total files: {}", totalFiles);
+        logger.info("Valid files: {}", validFiles);
+        logger.info("Invalid files: {}", (totalFiles - validFiles));
         
         return validFiles == totalFiles ? 0 : 1;
     }
     
     private void printValidationDetails(ValidationResult result) {
         if (result.hasErrors()) {
-            System.out.println("  Errors (" + result.getErrors().size() + "):");
+            logger.error("  Errors ({})", result.getErrors().size());
             result.getErrors().forEach(error -> {
-                System.out.println("    - " + error.getMessage());
+                logger.error("    - {}", error.getMessage());
                 if (error.getLocation() != null) {
-                    System.out.println("      Location: " + error.getLocation());
+                    logger.error("      Location: {}", error.getLocation());
                 }
             });
         }
-        
+
         if (result.hasWarnings()) {
-            System.out.println("  Warnings (" + result.getWarnings().size() + "):");
+            logger.warn("  Warnings ({})", result.getWarnings().size());
             result.getWarnings().forEach(warning -> {
-                System.out.println("    - " + warning.getMessage());
+                logger.warn("    - {}", warning.getMessage());
             });
         }
-        
-        System.out.println("  Validated against: " + result.getValidatedAgainst());
-        System.out.println("  Validation time: " + result.getValidationTimeMs() + "ms");
+
+        logger.info("  Validated against: {}", result.getValidatedAgainst());
+        logger.info("  Validation time: {}ms", result.getValidationTimeMs());
     }
 }
