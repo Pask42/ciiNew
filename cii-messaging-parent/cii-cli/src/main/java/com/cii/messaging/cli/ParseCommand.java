@@ -4,7 +4,11 @@ import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import picocli.CommandLine.*;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -23,9 +27,9 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
     
     @Option(names = {"-o", "--output"}, description = "Output file (optional)")
     private File outputFile;
-    
+
     @Option(names = {"--format"}, description = "Output format: JSON or SUMMARY", defaultValue = "SUMMARY")
-    private String format;
+    private OutputFormat format = OutputFormat.SUMMARY;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
     
@@ -37,14 +41,17 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
             logger.error("Input file not found: {}", inputFile);
             return 1;
         }
-
+        if (!inputFile.canRead()) {
+              logger.error("Input file cannot be read: " + inputFile);
+              return 1;
+          }
         logger.info("Parsing {}...", inputFile.getName());
         
         try {
             CIIMessage message = service.readMessage(inputFile);
             
             String output;
-            if ("JSON".equalsIgnoreCase(format)) {
+            if (format == OutputFormat.JSON) {
                 output = service.convertToJson(message);
             } else {
                 output = generateSummary(message);
@@ -58,6 +65,7 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
                 java.nio.file.Files.writeString(outputFile.toPath(), output,
                         java.nio.charset.StandardCharsets.UTF_8);
                 logger.info("Output saved to: {}", outputFile.getAbsolutePath());
+
             } else {
                 logger.info("\n{}", output);
             }

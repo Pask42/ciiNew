@@ -65,13 +65,13 @@ public abstract class AbstractCIIReader implements CIIReader {
     
     protected BigDecimal parseBigDecimal(String value) {
         if (value == null || value.trim().isEmpty()) {
-            return BigDecimal.ZERO;
+            return null;
         }
         try {
             return new BigDecimal(value);
         } catch (NumberFormatException e) {
-            logger.warn("Failed to parse BigDecimal from: {}", value);
-            return BigDecimal.ZERO;
+            logger.warn("Failed to parse BigDecimal from: {}", value, e);
+            return null;
         }
     }
 }
