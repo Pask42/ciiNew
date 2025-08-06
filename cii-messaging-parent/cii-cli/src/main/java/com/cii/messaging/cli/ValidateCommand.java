@@ -6,8 +6,6 @@ import com.cii.messaging.validator.*;
 import picocli.CommandLine.*;
 import java.io.File;
 import java.util.concurrent.Callable;
-import java.util.List;
-import java.util.Arrays;
 
 @Command(
     name = "validate",
@@ -19,7 +17,7 @@ public class ValidateCommand implements Callable<Integer> {
     private File[] inputFiles;
     
     @Option(names = {"--schema"}, description = "Schema version: D16B, D20B, D21B", defaultValue = "D16B")
-    private String schemaVersion;
+    private SchemaVersion schemaVersion;
     
     @Option(names = {"-v", "--verbose"}, description = "Show detailed validation results")
     private boolean verbose;
@@ -31,25 +29,27 @@ public class ValidateCommand implements Callable<Integer> {
         int totalFiles = inputFiles.length;
         int validFiles = 0;
         
-        SchemaVersion version;
-        try {
-            version = SchemaVersion.valueOf(schemaVersion.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            System.err.println("Invalid schema version: " + schemaVersion + ". Allowed values: " + Arrays.toString(SchemaVersion.values()));
-            return 1;
-        }
-        System.out.println("Validating " + totalFiles + " file(s) against " + version.getVersion() + "...\n");
+        System.out.println("Validating " + totalFiles + " file(s) against " + schemaVersion.getVersion() + "...\n");
+
+        service.setSchemaVersion(schemaVersion);
 
         for (File file : inputFiles) {
             if (!file.exists()) {
                 System.err.println("File not found: " + file);
                 continue;
             }
+            if (!file.isFile()) {
+                System.err.println("Not a file: " + file);
+                continue;
+            }
+            if (!file.canRead()) {
+                System.err.println("Cannot read file: " + file);
+                continue;
+            }
 
             System.out.println("Validating: " + file.getName());
 
             try {
-                service.setSchemaVersion(version);
                 ValidationResult result = service.validateMessage(file);
                 
                 if (result.isValid()) {
