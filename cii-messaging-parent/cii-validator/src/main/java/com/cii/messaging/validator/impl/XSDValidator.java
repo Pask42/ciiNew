@@ -114,12 +114,6 @@ public class XSDValidator implements CIIValidator {
 
             Schema schema = getSchemaForVersion(schemaVersion);
             Validator validator = schema.newValidator();
-            try {
-                validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-                validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
-                logger.warn("Validator property not supported", e);
-            }
 
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
             validator.setErrorHandler(handler);
