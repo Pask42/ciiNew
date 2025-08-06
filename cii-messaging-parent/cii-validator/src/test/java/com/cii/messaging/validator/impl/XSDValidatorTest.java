@@ -23,7 +23,7 @@ class XSDValidatorTest {
         XSDValidator validator = new XSDValidator();
         ValidationResult result = validator.validate(message);
         assertTrue(result.isValid());
-        assertTrue(result.getErrors().isEmpty());
+        assertTrue(result.getErrors().isEmpty(), result.getErrors().toString());
     }
 
     @Test
