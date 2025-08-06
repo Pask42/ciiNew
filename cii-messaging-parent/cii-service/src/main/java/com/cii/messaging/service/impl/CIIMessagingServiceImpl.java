@@ -7,13 +7,10 @@ import com.cii.messaging.validator.*;
 import com.cii.messaging.validator.impl.CompositeValidator;
 import com.cii.messaging.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -26,14 +23,11 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
     private static final Logger logger = LoggerFactory.getLogger(CIIMessagingServiceImpl.class);
     
     private final ObjectMapper jsonMapper;
-    private final XmlMapper xmlMapper;
     private final CIIValidator validator;
     
     public CIIMessagingServiceImpl() {
         this.jsonMapper = new ObjectMapper();
         this.jsonMapper.findAndRegisterModules(); // For Java 8 time support
-        this.xmlMapper = new XmlMapper();
-        this.xmlMapper.findAndRegisterModules();
         this.validator = new CompositeValidator();
     }
     
@@ -41,7 +35,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
     public CIIMessage readMessage(File xmlFile) throws ServiceException {
         try {
             // Auto-detect message type
-            CIIReader reader = CIIReaderFactory.createReader(readFileContent(xmlFile));
+            CIIReader reader = CIIReaderFactory.createReader(xmlFile.toPath());
             return reader.read(xmlFile);
         } catch (Exception e) {
             throw new ServiceException("Failed to read message from file: " + xmlFile.getName(), e);
@@ -228,18 +222,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
     }
     
     // Helper methods
-    
-    private String readFileContent(File file) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-            return content.toString();
-        }
-    }
-    
+
     private String generateMessageId() {
         return "MSG-" + UUID.randomUUID().toString();
     }

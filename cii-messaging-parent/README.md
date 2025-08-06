@@ -142,6 +142,9 @@ java -jar cii-cli.jar convert invoice.json \
   --output invoice.xml
 ```
 
+> ⚠️ La conversion échoue si le fichier d'entrée est déjà dans le format cible ou
+> si son contenu n'est pas un JSON ou XML valide.
+
 ## 🔌 Utilisation programmatique
 
 ### Exemple simple

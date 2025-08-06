@@ -5,17 +5,25 @@ import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import picocli.CommandLine.*;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "generate",
     description = "Generate CII messages (INVOICE, DESADV, ORDERSP)"
 )
-public class GenerateCommand implements Callable<Integer> {
+public class GenerateCommand extends AbstractCommand implements Callable<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(GenerateCommand.class);
     
     @Parameters(index = "0", description = "Message type: INVOICE, DESADV, or ORDERSP")
     private MessageType messageType;
@@ -33,20 +41,25 @@ public class GenerateCommand implements Callable<Integer> {
     private String receiverPartyId;
     
     @Option(names = {"--format"}, description = "Output format: XML or JSON", defaultValue = "XML")
-    private String format;
+    private OutputFormat format;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
     
     @Override
     public Integer call() throws Exception {
-        System.out.println("Generating " + messageType + " message...");
+        configureLogging();
+        logger.info("Generating {} message...", messageType);
         
         CIIMessage message;
-        
-        if (orderFile != null && orderFile.exists()) {
+
+        if (orderFile != null) {
+            if (!orderFile.exists() || !orderFile.isFile() || !orderFile.canRead()) {
+                System.err.println("Order file must be a readable file: " + orderFile);
+                return 1;
+            }
             // Generate from existing ORDER
             CIIMessage order = service.readMessage(orderFile);
-            
+
             switch (messageType) {
                 case INVOICE:
                     message = service.createInvoiceResponse(order);
@@ -55,34 +68,45 @@ public class GenerateCommand implements Callable<Integer> {
                     message = service.createDespatchAdvice(order);
                     break;
                 case ORDERSP:
-                    message = service.createOrderResponse(order, 
+                    message = service.createOrderResponse(order,
                         com.cii.messaging.service.OrderResponseType.ACCEPTED);
                     break;
                 default:
-                    System.err.println("Cannot generate " + messageType + " from ORDER");
+                    logger.error("Cannot generate {} from ORDER", messageType);
                     return 1;
             }
         } else {
             // Generate sample message
             message = createSampleMessage();
         }
-        
+
         // Ensure output directory exists
-        java.io.File parent = outputFile.getParentFile();
+        File parent = outputFile.getParentFile();
         if (parent != null) {
-            parent.mkdirs();
+            if (parent.exists()) {
+                if (!parent.isDirectory()) {
+                    System.err.println("Output parent is not a directory: " + parent);
+                    return 1;
+                }
+            } else if (!parent.mkdirs()) {
+                System.err.println("Failed to create directories for output file: " + parent);
+                return 1;
+            }
         }
 
         // Write output
-        if ("JSON".equalsIgnoreCase(format)) {
-            String json = service.convertToJson(message);
-            java.nio.file.Files.writeString(outputFile.toPath(), json,
-                    java.nio.charset.StandardCharsets.UTF_8);
-        } else {
-            service.writeMessage(message, outputFile);
-        }
-        
-        System.out.println("Generated " + messageType + " saved to: " + outputFile.getAbsolutePath());
+        try {
+            if (format == OutputFormat.JSON) {
+                String json = service.convertToJson(message);
+                Files.writeString(outputFile.toPath(), json, StandardCharsets.UTF_8);
+            } else {
+                service.writeMessage(message, outputFile);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to write output file: " + e.getMessage());
+            return 1;
+        }        
+        logger.info("Generated {} saved to: {}", messageType, outputFile.getAbsolutePath());
         return 0;
     }
     

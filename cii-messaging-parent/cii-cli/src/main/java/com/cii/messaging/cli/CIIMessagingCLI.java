@@ -3,6 +3,9 @@ package com.cii.messaging.cli;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "cii-messaging",
     mixinStandardHelpOptions = true,
@@ -15,7 +18,9 @@ import picocli.CommandLine.Command;
         ConvertCommand.class
     }
 )
-public class CIIMessagingCLI implements Runnable {
+public class CIIMessagingCLI extends AbstractCommand implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(CIIMessagingCLI.class);
     
     @CommandLine.Spec
     CommandLine.Model.CommandSpec spec;
@@ -24,9 +29,11 @@ public class CIIMessagingCLI implements Runnable {
         int exitCode = new CommandLine(new CIIMessagingCLI()).execute(args);
         System.exit(exitCode);
     }
-    
+
     @Override
     public void run() {
+        configureLogging();
+        logger.info("No command specified. Showing usage.");
         spec.commandLine().usage(System.out);
     }
 }
