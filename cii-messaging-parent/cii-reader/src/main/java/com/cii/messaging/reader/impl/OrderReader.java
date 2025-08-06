@@ -108,7 +108,7 @@ public class OrderReader extends AbstractCIIReader {
         return DocumentHeader.builder()
                 .documentNumber(extractMessageId(doc))
                 .buyerReference(extractTextContent(doc, "BuyerReference"))
-                .currency(extractTextContent(doc, "InvoiceCurrencyCode"))
+                .currency(extractTextContent(doc, "OrderCurrencyCode"))
                 .build();
     }
     
