@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,9 +102,56 @@ public class InvoiceReader extends AbstractCIIReader {
         return DocumentHeader.builder()
                 .documentNumber(extractTextContent(doc, "ID"))
                 .buyerReference(extractTextContent(doc, "BuyerReference"))
-                .documentDate(LocalDate.now()) // Simplified
+                .documentDate(extractIssueDate(doc))
                 .currency(extractTextContent(doc, "InvoiceCurrencyCode"))
+                .paymentTerms(extractPaymentTerms(doc))
+                .delivery(extractDeliveryInformation(doc))
                 .build();
+    }
+
+    private LocalDate extractIssueDate(Document doc) {
+        NodeList nodes = doc.getElementsByTagNameNS("*", "IssueDateTime");
+        if (nodes.getLength() > 0) {
+            String text = extractTextContent((Element) nodes.item(0), "DateTimeString");
+            if (text != null && text.length() >= 8) {
+                return LocalDate.parse(text.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+            }
+        }
+        return LocalDate.now();
+    }
+
+    private PaymentTerms extractPaymentTerms(Document doc) {
+        NodeList nodes = doc.getElementsByTagNameNS("*", "SpecifiedTradeSettlementPaymentTerms");
+        if (nodes.getLength() > 0) {
+            Element terms = (Element) nodes.item(0);
+            String description = extractTextContent(terms, "Description");
+            String dateStr = extractTextContent(terms, "DateTimeString");
+            LocalDate dueDate = null;
+            if (dateStr != null && dateStr.length() >= 8) {
+                dueDate = LocalDate.parse(dateStr.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+            }
+            return PaymentTerms.builder()
+                    .description(description)
+                    .dueDate(dueDate)
+                    .build();
+        }
+        return null;
+    }
+
+    private DeliveryInformation extractDeliveryInformation(Document doc) {
+        NodeList nodes = doc.getElementsByTagNameNS("*", "ApplicableHeaderTradeDelivery");
+        if (nodes.getLength() > 0) {
+            Element delivery = (Element) nodes.item(0);
+            String dateStr = extractTextContent(delivery, "DateTimeString");
+            LocalDate deliveryDate = null;
+            if (dateStr != null && dateStr.length() >= 8) {
+                deliveryDate = LocalDate.parse(dateStr.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+            }
+            return DeliveryInformation.builder()
+                    .deliveryDate(deliveryDate)
+                    .build();
+        }
+        return null;
     }
     
     private List<LineItem> extractInvoiceLineItems(Document doc) {
