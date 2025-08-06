@@ -209,7 +209,8 @@ public class InvoiceWriter extends AbstractCIIWriter {
         return lineElement;
     }
     
-    private void addElement(Document doc, Element parent, String name, String value) {
+    @Override
+    protected void addElement(Document doc, Element parent, String name, String value) {
         if (value != null && !value.isBlank()) {
             Element element = doc.createElement(name);
             element.setTextContent(value);
@@ -217,7 +218,8 @@ public class InvoiceWriter extends AbstractCIIWriter {
         }
     }
 
-    private void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
+    @Override
+    protected void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
         if (amount != null && amount.compareTo(BigDecimal.ZERO) != 0) {
             Element element = doc.createElement(name);
             element.setTextContent(amount.toPlainString());
