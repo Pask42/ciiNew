@@ -16,7 +16,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class InvoiceWriter extends AbstractCIIWriter {
@@ -97,19 +96,19 @@ public class InvoiceWriter extends AbstractCIIWriter {
             Element transaction = createElement(doc, "rsm:SupplyChainTradeTransaction");
             root.appendChild(transaction);
             
+            DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
+
             // Add line items
             if (message.getLineItems() != null) {
                 for (LineItem lineItem : message.getLineItems()) {
-                    Element lineElement = createLineItemElement(doc, lineItem);
+                    Element lineElement = createLineItemElement(doc, lineItem, header.getCurrency());
                     transaction.appendChild(lineElement);
                 }
             }
-            
+
             // Add header trade agreement
             Element headerAgreement = createElement(doc, "ram:ApplicableHeaderTradeAgreement");
             transaction.appendChild(headerAgreement);
-
-            DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
             addElement(doc, headerAgreement, "ram:BuyerReference", header.getBuyerReference());
             
             // Add seller party
@@ -123,7 +122,24 @@ public class InvoiceWriter extends AbstractCIIWriter {
             addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId());
             addElement(doc, buyerParty, "ram:Name", "Buyer Company");
             headerAgreement.appendChild(buyerParty);
-            
+
+            // Add header trade delivery
+            if (header.getDelivery() != null) {
+                DeliveryInformation delivery = header.getDelivery();
+                Element headerDelivery = createElement(doc, "ram:ApplicableHeaderTradeDelivery");
+                transaction.appendChild(headerDelivery);
+                Element supplyChainEvent = createElement(doc, "ram:ActualDeliverySupplyChainEvent");
+                headerDelivery.appendChild(supplyChainEvent);
+                if (delivery.getDeliveryDate() != null) {
+                    Element occurrenceDateTime = createElement(doc, "ram:OccurrenceDateTime");
+                    Element dateTime = createElement(doc, "udt:DateTimeString");
+                    dateTime.setAttribute("format", "102");
+                    dateTime.setTextContent(delivery.getDeliveryDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+                    occurrenceDateTime.appendChild(dateTime);
+                    supplyChainEvent.appendChild(occurrenceDateTime);
+                }
+            }
+
             // Add header trade settlement
             Element headerSettlement = createElement(doc, "ram:ApplicableHeaderTradeSettlement");
             transaction.appendChild(headerSettlement);
@@ -150,11 +166,11 @@ public class InvoiceWriter extends AbstractCIIWriter {
                 Element monetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementHeaderMonetarySummation");
                 headerSettlement.appendChild(monetarySummation);
 
-                addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount());
-                addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount());
-                addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount());
-                addAmountElement(doc, monetarySummation, "ram:GrandTotalAmount", message.getTotals().getGrandTotalAmount());
-                addAmountElement(doc, monetarySummation, "ram:DuePayableAmount", message.getTotals().getDuePayableAmount());
+                addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount(), header.getCurrency());
+                addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount(), header.getCurrency());
+                addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount(), header.getCurrency());
+                addAmountElement(doc, monetarySummation, "ram:GrandTotalAmount", message.getTotals().getGrandTotalAmount(), header.getCurrency());
+                addAmountElement(doc, monetarySummation, "ram:DuePayableAmount", message.getTotals().getDuePayableAmount(), header.getCurrency());
             }
             
             return doc;
@@ -164,7 +180,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
         }
     }
     
-    private Element createLineItemElement(Document doc, LineItem lineItem) {
+    private Element createLineItemElement(Document doc, LineItem lineItem, String currency) {
         Element lineElement = createElement(doc, "ram:IncludedSupplyChainTradeLineItem");
         
         // Line document
@@ -184,7 +200,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
         // Line agreement
         Element lineAgreement = createElement(doc, "ram:SpecifiedLineTradeAgreement");
         Element priceDetails = createElement(doc, "ram:NetPriceProductTradePrice");
-        addAmountElement(doc, priceDetails, "ram:ChargeAmount", lineItem.getUnitPrice());
+        addAmountElement(doc, priceDetails, "ram:ChargeAmount", lineItem.getUnitPrice(), currency);
         lineAgreement.appendChild(priceDetails);
         lineElement.appendChild(lineAgreement);
         
@@ -201,12 +217,12 @@ public class InvoiceWriter extends AbstractCIIWriter {
         if (lineItem.getTaxRate() != null || lineItem.getTaxCategory() != null || lineItem.getTaxTypeCode() != null) {
             Element tradeTax = createElement(doc, "ram:ApplicableTradeTax");
             addElement(doc, tradeTax, "ram:TypeCode", lineItem.getTaxTypeCode());
-            addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate());
+            addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate(), null);
             addElement(doc, tradeTax, "ram:CategoryCode", lineItem.getTaxCategory());
             lineSettlement.appendChild(tradeTax);
         }
         Element lineMonetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementLineMonetarySummation");
-        addAmountElement(doc, lineMonetarySummation, "ram:LineTotalAmount", lineItem.getLineAmount());
+        addAmountElement(doc, lineMonetarySummation, "ram:LineTotalAmount", lineItem.getLineAmount(), currency);
         lineSettlement.appendChild(lineMonetarySummation);
         lineElement.appendChild(lineSettlement);
         
@@ -222,8 +238,17 @@ public class InvoiceWriter extends AbstractCIIWriter {
 
     @Override
     protected void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
+        addAmountElement(doc, parent, name, amount, null);
+    }
+
+    private void addAmountElement(Document doc, Element parent, String name, BigDecimal amount, String currency) {
         if (amount != null && amount.compareTo(BigDecimal.ZERO) != 0) {
-            super.addAmountElement(doc, parent, name, amount);
+            Element element = createElement(doc, name);
+            element.setTextContent(amount.toPlainString());
+            if (currency != null && !currency.isBlank()) {
+                element.setAttribute("currencyID", currency);
+            }
+            parent.appendChild(element);
         }
     }
 }
