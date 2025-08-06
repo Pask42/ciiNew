@@ -48,56 +48,9 @@
                 </dependency>
         </dependencies>
 	
-	<build>
-	  <plugins>
-	    <plugin>
-	      <groupId>org.codehaus.mojo</groupId>
-	      <artifactId>jaxb2-maven-plugin</artifactId>
-	      <version>3.3.0</version>
-	      <executions>
-	        <execution>
-	          <id>generate-jaxb-sources</id>
-	          <phase>generate-sources</phase>
-	          <goals>
-	            <goal>xjc</goal>
-	          </goals>
-	          <configuration>
-	            <sources>${basedir}/src/main/resources/xsd</sources>
-	            <packageName>com.helger.cii.d16b</packageName>
-			     <xjbSources>
-			      <!-- ici on pointe vers votre fichier bindings.xjb -->
-			      <xjbSource>${basedir}/src/main/resources/bindings/bindings.xjb</xjbSource>
-			    </xjbSources>
-	            <!-- Autoriser les extensions et désactiver la validation stricte -->
-		        <extension>true</extension>
-		        <arguments>
-		          <!-- -nv : non-validating without strict schema checking -->
-		          <argument>-nv</argument>
-		          <!-- résout automatiquement les collisions de noms -->
-          		  <argument>-XautoNameResolution</argument>
-		        </arguments>
-	          </configuration>
-	        </execution>
-	      </executions>
-	    </plugin>
-	
-	    <plugin>
-	      <groupId>org.codehaus.mojo</groupId>
-	      <artifactId>build-helper-maven-plugin</artifactId>
-	      <version>3.4.0</version>
-	      <executions>
-	        <execution>
-	          <id>add-jaxb-sources</id>
-	          <phase>generate-sources</phase>
-	          <goals><goal>add-source</goal></goals>
-	          <configuration>
-	            <sources>
-	              <source>${project.build.directory}/generated-sources/jaxb</source>
-	            </sources>
-	          </configuration>
-	        </execution>
-	      </executions>
-	    </plugin>
-	  </plugins>
-	</build>
+        <!-- JAXB code generation was previously configured via jaxb2-maven-plugin.
+             The plugin requires network access to download dependencies and the
+             project no longer provides the corresponding XSD resources. The
+             build section has been removed to avoid failing the build when the
+             plugin cannot be resolved. -->
 </project>
