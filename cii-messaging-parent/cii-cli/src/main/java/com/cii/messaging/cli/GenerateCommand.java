@@ -14,11 +14,16 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "generate",
     description = "Generate CII messages (INVOICE, DESADV, ORDERSP)"
 )
-public class GenerateCommand implements Callable<Integer> {
+public class GenerateCommand extends AbstractCommand implements Callable<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(GenerateCommand.class);
     
     @Parameters(index = "0", description = "Message type: INVOICE, DESADV, or ORDERSP")
     private MessageType messageType;
@@ -42,7 +47,8 @@ public class GenerateCommand implements Callable<Integer> {
     
     @Override
     public Integer call() throws Exception {
-        System.out.println("Generating " + messageType + " message...");
+        configureLogging();
+        logger.info("Generating {} message...", messageType);
         
         CIIMessage message;
 
@@ -66,7 +72,7 @@ public class GenerateCommand implements Callable<Integer> {
                         com.cii.messaging.service.OrderResponseType.ACCEPTED);
                     break;
                 default:
-                    System.err.println("Cannot generate " + messageType + " from ORDER");
+                    logger.error("Cannot generate {} from ORDER", messageType);
                     return 1;
             }
         } else {
@@ -99,9 +105,8 @@ public class GenerateCommand implements Callable<Integer> {
         } catch (IOException e) {
             System.err.println("Failed to write output file: " + e.getMessage());
             return 1;
-        }
-
-        System.out.println("Generated " + messageType + " saved to: " + outputFile.getAbsolutePath());
+        }        
+        logger.info("Generated {} saved to: {}", messageType, outputFile.getAbsolutePath());
         return 0;
     }
     

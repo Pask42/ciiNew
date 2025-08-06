@@ -15,11 +15,16 @@ import java.util.concurrent.Callable;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.InputSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Command(
     name = "convert",
     description = "Convert between XML and JSON formats"
 )
-public class ConvertCommand implements Callable<Integer> {
+public class ConvertCommand extends AbstractCommand implements Callable<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
     
     @Parameters(index = "0", description = "Input file")
     private File inputFile;
@@ -50,21 +55,21 @@ public class ConvertCommand implements Callable<Integer> {
      */
     @Override
     public Integer call() throws Exception {
+        configureLogging();
+
         if (!inputFile.exists()) {
-            System.err.println("Input file not found: " + inputFile);
+            logger.error("Input file not found: {}", inputFile);
             return 1;
         }
-        if (!inputFile.isFile()) {
-            System.err.println("Input is not a file: " + inputFile);
-            return 1;
-        }
-        if (!inputFile.canRead()) {
-            System.err.println("Cannot read input file: " + inputFile);
+      
+       if (!inputFile.canRead()) {
+            logger.error("Cannot read input file: " + inputFile);
             return 1;
         }
 
-        System.out.println("Converting " + inputFile.getName() + " to " + targetFormat + "...");
 
+        logger.info("Converting {} to {}...", inputFile.getName(), targetFormat);
+        
         try {
             String inputContent = Files.readString(inputFile.toPath(), StandardCharsets.UTF_8);
             boolean isJson = false;
@@ -113,30 +118,43 @@ public class ConvertCommand implements Callable<Integer> {
             if (parent != null) {
                 parent.mkdirs();
             }
-
+            
             if (targetFormat == TargetFormat.JSON) {
+                if (isInputJson) {
+                    logger.error("Input is already JSON");
+                    return 1;
+                }
                 // XML to JSON
                 CIIMessage message = service.readMessage(inputFile);
                 String json = service.convertToJson(message);
                 Files.writeString(outputFile.toPath(), json, StandardCharsets.UTF_8);
-
+                
             } else if (targetFormat == TargetFormat.XML) {
+                if (!isInputJson) {
+                    logger.error("Input is already XML");
+                    return 1;
+                }
                 // JSON to XML
                 if (messageType == null) {
-                    System.err.println("Message type required for JSON to XML conversion (use --type)");
+                    logger.error("Message type required for JSON to XML conversion (use --type)");
                     return 1;
                 }
                 CIIMessage message = service.convertFromJson(inputContent, messageType);
                 service.writeMessage(message, outputFile);
+                
+            } else {
+                logger.error("Invalid target format: {}", targetFormat);
+                return 1;
             }
 
-            System.out.println("Conversion successful! Output saved to: " + outputFile.getAbsolutePath());
+            logger.info("Conversion successful! Output saved to: {}", outputFile.getAbsolutePath());
+
             return 0;
 
         } catch (Exception e) {
-            System.err.println("Conversion failed: " + e.getMessage());
+            logger.error("Conversion failed: {}", e.getMessage());
             if (e.getCause() != null) {
-                System.err.println("Cause: " + e.getCause().getMessage());
+                logger.error("Cause: {}", e.getCause().getMessage());
             }
             return 1;
         }
