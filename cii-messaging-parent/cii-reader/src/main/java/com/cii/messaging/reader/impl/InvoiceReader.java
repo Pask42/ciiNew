@@ -68,32 +68,75 @@ public class InvoiceReader extends AbstractCIIReader {
     }
     
     private CIIMessage parseInvoiceDocument(Document doc) {
+        TradeParty seller = extractTradeParty(doc, "SellerTradeParty");
+        TradeParty buyer = extractTradeParty(doc, "BuyerTradeParty");
         return CIIMessage.builder()
                 .messageId(extractTextContent(doc, "ID"))
                 .messageType(MessageType.INVOICE)
                 .creationDateTime(LocalDateTime.now())
-                .senderPartyId(extractSellerPartyId(doc))
-                .receiverPartyId(extractBuyerPartyId(doc))
+                .senderPartyId(seller != null ? seller.getId() : null)
+                .receiverPartyId(buyer != null ? buyer.getId() : null)
+                .seller(seller)
+                .buyer(buyer)
                 .header(extractInvoiceHeader(doc))
                 .lineItems(extractInvoiceLineItems(doc))
                 .totals(extractInvoiceTotals(doc))
                 .build();
     }
-    
-    private String extractSellerPartyId(Document doc) {
-        NodeList sellerNodes = doc.getElementsByTagNameNS("*", "SellerTradeParty");
-        if (sellerNodes.getLength() > 0) {
-            Element seller = (Element) sellerNodes.item(0);
-            return extractTextContent(seller, "ID");
+
+    private TradeParty extractTradeParty(Document doc, String tagName) {
+        NodeList nodes = doc.getElementsByTagNameNS("*", tagName);
+        if (nodes.getLength() > 0) {
+            Element party = (Element) nodes.item(0);
+            return TradeParty.builder()
+                    .id(extractTextContent(party, "ID"))
+                    .name(extractTextContent(party, "Name"))
+                    .contact(extractContact(party))
+                    .address(extractAddress(party))
+                    .taxRegistration(extractTaxRegistration(party))
+                    .build();
         }
         return null;
     }
-    
-    private String extractBuyerPartyId(Document doc) {
-        NodeList buyerNodes = doc.getElementsByTagNameNS("*", "BuyerTradeParty");
-        if (buyerNodes.getLength() > 0) {
-            Element buyer = (Element) buyerNodes.item(0);
-            return extractTextContent(buyer, "ID");
+
+    private Contact extractContact(Element party) {
+        NodeList contactNodes = party.getElementsByTagNameNS("*", "DefinedTradeContact");
+        if (contactNodes.getLength() > 0) {
+            Element contact = (Element) contactNodes.item(0);
+            return Contact.builder()
+                    .name(extractTextContent(contact, "PersonName"))
+                    .telephone(extractTextContent(contact, "CompleteNumber"))
+                    .email(extractTextContent(contact, "URIID"))
+                    .build();
+        }
+        return null;
+    }
+
+    private Address extractAddress(Element party) {
+        NodeList addressNodes = party.getElementsByTagNameNS("*", "PostalTradeAddress");
+        if (addressNodes.getLength() > 0) {
+            Element addr = (Element) addressNodes.item(0);
+            return Address.builder()
+                    .street(extractTextContent(addr, "LineOne"))
+                    .city(extractTextContent(addr, "CityName"))
+                    .postalCode(extractTextContent(addr, "PostcodeCode"))
+                    .countryCode(extractTextContent(addr, "CountryID"))
+                    .build();
+        }
+        return null;
+    }
+
+    private TaxRegistration extractTaxRegistration(Element party) {
+        NodeList taxNodes = party.getElementsByTagNameNS("*", "SpecifiedTaxRegistration");
+        if (taxNodes.getLength() > 0) {
+            Element reg = (Element) taxNodes.item(0);
+            NodeList idNodes = reg.getElementsByTagNameNS("*", "ID");
+            if (idNodes.getLength() > 0) {
+                Element idElem = (Element) idNodes.item(0);
+                String scheme = idElem.getAttribute("schemeID");
+                String id = idElem.getTextContent().trim();
+                return TaxRegistration.builder().schemeId(scheme).id(id).build();
+            }
         }
         return null;
     }
