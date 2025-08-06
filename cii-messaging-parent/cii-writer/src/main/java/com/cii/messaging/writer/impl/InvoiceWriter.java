@@ -20,7 +20,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class InvoiceWriter extends AbstractCIIWriter {
-    
+
+    public InvoiceWriter() {
+        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B");
+        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B");
+        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B");
+    }
+
     @Override
     protected void initializeJAXBContext() throws JAXBException {
         // Simple XML generation without specific JAXB context
@@ -57,9 +63,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             Document doc = builder.newDocument();
             
             // Create root element for D16B namespace
-            Element root = doc.createElementNS(
-                    "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B",
-                    "rsm:CrossIndustryInvoice");
+            Element root = createElement(doc, "rsm:CrossIndustryInvoice");
             root.setAttribute("xmlns:rsm",
                     "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B");
             root.setAttribute("xmlns:ram",
@@ -69,28 +73,28 @@ public class InvoiceWriter extends AbstractCIIWriter {
             doc.appendChild(root);
 
             // Add ExchangedDocumentContext
-            Element docContext = doc.createElement("rsm:ExchangedDocumentContext");
-            Element guideline = doc.createElement("ram:GuidelineSpecifiedDocumentContextParameter");
+            Element docContext = createElement(doc, "rsm:ExchangedDocumentContext");
+            Element guideline = createElement(doc, "ram:GuidelineSpecifiedDocumentContextParameter");
             addElement(doc, guideline, "ram:ID", "urn:cen.eu:en16931:2017");
             docContext.appendChild(guideline);
             root.appendChild(docContext);
 
             // Add ExchangedDocument
-            Element exchangedDoc = doc.createElement("rsm:ExchangedDocument");
+            Element exchangedDoc = createElement(doc, "rsm:ExchangedDocument");
             root.appendChild(exchangedDoc);
             
             addElement(doc, exchangedDoc, "ram:ID", message.getMessageId());
             addElement(doc, exchangedDoc, "ram:TypeCode", "380"); // Invoice type code
             
-            Element issueDateTime = doc.createElement("ram:IssueDateTime");
-            Element dateTimeString = doc.createElement("udt:DateTimeString");
+            Element issueDateTime = createElement(doc, "ram:IssueDateTime");
+            Element dateTimeString = createElement(doc, "udt:DateTimeString");
             dateTimeString.setAttribute("format", "102");
             dateTimeString.setTextContent(message.getCreationDateTime().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
             issueDateTime.appendChild(dateTimeString);
             exchangedDoc.appendChild(issueDateTime);
             
             // Add SupplyChainTradeTransaction
-            Element transaction = doc.createElement("rsm:SupplyChainTradeTransaction");
+            Element transaction = createElement(doc, "rsm:SupplyChainTradeTransaction");
             root.appendChild(transaction);
             
             // Add line items
@@ -102,37 +106,37 @@ public class InvoiceWriter extends AbstractCIIWriter {
             }
             
             // Add header trade agreement
-            Element headerAgreement = doc.createElement("ram:ApplicableHeaderTradeAgreement");
+            Element headerAgreement = createElement(doc, "ram:ApplicableHeaderTradeAgreement");
             transaction.appendChild(headerAgreement);
 
             DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
             addElement(doc, headerAgreement, "ram:BuyerReference", header.getBuyerReference());
             
             // Add seller party
-            Element sellerParty = doc.createElement("ram:SellerTradeParty");
+            Element sellerParty = createElement(doc, "ram:SellerTradeParty");
             addElement(doc, sellerParty, "ram:ID", message.getSenderPartyId());
             addElement(doc, sellerParty, "ram:Name", "Seller Company");
             headerAgreement.appendChild(sellerParty);
             
             // Add buyer party
-            Element buyerParty = doc.createElement("ram:BuyerTradeParty");
+            Element buyerParty = createElement(doc, "ram:BuyerTradeParty");
             addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId());
             addElement(doc, buyerParty, "ram:Name", "Buyer Company");
             headerAgreement.appendChild(buyerParty);
             
             // Add header trade settlement
-            Element headerSettlement = doc.createElement("ram:ApplicableHeaderTradeSettlement");
+            Element headerSettlement = createElement(doc, "ram:ApplicableHeaderTradeSettlement");
             transaction.appendChild(headerSettlement);
 
             addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode", header.getCurrency());
 
             if (header.getPaymentTerms() != null) {
                 PaymentTerms terms = header.getPaymentTerms();
-                Element paymentTerms = doc.createElement("ram:SpecifiedTradeSettlementPaymentTerms");
+                Element paymentTerms = createElement(doc, "ram:SpecifiedTradeSettlementPaymentTerms");
                 addElement(doc, paymentTerms, "ram:Description", terms.getDescription());
                 if (terms.getDueDate() != null) {
-                    Element dueDate = doc.createElement("ram:DueDateDateTime");
-                    Element dateTime = doc.createElement("udt:DateTimeString");
+                    Element dueDate = createElement(doc, "ram:DueDateDateTime");
+                    Element dateTime = createElement(doc, "udt:DateTimeString");
                     dateTime.setAttribute("format", "102");
                     dateTime.setTextContent(terms.getDueDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
                     dueDate.appendChild(dateTime);
@@ -143,7 +147,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
 
             // Add monetary summation
             if (message.getTotals() != null) {
-                Element monetarySummation = doc.createElement("ram:SpecifiedTradeSettlementHeaderMonetarySummation");
+                Element monetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementHeaderMonetarySummation");
                 headerSettlement.appendChild(monetarySummation);
 
                 addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount());
@@ -161,16 +165,16 @@ public class InvoiceWriter extends AbstractCIIWriter {
     }
     
     private Element createLineItemElement(Document doc, LineItem lineItem) {
-        Element lineElement = doc.createElement("ram:IncludedSupplyChainTradeLineItem");
+        Element lineElement = createElement(doc, "ram:IncludedSupplyChainTradeLineItem");
         
         // Line document
-        Element lineDoc = doc.createElement("ram:AssociatedDocumentLineDocument");
+        Element lineDoc = createElement(doc, "ram:AssociatedDocumentLineDocument");
         addElement(doc, lineDoc, "ram:LineID", lineItem.getLineNumber());
         lineElement.appendChild(lineDoc);
         
         // Product
-        Element product = doc.createElement("ram:SpecifiedTradeProduct");
-        Element globalId = doc.createElement("ram:GlobalID");
+        Element product = createElement(doc, "ram:SpecifiedTradeProduct");
+        Element globalId = createElement(doc, "ram:GlobalID");
         globalId.setAttribute("schemeID", "GTIN");
         globalId.setTextContent(lineItem.getProductId());
         product.appendChild(globalId);
@@ -178,30 +182,30 @@ public class InvoiceWriter extends AbstractCIIWriter {
         lineElement.appendChild(product);
         
         // Line agreement
-        Element lineAgreement = doc.createElement("ram:SpecifiedLineTradeAgreement");
-        Element priceDetails = doc.createElement("ram:NetPriceProductTradePrice");
+        Element lineAgreement = createElement(doc, "ram:SpecifiedLineTradeAgreement");
+        Element priceDetails = createElement(doc, "ram:NetPriceProductTradePrice");
         addAmountElement(doc, priceDetails, "ram:ChargeAmount", lineItem.getUnitPrice());
         lineAgreement.appendChild(priceDetails);
         lineElement.appendChild(lineAgreement);
         
         // Line delivery
-        Element lineDelivery = doc.createElement("ram:SpecifiedLineTradeDelivery");
-        Element quantity = doc.createElement("ram:BilledQuantity");
+        Element lineDelivery = createElement(doc, "ram:SpecifiedLineTradeDelivery");
+        Element quantity = createElement(doc, "ram:BilledQuantity");
         quantity.setAttribute("unitCode", lineItem.getUnitCode());
         quantity.setTextContent(lineItem.getQuantity().toString());
         lineDelivery.appendChild(quantity);
         lineElement.appendChild(lineDelivery);
         
         // Line settlement
-        Element lineSettlement = doc.createElement("ram:SpecifiedLineTradeSettlement");
+        Element lineSettlement = createElement(doc, "ram:SpecifiedLineTradeSettlement");
         if (lineItem.getTaxRate() != null || lineItem.getTaxCategory() != null || lineItem.getTaxTypeCode() != null) {
-            Element tradeTax = doc.createElement("ram:ApplicableTradeTax");
+            Element tradeTax = createElement(doc, "ram:ApplicableTradeTax");
             addElement(doc, tradeTax, "ram:TypeCode", lineItem.getTaxTypeCode());
             addAmountElement(doc, tradeTax, "ram:RateApplicablePercent", lineItem.getTaxRate());
             addElement(doc, tradeTax, "ram:CategoryCode", lineItem.getTaxCategory());
             lineSettlement.appendChild(tradeTax);
         }
-        Element lineMonetarySummation = doc.createElement("ram:SpecifiedTradeSettlementLineMonetarySummation");
+        Element lineMonetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementLineMonetarySummation");
         addAmountElement(doc, lineMonetarySummation, "ram:LineTotalAmount", lineItem.getLineAmount());
         lineSettlement.appendChild(lineMonetarySummation);
         lineElement.appendChild(lineSettlement);
@@ -212,18 +216,14 @@ public class InvoiceWriter extends AbstractCIIWriter {
     @Override
     protected void addElement(Document doc, Element parent, String name, String value) {
         if (value != null && !value.isBlank()) {
-            Element element = doc.createElement(name);
-            element.setTextContent(value);
-            parent.appendChild(element);
+            super.addElement(doc, parent, name, value);
         }
     }
 
     @Override
     protected void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
         if (amount != null && amount.compareTo(BigDecimal.ZERO) != 0) {
-            Element element = doc.createElement(name);
-            element.setTextContent(amount.toPlainString());
-            parent.appendChild(element);
+            super.addAmountElement(doc, parent, name, amount);
         }
     }
 }
