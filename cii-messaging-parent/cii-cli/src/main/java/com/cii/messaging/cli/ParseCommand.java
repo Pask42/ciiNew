@@ -4,7 +4,11 @@ import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import picocli.CommandLine.*;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -18,9 +22,9 @@ public class ParseCommand implements Callable<Integer> {
     
     @Option(names = {"-o", "--output"}, description = "Output file (optional)")
     private File outputFile;
-    
+
     @Option(names = {"--format"}, description = "Output format: JSON or SUMMARY", defaultValue = "SUMMARY")
-    private String format;
+    private OutputFormat format = OutputFormat.SUMMARY;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
     
@@ -30,6 +34,14 @@ public class ParseCommand implements Callable<Integer> {
             System.err.println("Input file not found: " + inputFile);
             return 1;
         }
+        if (!inputFile.isFile()) {
+            System.err.println("Input is not a file: " + inputFile);
+            return 1;
+        }
+        if (!inputFile.canRead()) {
+            System.err.println("Input file cannot be read: " + inputFile);
+            return 1;
+        }
         
         System.out.println("Parsing " + inputFile.getName() + "...");
         
@@ -37,7 +49,7 @@ public class ParseCommand implements Callable<Integer> {
             CIIMessage message = service.readMessage(inputFile);
             
             String output;
-            if ("JSON".equalsIgnoreCase(format)) {
+            if (format == OutputFormat.JSON) {
                 output = service.convertToJson(message);
             } else {
                 output = generateSummary(message);
@@ -48,9 +60,13 @@ public class ParseCommand implements Callable<Integer> {
                 if (parent != null) {
                     parent.mkdirs();
                 }
-                java.nio.file.Files.writeString(outputFile.toPath(), output,
-                        java.nio.charset.StandardCharsets.UTF_8);
-                System.out.println("Output saved to: " + outputFile.getAbsolutePath());
+                try {
+                    Files.writeString(outputFile.toPath(), output, StandardCharsets.UTF_8);
+                    System.out.println("Output saved to: " + outputFile.getAbsolutePath());
+                } catch (IOException ioe) {
+                    System.err.println("Failed to write output: " + ioe.getMessage());
+                    return 1;
+                }
             } else {
                 System.out.println("\n" + output);
             }
