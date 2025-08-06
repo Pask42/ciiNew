@@ -95,14 +95,6 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
                 }
             }
 
-            if (isJson && targetFormat == TargetFormat.JSON) {
-                System.err.println("Input is already JSON");
-                return 1;
-            }
-            if (isXml && targetFormat == TargetFormat.XML) {
-                System.err.println("Input is already XML");
-                return 1;
-            }
             if (!isJson && !isXml) {
                 System.err.println("Input is neither valid JSON nor XML");
                 if (jsonError != null) {
@@ -120,7 +112,7 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
             }
             
             if (targetFormat == TargetFormat.JSON) {
-                if (isInputJson) {
+                if (isJson) {
                     logger.error("Input is already JSON");
                     return 1;
                 }
@@ -128,9 +120,9 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
                 CIIMessage message = service.readMessage(inputFile);
                 String json = service.convertToJson(message);
                 Files.writeString(outputFile.toPath(), json, StandardCharsets.UTF_8);
-                
+
             } else if (targetFormat == TargetFormat.XML) {
-                if (!isInputJson) {
+                if (isXml) {
                     logger.error("Input is already XML");
                     return 1;
                 }
@@ -141,7 +133,7 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
                 }
                 CIIMessage message = service.convertFromJson(inputContent, messageType);
                 service.writeMessage(message, outputFile);
-                
+
             } else {
                 logger.error("Invalid target format: {}", targetFormat);
                 return 1;
