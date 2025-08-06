@@ -8,15 +8,21 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AbstractCIIWriter implements CIIWriter {
     protected static final Logger logger = LoggerFactory.getLogger(AbstractCIIWriter.class);
     protected JAXBContext jaxbContext;
     protected boolean formatOutput = true;
     protected String encoding = "UTF-8";
+    protected final Map<String, String> namespaces = new HashMap<>();
     
     protected AbstractCIIWriter() {
         try {
@@ -70,5 +76,34 @@ public abstract class AbstractCIIWriter implements CIIWriter {
     @Override
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    protected Element createElement(Document doc, String name) {
+        int idx = name.indexOf(':');
+        if (idx == -1) {
+            return doc.createElement(name);
+        }
+        String prefix = name.substring(0, idx);
+        String ns = namespaces.get(prefix);
+        if (ns != null) {
+            return doc.createElementNS(ns, name);
+        }
+        return doc.createElement(name);
+    }
+
+    protected void addElement(Document doc, Element parent, String name, String value) {
+        if (value != null && !value.isEmpty()) {
+            Element element = createElement(doc, name);
+            element.setTextContent(value);
+            parent.appendChild(element);
+        }
+    }
+
+    protected void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
+        if (amount != null) {
+            Element element = createElement(doc, name);
+            element.setTextContent(amount.toPlainString());
+            parent.appendChild(element);
+        }
     }
 }

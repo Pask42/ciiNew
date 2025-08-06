@@ -53,43 +53,48 @@ public class DesadvWriter extends AbstractCIIWriter {
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.newDocument();
-            
+
+            namespaces.clear();
+            namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:16");
+            namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16");
+            namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16");
+
             // Create root element
-            Element root = doc.createElementNS("urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:16", "rsm:CrossIndustryDespatchAdvice");
-            root.setAttribute("xmlns:rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:16");
-            root.setAttribute("xmlns:ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16");
-            root.setAttribute("xmlns:udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16");
+            Element root = createElement(doc, "rsm:CrossIndustryDespatchAdvice");
+            root.setAttribute("xmlns:rsm", namespaces.get("rsm"));
+            root.setAttribute("xmlns:ram", namespaces.get("ram"));
+            root.setAttribute("xmlns:udt", namespaces.get("udt"));
             doc.appendChild(root);
             
             // Add ExchangedDocument
-            Element exchangedDoc = doc.createElement("rsm:ExchangedDocument");
+            Element exchangedDoc = createElement(doc, "rsm:ExchangedDocument");
             root.appendChild(exchangedDoc);
-            
+
             addElement(doc, exchangedDoc, "ram:ID", message.getMessageId());
             addElement(doc, exchangedDoc, "ram:TypeCode", "351"); // Despatch advice type code
-            
-            Element issueDateTime = doc.createElement("ram:IssueDateTime");
-            Element dateTimeString = doc.createElement("udt:DateTimeString");
+
+            Element issueDateTime = createElement(doc, "ram:IssueDateTime");
+            Element dateTimeString = createElement(doc, "udt:DateTimeString");
             dateTimeString.setAttribute("format", "102");
             dateTimeString.setTextContent(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
             issueDateTime.appendChild(dateTimeString);
             exchangedDoc.appendChild(issueDateTime);
-            
+
             // Add SupplyChainTradeTransaction
-            Element transaction = doc.createElement("rsm:SupplyChainTradeTransaction");
+            Element transaction = createElement(doc, "rsm:SupplyChainTradeTransaction");
             root.appendChild(transaction);
-            
+
             // Add header trade delivery
-            Element headerDelivery = doc.createElement("ram:ApplicableHeaderTradeDelivery");
+            Element headerDelivery = createElement(doc, "ram:ApplicableHeaderTradeDelivery");
             transaction.appendChild(headerDelivery);
-            
+
             // Ship from party
-            Element shipFrom = doc.createElement("ram:ShipFromTradeParty");
+            Element shipFrom = createElement(doc, "ram:ShipFromTradeParty");
             addElement(doc, shipFrom, "ram:ID", message.getSenderPartyId());
             headerDelivery.appendChild(shipFrom);
-            
+
             // Ship to party
-            Element shipTo = doc.createElement("ram:ShipToTradeParty");
+            Element shipTo = createElement(doc, "ram:ShipToTradeParty");
             addElement(doc, shipTo, "ram:ID", message.getReceiverPartyId());
             headerDelivery.appendChild(shipTo);
             
@@ -109,37 +114,29 @@ public class DesadvWriter extends AbstractCIIWriter {
     }
     
     private Element createTradeLineItem(Document doc, LineItem lineItem) {
-        Element tradeLine = doc.createElement("ram:IncludedSupplyChainTradeLineItem");
-        
+        Element tradeLine = createElement(doc, "ram:IncludedSupplyChainTradeLineItem");
+
         // Line document
-        Element lineDoc = doc.createElement("ram:AssociatedDocumentLineDocument");
+        Element lineDoc = createElement(doc, "ram:AssociatedDocumentLineDocument");
         addElement(doc, lineDoc, "ram:LineID", lineItem.getLineNumber());
         tradeLine.appendChild(lineDoc);
-        
+
         // Product
-        Element product = doc.createElement("ram:SpecifiedTradeProduct");
-        Element productId = doc.createElement("ram:GlobalID");
+        Element product = createElement(doc, "ram:SpecifiedTradeProduct");
+        Element productId = createElement(doc, "ram:GlobalID");
         productId.setTextContent(lineItem.getProductId());
         product.appendChild(productId);
         addElement(doc, product, "ram:Name", lineItem.getDescription());
         tradeLine.appendChild(product);
-        
+
         // Line delivery
-        Element lineDelivery = doc.createElement("ram:SpecifiedLineTradeDelivery");
-        Element quantity = doc.createElement("ram:DespatchedQuantity");
+        Element lineDelivery = createElement(doc, "ram:SpecifiedLineTradeDelivery");
+        Element quantity = createElement(doc, "ram:DespatchedQuantity");
         quantity.setAttribute("unitCode", lineItem.getUnitCode());
         quantity.setTextContent(lineItem.getQuantity().toString());
         lineDelivery.appendChild(quantity);
         tradeLine.appendChild(lineDelivery);
-        
+
         return tradeLine;
-    }
-    
-    private void addElement(Document doc, Element parent, String name, String value) {
-        if (value != null) {
-            Element element = doc.createElement(name);
-            element.setTextContent(value);
-            parent.appendChild(element);
-        }
     }
 }

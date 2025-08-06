@@ -24,19 +24,25 @@ public class OrderResponseWriter extends AbstractCIIWriter {
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.newDocument();
-            
+
+            namespaces.clear();
+            namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:16");
+            namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16");
+            namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16");
+
             // Create root element
-            Element root = doc.createElementNS("urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:16", "rsm:CrossIndustryOrderResponse");
+            Element root = createElement(doc, "rsm:CrossIndustryOrderResponse");
+            root.setAttribute("xmlns:rsm", namespaces.get("rsm"));
+            root.setAttribute("xmlns:ram", namespaces.get("ram"));
+            root.setAttribute("xmlns:udt", namespaces.get("udt"));
             doc.appendChild(root);
-            
+
             // Add ExchangedDocument
-            Element exchangedDoc = doc.createElement("rsm:ExchangedDocument");
+            Element exchangedDoc = createElement(doc, "rsm:ExchangedDocument");
             root.appendChild(exchangedDoc);
-            
-            Element docId = doc.createElement("ram:ID");
-            docId.setTextContent(message.getMessageId());
-            exchangedDoc.appendChild(docId);
-            
+
+            addElement(doc, exchangedDoc, "ram:ID", message.getMessageId());
+
             return doc;
             
         } catch (Exception e) {
