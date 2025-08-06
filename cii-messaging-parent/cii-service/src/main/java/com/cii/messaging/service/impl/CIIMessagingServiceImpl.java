@@ -7,7 +7,6 @@ import com.cii.messaging.validator.*;
 import com.cii.messaging.validator.impl.CompositeValidator;
 import com.cii.messaging.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +25,11 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
     private static final Logger logger = LoggerFactory.getLogger(CIIMessagingServiceImpl.class);
     
     private final ObjectMapper jsonMapper;
-    private final XmlMapper xmlMapper;
     private final CIIValidator validator;
     
     public CIIMessagingServiceImpl() {
         this.jsonMapper = new ObjectMapper();
         this.jsonMapper.findAndRegisterModules(); // For Java 8 time support
-        this.xmlMapper = new XmlMapper();
-        this.xmlMapper.findAndRegisterModules();
         this.validator = new CompositeValidator();
     }
     
