@@ -4,18 +4,20 @@ import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.model.MessageType;
 import com.cii.messaging.validator.*;
 import com.cii.messaging.writer.CIIWriter;
-import com.cii.messaging.writer.CIIWriterException;
 import com.cii.messaging.writer.CIIWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -23,14 +25,15 @@ import javax.xml.validation.Validator;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.xml.parsers.SAXParserFactory;
 
 public class XSDValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(XSDValidator.class);
     private SchemaVersion schemaVersion = SchemaVersion.D16B;
-    private final Map<String, Schema> schemaCache = new HashMap<>();
+    private final Map<String, Schema> schemaCache = new ConcurrentHashMap<>();
     
     @Override
     public ValidationResult validate(File xmlFile) {
@@ -91,34 +94,30 @@ public class XSDValidator implements CIIValidator {
         this.schemaVersion = version;
     }
     
-    private ValidationResult performValidation(InputStream inputStream, 
+    private ValidationResult performValidation(InputStream inputStream,
                                               ValidationResult.ValidationResultBuilder resultBuilder,
                                               long startTime) {
         List<ValidationError> errors = new ArrayList<>();
         List<ValidationWarning> warnings = new ArrayList<>();
-        
+
         try {
-            // Read the input so we can parse and validate with the same content
-            byte[] xmlBytes = inputStream.readAllBytes();
-
-            // Basic well-formedness and XXE protection
-            javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            factory.setXIncludeAware(false);
-            factory.setExpandEntityReferences(false);
-            javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.parse(new ByteArrayInputStream(xmlBytes));
-
             Schema schema = getSchemaForVersion(schemaVersion);
             Validator validator = schema.newValidator();
 
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
             validator.setErrorHandler(handler);
 
-            Source source = new StreamSource(new ByteArrayInputStream(xmlBytes));
+            // Configure a secure SAX parser to avoid XXE attacks
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setXIncludeAware(false);
+            factory.setExpandEntityReferences(false);
+
+            XMLReader reader = factory.newSAXParser().getXMLReader();
+            Source source = new SAXSource(reader, new InputSource(new BufferedInputStream(inputStream)));
             validator.validate(source);
 
             resultBuilder.valid(!handler.hasErrors());
@@ -146,8 +145,9 @@ public class XSDValidator implements CIIValidator {
 
     private Schema getSchemaForVersion(SchemaVersion version) throws SAXException, IOException {
         String key = version.getVersion();
-        if (schemaCache.containsKey(key)) {
-            return schemaCache.get(key);
+        Schema cached = schemaCache.get(key);
+        if (cached != null) {
+            return cached;
         }
 
         String resourcePath = "/xsd/" + key.toLowerCase() + "/CrossIndustryInvoice.xsd";
@@ -161,8 +161,8 @@ public class XSDValidator implements CIIValidator {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             Schema schema = factory.newSchema(new StreamSource(is));
-            schemaCache.put(key, schema);
-            return schema;
+            Schema existing = schemaCache.putIfAbsent(key, schema);
+            return existing != null ? existing : schema;
         }
     }
     
