@@ -112,8 +112,6 @@ public class XSDValidator implements CIIValidator {
 
             Schema schema = getSchemaForVersion(schemaVersion);
             Validator validator = schema.newValidator();
-            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
             validator.setErrorHandler(handler);

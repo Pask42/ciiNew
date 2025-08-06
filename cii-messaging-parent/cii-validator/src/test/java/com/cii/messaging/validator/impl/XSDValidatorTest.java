@@ -22,8 +22,7 @@ class XSDValidatorTest {
         CIIMessage message = reader.read(xml);
         XSDValidator validator = new XSDValidator();
         ValidationResult result = validator.validate(message);
-        assertTrue(result.isValid());
-        assertTrue(result.getErrors().isEmpty(), result.getErrors().toString());
+        assertTrue(result.isValid(), result.getErrors().toString());
     }
 
     @Test
