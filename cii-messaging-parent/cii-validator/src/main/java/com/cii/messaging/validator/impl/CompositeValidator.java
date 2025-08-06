@@ -30,6 +30,8 @@ public class CompositeValidator implements CIIValidator {
     
     @Override
     public ValidationResult validate(File xmlFile) {
+        long start = System.currentTimeMillis();
+
         ValidationResult.ValidationResultBuilder combinedResult = ValidationResult.builder();
         combinedResult.valid(true);
         
@@ -56,7 +58,8 @@ public class CompositeValidator implements CIIValidator {
         combinedResult.errors(allErrors);
         combinedResult.warnings(allWarnings);
         combinedResult.validatedAgainst(validatedAgainst.toString());
-        
+        combinedResult.validationTimeMs(System.currentTimeMillis() - start);
+
         return combinedResult.build();
     }
     
@@ -112,6 +115,8 @@ public class CompositeValidator implements CIIValidator {
     }
 
     private ValidationResult validateBuffered(byte[] data) {
+        long start = System.currentTimeMillis();
+
         ValidationResult.ValidationResultBuilder combinedResult = ValidationResult.builder();
         combinedResult.valid(true);
 
@@ -138,6 +143,7 @@ public class CompositeValidator implements CIIValidator {
         combinedResult.errors(allErrors);
         combinedResult.warnings(allWarnings);
         combinedResult.validatedAgainst(validatedAgainst.toString());
+        combinedResult.validationTimeMs(System.currentTimeMillis() - start);
 
         return combinedResult.build();
     }
