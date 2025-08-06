@@ -180,14 +180,14 @@ import javax.xml.validation.Validator;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class XSDValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(XSDValidator.class);
     private SchemaVersion schemaVersion = SchemaVersion.D16B;
-    private final Map<String, Schema> schemaCache = new HashMap<>();
+    private final Map<String, Schema> schemaCache = new ConcurrentHashMap<>();
     
     @Override
     public ValidationResult validate(File xmlFile) {
