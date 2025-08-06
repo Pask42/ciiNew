@@ -136,7 +136,7 @@ public class DesadvWriter extends AbstractCIIWriter {
     }
     
     private void addElement(Document doc, Element parent, String name, String value) {
-        if (value != null) {
+        if (value != null && !value.isBlank()) {
             Element element = doc.createElement(name);
             element.setTextContent(value);
             parent.appendChild(element);

@@ -106,18 +106,17 @@ public class InvoiceWriter extends AbstractCIIWriter {
             transaction.appendChild(headerAgreement);
 
             DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
-            addElement(doc, headerAgreement, "ram:BuyerReference",
-                    header.getBuyerReference() != null ? header.getBuyerReference() : "");
+            addElement(doc, headerAgreement, "ram:BuyerReference", header.getBuyerReference());
             
             // Add seller party
             Element sellerParty = doc.createElement("ram:SellerTradeParty");
-            addElement(doc, sellerParty, "ram:ID", message.getSenderPartyId() != null ? message.getSenderPartyId() : "");
+            addElement(doc, sellerParty, "ram:ID", message.getSenderPartyId());
             addElement(doc, sellerParty, "ram:Name", "Seller Company");
             headerAgreement.appendChild(sellerParty);
             
             // Add buyer party
             Element buyerParty = doc.createElement("ram:BuyerTradeParty");
-            addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId() != null ? message.getReceiverPartyId() : "");
+            addElement(doc, buyerParty, "ram:ID", message.getReceiverPartyId());
             addElement(doc, buyerParty, "ram:Name", "Buyer Company");
             headerAgreement.appendChild(buyerParty);
             
@@ -125,8 +124,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             Element headerSettlement = doc.createElement("ram:ApplicableHeaderTradeSettlement");
             transaction.appendChild(headerSettlement);
 
-            addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode",
-                    header.getCurrency() != null ? header.getCurrency() : "");
+            addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode", header.getCurrency());
 
             if (header.getPaymentTerms() != null) {
                 PaymentTerms terms = header.getPaymentTerms();
@@ -212,15 +210,15 @@ public class InvoiceWriter extends AbstractCIIWriter {
     }
     
     private void addElement(Document doc, Element parent, String name, String value) {
-        if (value != null) {
+        if (value != null && !value.isBlank()) {
             Element element = doc.createElement(name);
             element.setTextContent(value);
             parent.appendChild(element);
         }
     }
-    
+
     private void addAmountElement(Document doc, Element parent, String name, BigDecimal amount) {
-        if (amount != null) {
+        if (amount != null && amount.compareTo(BigDecimal.ZERO) != 0) {
             Element element = doc.createElement(name);
             element.setTextContent(amount.toPlainString());
             parent.appendChild(element);
