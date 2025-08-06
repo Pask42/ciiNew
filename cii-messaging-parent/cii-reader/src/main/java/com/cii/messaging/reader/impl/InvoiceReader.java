@@ -237,13 +237,30 @@ public class InvoiceReader extends AbstractCIIReader {
     }
     
     private TotalsInformation extractInvoiceTotals(Document doc) {
+        BigDecimal lineTotal = parseBigDecimal(extractTextContent(doc, "LineTotalAmount"));
+        if (lineTotal == null) {
+            lineTotal = calculateLineTotalFromItems(doc);
+        }
+
         return TotalsInformation.builder()
-                .lineTotalAmount(parseBigDecimal(extractTextContent(doc, "LineTotalAmount")))
+                .lineTotalAmount(lineTotal)
                 .taxBasisAmount(parseBigDecimal(extractTextContent(doc, "TaxBasisTotalAmount")))
                 .taxTotalAmount(parseBigDecimal(extractTextContent(doc, "TaxTotalAmount")))
                 .grandTotalAmount(parseBigDecimal(extractTextContent(doc, "GrandTotalAmount")))
                 .duePayableAmount(parseBigDecimal(extractTextContent(doc, "DuePayableAmount")))
                 .build();
+    }
+
+    private BigDecimal calculateLineTotalFromItems(Document doc) {
+        BigDecimal total = BigDecimal.ZERO;
+        NodeList lineAmounts = doc.getElementsByTagNameNS("*", "LineTotalAmount");
+        for (int i = 0; i < lineAmounts.getLength(); i++) {
+            BigDecimal amount = parseBigDecimal(lineAmounts.item(i).getTextContent());
+            if (amount != null) {
+                total = total.add(amount);
+            }
+        }
+        return total;
     }
     
     private String extractTextContent(Element element, String tagName) {
