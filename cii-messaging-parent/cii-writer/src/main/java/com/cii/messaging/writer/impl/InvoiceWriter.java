@@ -88,7 +88,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             
             Element issueDateTime = createElement(doc, "ram:IssueDateTime");
             Element dateTimeString = createElement(doc, "udt:DateTimeString");
-            dateTimeString.setAttribute("format", "102");
+            dateTimeString.setAttribute("format", "204");
             dateTimeString.setTextContent(message.getCreationDateTime().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
             issueDateTime.appendChild(dateTimeString);
             exchangedDoc.appendChild(issueDateTime);
