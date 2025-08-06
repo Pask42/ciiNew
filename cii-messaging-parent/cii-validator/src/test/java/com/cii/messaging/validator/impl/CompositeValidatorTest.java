@@ -23,6 +23,14 @@ class CompositeValidatorTest {
             this.result = result;
         }
 
+        private void pause() {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
         @Override
         public ValidationResult validate(File xmlFile) {
             try (InputStream is = new FileInputStream(xmlFile)) {
@@ -39,18 +47,21 @@ class CompositeValidatorTest {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            pause();
             return result;
         }
 
         @Override
         public ValidationResult validate(String xmlContent) {
             lastInput = xmlContent;
+            pause();
             return result;
         }
 
         @Override
         public ValidationResult validate(CIIMessage message) {
             lastInput = "message";
+            pause();
             return result;
         }
 
@@ -106,20 +117,32 @@ class CompositeValidatorTest {
         File temp = Files.createTempFile("cii", ".xml").toFile();
         Files.writeString(temp.toPath(), xml, StandardCharsets.UTF_8);
         ValidationResult fileResult = composite.validate(temp);
-        assertEquals(expected, fileResult);
+        assertEquals(expected.isValid(), fileResult.isValid());
+        assertEquals(expected.getErrors(), fileResult.getErrors());
+        assertEquals(expected.getWarnings(), fileResult.getWarnings());
+        assertEquals(expected.getValidatedAgainst(), fileResult.getValidatedAgainst());
+        assertTrue(fileResult.getValidationTimeMs() > 0);
         assertEquals(xml, v1.lastInput);
         assertEquals(xml, v2.lastInput);
 
         // InputStream
         ValidationResult streamResult = composite.validate(
                 new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-        assertEquals(expected, streamResult);
+        assertEquals(expected.isValid(), streamResult.isValid());
+        assertEquals(expected.getErrors(), streamResult.getErrors());
+        assertEquals(expected.getWarnings(), streamResult.getWarnings());
+        assertEquals(expected.getValidatedAgainst(), streamResult.getValidatedAgainst());
+        assertTrue(streamResult.getValidationTimeMs() > 0);
         assertEquals(xml, v1.lastInput);
         assertEquals(xml, v2.lastInput);
 
         // String
         ValidationResult stringResult = composite.validate(xml);
-        assertEquals(expected, stringResult);
+        assertEquals(expected.isValid(), stringResult.isValid());
+        assertEquals(expected.getErrors(), stringResult.getErrors());
+        assertEquals(expected.getWarnings(), stringResult.getWarnings());
+        assertEquals(expected.getValidatedAgainst(), stringResult.getValidatedAgainst());
+        assertTrue(stringResult.getValidationTimeMs() > 0);
         assertEquals(xml, v1.lastInput);
         assertEquals(xml, v2.lastInput);
 
@@ -133,7 +156,11 @@ class CompositeValidatorTest {
                 .build();
 
         ValidationResult msgResult = composite.validate(msg);
-        assertEquals(expected, msgResult);
+        assertEquals(expected.isValid(), msgResult.isValid());
+        assertEquals(expected.getErrors(), msgResult.getErrors());
+        assertEquals(expected.getWarnings(), msgResult.getWarnings());
+        assertEquals(expected.getValidatedAgainst(), msgResult.getValidatedAgainst());
+        assertTrue(msgResult.getValidationTimeMs() > 0);
         assertEquals(v1.lastInput, v2.lastInput);
         assertNotNull(v1.lastInput);
     }
