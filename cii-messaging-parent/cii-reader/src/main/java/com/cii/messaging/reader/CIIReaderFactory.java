@@ -75,6 +75,7 @@ public class CIIReaderFactory {
         XMLInputFactory factory = XMLInputFactory.newFactory();
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         factory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
+        factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
 
         XMLStreamReader reader = null;
         try (InputStream inputStream = Files.newInputStream(xmlFile)) {
