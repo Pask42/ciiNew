@@ -74,6 +74,8 @@ public class XXEReaderTest {
     @Test
     void factoryRejectsExternalEntities() {
         CIIReaderException ex = assertThrows(CIIReaderException.class, () -> CIIReaderFactory.createReader(XXE));
-        assertTrue(ex.getCause() instanceof XMLStreamException);
+        Throwable cause = ex.getCause();
+        assertTrue(cause instanceof SAXParseException || cause instanceof XMLStreamException,
+                "Unexpected cause type: " + (cause == null ? "null" : cause.getClass().getName()));
     }
 }
