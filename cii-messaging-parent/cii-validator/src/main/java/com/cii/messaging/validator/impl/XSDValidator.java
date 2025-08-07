@@ -189,7 +189,7 @@ public class XSDValidator implements CIIValidator {
         InputStream xsdStream = XSDValidator.class.getResourceAsStream(resourcePath);
         if (xsdStream == null) {
             logger.warn("XSD schema not available for version: {} type: {}", version.getVersion(), type);
-            throw new SAXException("XSD schema not found for version: " + version.getVersion() + " type: " + type););
+            throw new SAXException("XSD schema not found for version: " + version.getVersion() + " type: " + type);
         }
         try (InputStream is = xsdStream) {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
