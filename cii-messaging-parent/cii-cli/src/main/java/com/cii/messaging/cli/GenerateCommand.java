@@ -4,6 +4,7 @@ import com.cii.messaging.model.*;
 import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import picocli.CommandLine.*;
+import picocli.CommandLine.Model.CommandSpec;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -45,6 +46,9 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
     
+    @Spec
+    private CommandSpec spec;
+    
     @Override
     public Integer call() throws Exception {
         configureLogging();
@@ -54,7 +58,7 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
 
         if (orderFile != null) {
             if (!orderFile.exists() || !orderFile.isFile() || !orderFile.canRead()) {
-                System.err.println("Order file must be a readable file: " + orderFile);
+                spec.commandLine().getErr().println("Order file must be a readable file: " + orderFile);
                 return 1;
             }
             // Generate from existing ORDER
@@ -85,11 +89,11 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
         if (parent != null) {
             if (parent.exists()) {
                 if (!parent.isDirectory()) {
-                    System.err.println("Output parent is not a directory: " + parent);
+                    spec.commandLine().getErr().println("Output parent is not a directory: " + parent);
                     return 1;
                 }
             } else if (!parent.mkdirs()) {
-                System.err.println("Failed to create directories for output file: " + parent);
+                spec.commandLine().getErr().println("Failed to create directories for output file: " + parent);
                 return 1;
             }
         }
@@ -102,10 +106,10 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
             } else {
                 service.writeMessage(message, outputFile);
             }
-        } catch (IOException e) {
-            System.err.println("Failed to write output file: " + e.getMessage());
+        } catch (Exception e) {
+            spec.commandLine().getErr().println("Failed to write output file: " + e.getMessage());
             return 1;
-        }        
+        }   
         logger.info("Generated {} saved to: {}", messageType, outputFile.getAbsolutePath());
         return 0;
     }
