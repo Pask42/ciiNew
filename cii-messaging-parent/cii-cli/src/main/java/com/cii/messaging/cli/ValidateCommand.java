@@ -4,6 +4,7 @@ import com.cii.messaging.service.CIIMessagingService;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import com.cii.messaging.validator.*;
 import picocli.CommandLine.*;
+import picocli.CommandLine.Model.CommandSpec;
 import java.io.File;
 import java.util.concurrent.Callable;
 
@@ -28,6 +29,9 @@ public class ValidateCommand extends AbstractCommand implements Callable<Integer
     private boolean verbose;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
+
+    @Spec
+    private CommandSpec spec;
     
     @Override
     public Integer call() throws Exception {
@@ -46,11 +50,11 @@ public class ValidateCommand extends AbstractCommand implements Callable<Integer
                 continue;
             }
             if (!file.isFile()) {
-                System.err.println("Not a file: " + file);
+                spec.commandLine().getErr().println("Not a file: " + file);
                 continue;
             }
             if (!file.canRead()) {
-                System.err.println("Cannot read file: " + file);
+                spec.commandLine().getErr().println("Cannot read file: " + file);
                 continue;
             }
 
