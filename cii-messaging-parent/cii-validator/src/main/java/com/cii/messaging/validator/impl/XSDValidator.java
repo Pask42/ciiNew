@@ -14,6 +14,7 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
+import org.w3c.dom.Document;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class XSDValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(XSDValidator.class);
@@ -41,7 +44,9 @@ public class XSDValidator implements CIIValidator {
         ValidationResult.ValidationResultBuilder resultBuilder = ValidationResult.builder();
         
         try (InputStream is = new FileInputStream(xmlFile)) {
-            return performValidation(is, resultBuilder, startTime);
+            byte[] data = is.readAllBytes();
+            MessageType type = detectMessageType(data);
+            return performValidation(new ByteArrayInputStream(data), resultBuilder, startTime, type);
         } catch (Exception e) {
             resultBuilder.valid(false);
             resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
@@ -60,7 +65,22 @@ public class XSDValidator implements CIIValidator {
     public ValidationResult validate(InputStream inputStream) {
         long startTime = System.currentTimeMillis();
         ValidationResult.ValidationResultBuilder resultBuilder = ValidationResult.builder();
-        return performValidation(inputStream, resultBuilder, startTime);
+        try {
+            byte[] data = inputStream.readAllBytes();
+            MessageType type = detectMessageType(data);
+            return performValidation(new ByteArrayInputStream(data), resultBuilder, startTime, type);
+        } catch (Exception e) {
+            resultBuilder.valid(false);
+            resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
+            ValidationError error = ValidationError.builder()
+                    .message("Failed to validate stream: " + e.getMessage())
+                    .severity(ValidationError.ErrorSeverity.FATAL)
+                    .build();
+            List<ValidationError> errors = new ArrayList<>();
+            errors.add(error);
+            resultBuilder.errors(errors);
+            return resultBuilder.build();
+        }
     }
     
     @Override
@@ -111,12 +131,13 @@ public class XSDValidator implements CIIValidator {
     
     private ValidationResult performValidation(InputStream inputStream,
                                               ValidationResult.ValidationResultBuilder resultBuilder,
-                                              long startTime) {
+                                              long startTime,
+                                              MessageType messageType) {
         List<ValidationError> errors = new ArrayList<>();
         List<ValidationWarning> warnings = new ArrayList<>();
 
         try {
-            Schema schema = getSchemaForVersion(schemaVersion);
+            Schema schema = getSchemaForVersion(schemaVersion, messageType);
             Validator validator = schema.newValidator();
 
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
@@ -157,18 +178,18 @@ public class XSDValidator implements CIIValidator {
         }
     }
 
-    private Schema getSchemaForVersion(SchemaVersion version) throws SAXException, IOException {
-        String key = version.getVersion();
+    private Schema getSchemaForVersion(SchemaVersion version, MessageType type) throws SAXException, IOException {
+        String key = version.getVersion() + "-" + type.name();
         Schema cached = schemaCache.get(key);
         if (cached != null) {
             return cached;
         }
 
-        String resourcePath = "/xsd/" + key.toLowerCase() + "/CrossIndustryInvoice.xsd";
+        String resourcePath = "/xsd/" + version.getVersion().toLowerCase() + "/" + getSchemaFileName(type);
         InputStream xsdStream = XSDValidator.class.getResourceAsStream(resourcePath);
         if (xsdStream == null) {
-            logger.warn("XSD schema not available for version: {}", version.getVersion());
-            throw new SAXException("XSD schema not found for version: " + version.getVersion());
+            logger.warn("XSD schema not available for version: {} type: {}", version.getVersion(), type);
+            throw new SAXException("XSD schema not found for version: " + version.getVersion() + " type: " + type););
         }
         try (InputStream is = xsdStream) {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -181,6 +202,44 @@ public class XSDValidator implements CIIValidator {
             Schema schema = factory.newSchema(new StreamSource(is));
             Schema existing = schemaCache.putIfAbsent(key, schema);
             return existing != null ? existing : schema;
+        }
+    }
+    
+    private String getSchemaFileName(MessageType type) {
+        switch (type) {
+            case INVOICE:
+                return "CrossIndustryInvoice.xsd";
+            case DESADV:
+                return "CrossIndustryDespatchAdvice.xsd";
+            case ORDER:
+                return "CrossIndustryOrder.xsd";
+            case ORDERSP:
+                return "CrossIndustryOrderResponse.xsd";
+            default:
+                return "CrossIndustryInvoice.xsd";
+        }
+    }
+
+    private MessageType detectMessageType(byte[] data) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
+            Document doc = builder.parse(bais);
+            String root = doc.getDocumentElement().getLocalName();
+            if ("CrossIndustryInvoice".equals(root)) {
+                return MessageType.INVOICE;
+            } else if ("CrossIndustryDespatchAdvice".equals(root)) {
+                return MessageType.DESADV;
+            } else if ("CrossIndustryOrder".equals(root)) {
+                return MessageType.ORDER;
+            } else if ("CrossIndustryOrderResponse".equals(root)) {
+                return MessageType.ORDERSP;
+            }
+            throw new SAXException("Unknown root element: " + root);
         }
     }
     
