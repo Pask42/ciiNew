@@ -70,6 +70,21 @@ public class XSDValidator implements CIIValidator {
     
     @Override
     public ValidationResult validate(CIIMessage message) {
+        if (message.getBuyer() == null || message.getSeller() == null ||
+                message.getLineItems() == null || message.getLineItems().isEmpty()) {
+            ValidationError error = ValidationError.builder()
+                    .message("Missing required message content")
+                    .severity(ValidationError.ErrorSeverity.FATAL)
+                    .build();
+            List<ValidationError> errors = new ArrayList<>();
+            errors.add(error);
+            return ValidationResult.builder()
+                    .valid(false)
+                    .errors(errors)
+                    .validatedAgainst("XSD " + schemaVersion.getVersion())
+                    .build();
+        }
+
         try {
             CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
             String xml = writer.writeToString(message);
@@ -114,7 +129,6 @@ public class XSDValidator implements CIIValidator {
             factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
             factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             factory.setXIncludeAware(false);
-            factory.setExpandEntityReferences(false);
 
             XMLReader reader = factory.newSAXParser().getXMLReader();
             Source source = new SAXSource(reader, new InputSource(new BufferedInputStream(inputStream)));
@@ -158,8 +172,12 @@ public class XSDValidator implements CIIValidator {
         }
         try (InputStream is = xsdStream) {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            try {
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            } catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
+                // Ignore if the underlying implementation does not support these properties
+            }
             Schema schema = factory.newSchema(new StreamSource(is));
             Schema existing = schemaCache.putIfAbsent(key, schema);
             return existing != null ? existing : schema;
