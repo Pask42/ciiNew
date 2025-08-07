@@ -9,7 +9,7 @@ Il couvre les flux ORDER, ORDERSP, DESADV et INVOICE et reste compatible avec ZU
 |--------|----------------|
 | `cii-model` | Modèles de données (POJO) et schémas XSD embarqués |
 | `cii-reader` | Parsing XML → objets Java |
-| `cii-writer` | Génération Java → XML (INVOICE, DESADV, ORDERSP) |
+| `cii-writer` | Génération Java → XML (ORDER, DESADV, INVOICE, ORDERSP) |
 | `cii-validator` | Validation XSD et règles métiers |
 | `cii-service` | Orchestration et API de haut niveau |
 | `cii-cli` | Interface en ligne de commande |
@@ -110,8 +110,6 @@ java -jar cii-cli.jar generate ORDERSP \
   --output ordersp.xml
 ```
 
-> ⚠️ L'écriture de messages **ORDER** n'est pas encore implémentée dans `cii-writer`. Les lectures ORDER sont supportées et la génération pourra être ajoutée en développant un `OrderWriter`.
-
 ### Utilisation programmatique
 
 ```java
@@ -119,6 +117,29 @@ CIIMessagingService service = new CIIMessagingServiceImpl();
 
 // Lecture
 CIIMessage order = service.readMessage(new File("order.xml"));
+
+// Création d'une commande ORDERS
+CIIMessage order = CIIMessage.builder()
+    .messageId("ORD-2024-001")
+    .messageType(MessageType.ORDER)
+    .creationDateTime(java.time.LocalDateTime.now())
+    .seller(TradeParty.builder().id("SELLER").name("Seller SA").build())
+    .buyer(TradeParty.builder().id("BUYER").name("Buyer SA").build())
+    .header(DocumentHeader.builder()
+            .documentNumber("ORD-2024-001")
+            .currency("EUR")
+            .build())
+    .lineItems(java.util.List.of(
+            LineItem.builder()
+                    .lineNumber("1")
+                    .productId("4012345678901")
+                    .quantity(java.math.BigDecimal.ONE)
+                    .unitCode("EA")
+                    .unitPrice(java.math.BigDecimal.valueOf(100))
+                    .lineAmount(java.math.BigDecimal.valueOf(100))
+                    .build()))
+    .build();
+service.writeMessage(order, new File("order.xml"));
 
 // Génération d'une facture en réponse
 CIIMessage invoice = service.createInvoiceResponse(order);
