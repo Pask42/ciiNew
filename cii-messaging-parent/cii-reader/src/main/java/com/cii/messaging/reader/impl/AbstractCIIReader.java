@@ -70,7 +70,7 @@ public abstract class AbstractCIIReader implements CIIReader {
         try {
             return new BigDecimal(value);
         } catch (NumberFormatException e) {
-            logger.warn("Failed to parse BigDecimal from: {}", value, e);
+            logger.warn("Failed to parse BigDecimal from: {}", value);
             return null;
         }
     }
