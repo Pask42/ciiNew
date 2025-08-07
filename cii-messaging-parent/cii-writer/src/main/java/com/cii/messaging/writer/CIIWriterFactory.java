@@ -11,6 +11,8 @@ public class CIIWriterFactory {
                 return new InvoiceWriter();
             case DESADV:
                 return new DesadvWriter();
+            case ORDER:
+                return new OrderWriter();
             case ORDERSP:
                 return new OrderResponseWriter();
             default:
