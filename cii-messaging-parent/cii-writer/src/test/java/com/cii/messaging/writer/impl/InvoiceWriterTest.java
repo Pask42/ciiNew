@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InvoiceWriterTest {
 
@@ -101,6 +102,10 @@ public class InvoiceWriterTest {
         writer.write(message, out);
 
         byte[] xml = out.toByteArray();
+        String xmlString = new String(xml);
+        assertTrue(xmlString.contains("INV-2024-001"));
+        assertTrue(xmlString.contains("4012345678901"));
+
         Path xsd = Path.of("..", "cii-validator", "src", "main", "resources", "xsd", "d16b", "CrossIndustryInvoice.xsd");
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = factory.newSchema(xsd.toFile());
