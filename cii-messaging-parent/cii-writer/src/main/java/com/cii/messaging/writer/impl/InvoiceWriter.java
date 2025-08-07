@@ -70,6 +70,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             root.setAttribute("xmlns:udt",
                     "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B");
             doc.appendChild(root);
+            DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
 
             // Add ExchangedDocumentContext
             Element docContext = createElement(doc, "rsm:ExchangedDocumentContext");
@@ -84,6 +85,8 @@ public class InvoiceWriter extends AbstractCIIWriter {
             
             addElement(doc, exchangedDoc, "ram:ID", message.getMessageId());
             addElement(doc, exchangedDoc, "ram:TypeCode", "380"); // Invoice type code
+
+            addElement(doc, exchangedDoc, "ram:ReferenceID", header.getDocumentNumber());
             
             Element issueDateTime = createElement(doc, "ram:IssueDateTime");
             Element dateTimeString = createElement(doc, "udt:DateTimeString");
@@ -96,8 +99,6 @@ public class InvoiceWriter extends AbstractCIIWriter {
             Element transaction = createElement(doc, "rsm:SupplyChainTradeTransaction");
             root.appendChild(transaction);
             
-            DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
-
             // Add line items
             if (message.getLineItems() != null) {
                 for (LineItem lineItem : message.getLineItems()) {
