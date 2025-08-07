@@ -56,6 +56,29 @@ java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar --help
 </dependency>
 ```
 
+## 🤖 Scripts
+
+### `scripts/build.sh`
+Build Maven complet (tests ignorés) et copie du JAR de la CLI dans `dist/cii-cli.jar`.
+
+```bash
+./scripts/build.sh
+```
+
+### `scripts/run-cli.sh`
+Wrapper pour lancer la CLI depuis `dist`. À utiliser après le build.
+
+```bash
+./scripts/run-cli.sh --help
+```
+
+### `scripts/validate-all.sh`
+Valide tous les fichiers XML d'un répertoire via la CLI. Dépend de `dist/cii-cli.jar` généré par le build.
+
+```bash
+./scripts/validate-all.sh cii-samples/src/main/resources/samples
+```
+
 ## 📝 Exemples d'utilisation
 
 ### Lecture d'un message
