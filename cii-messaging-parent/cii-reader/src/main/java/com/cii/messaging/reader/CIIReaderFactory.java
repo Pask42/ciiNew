@@ -41,7 +41,11 @@ public class CIIReaderFactory {
         try {
             reader = factory.createXMLStreamReader(new StringReader(xmlContent));
             while (reader.hasNext()) {
-                if (reader.next() == XMLStreamConstants.START_ELEMENT) {
+                int event = reader.next();
+                if (event == XMLStreamConstants.DTD || event == XMLStreamConstants.ENTITY_REFERENCE) {
+                    throw new CIIReaderException("DOCTYPE is not allowed", new XMLStreamException("DOCTYPE is not allowed"));
+                }
+                if (event == XMLStreamConstants.START_ELEMENT) {
                     String localName = reader.getLocalName();
                     switch (localName) {
                         case "CrossIndustryOrder":
@@ -81,7 +85,11 @@ public class CIIReaderFactory {
         try (InputStream inputStream = Files.newInputStream(xmlFile)) {
             reader = factory.createXMLStreamReader(inputStream);
             while (reader.hasNext()) {
-                if (reader.next() == XMLStreamConstants.START_ELEMENT) {
+                int event = reader.next();
+                if (event == XMLStreamConstants.DTD || event == XMLStreamConstants.ENTITY_REFERENCE) {
+                    throw new CIIReaderException("DOCTYPE is not allowed", new XMLStreamException("DOCTYPE is not allowed"));
+                }
+                if (event == XMLStreamConstants.START_ELEMENT) {
                     String localName = reader.getLocalName();
                     switch (localName) {
                         case "CrossIndustryOrder":
