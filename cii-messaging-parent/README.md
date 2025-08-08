@@ -152,6 +152,43 @@ service.writeMessage(desadv, new File("desadv.xml"));
 // Génération d'une réponse à commande
 CIIMessage ordersp = service.createOrderResponse(order, OrderResponseType.ACCEPTED);
 service.writeMessage(ordersp, new File("ordersp.xml"));
+
+// Génération directe d'un message INVOICE manuel
+CIIMessage invoice = CIIMessage.builder()
+    .messageId("INV-2024-001")
+    .messageType(MessageType.INVOICE)
+    .creationDateTime(java.time.LocalDateTime.now())
+    .header(DocumentHeader.builder().documentNumber("INV-2024-001").currency("EUR").build())
+    .lineItems(java.util.List.of(
+        LineItem.builder()
+            .lineNumber("1")
+            .productId("4012345678901")
+            .quantity(java.math.BigDecimal.ONE)
+            .unitCode("EA")
+            .unitPrice(java.math.BigDecimal.valueOf(100))
+            .lineAmount(java.math.BigDecimal.valueOf(100))
+            .build()))
+    .build();
+service.writeMessage(invoice, new File("invoice.xml"));
+
+// Génération directe d'un avis DESADV manuel
+CIIMessage manualDesadv = CIIMessage.builder()
+    .messageId("DES-2024-001")
+    .messageType(MessageType.DESADV)
+    .creationDateTime(java.time.LocalDateTime.now())
+    .lineItems(order.getLineItems())
+    .build();
+service.writeMessage(manualDesadv, new File("manual-desadv.xml"));
+
+// Génération directe d'une réponse à commande ORDERSP manuelle
+CIIMessage manualOrdersp = CIIMessage.builder()
+    .messageId("RSP-2024-001")
+    .messageType(MessageType.ORDERSP)
+    .creationDateTime(java.time.LocalDateTime.now())
+    .header(DocumentHeader.builder().documentNumber("RSP-2024-001").build())
+    .lineItems(order.getLineItems())
+    .build();
+service.writeMessage(manualOrdersp, new File("manual-ordersp.xml"));
 ```
 
 ## 🔍 Validation
