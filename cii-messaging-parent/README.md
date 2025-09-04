@@ -31,6 +31,35 @@ cd cii-messaging-parent
 mvn clean install
 ```
 
+### Choix de la version UN/CEFACT
+
+Les schémas XSD sont chargés depuis `src/main/resources/xsd/<version>/...`.
+La version est déterminée par le paramètre `unece.version` (par défaut `D23B`).
+
+Exemples :
+
+```bash
+# Utiliser la version par défaut (D23B)
+mvn clean install
+
+# Forcer la version D16B
+mvn -Dunece.version=D16B clean install
+
+# Ou via variable d'environnement
+UNECE_VERSION=D16B mvn clean install
+```
+
+Pour ajouter une nouvelle version (ex. `D24A`), déposez simplement les XSD dans
+`cii-model/src/main/resources/xsd/D24A/uncefact/data/standard/` puis construisez avec
+`-Dunece.version=D24A`.
+Les XSD officiels sont disponibles sur [le site de l'UNECE](https://unece.org/trade/uncefact/xml-schemas).
+
+Exemple de chargement en Java :
+
+```java
+Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
+```
+
 Le JAR exécutable de la CLI est ensuite disponible dans `cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar`.
 Pour ne construire que la CLI :
 
