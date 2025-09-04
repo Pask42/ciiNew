@@ -3,7 +3,10 @@ package com.cii.messaging.model.util;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
 
 /**
  * Utility to load UN/CEFACT XSD schemas based on the {@code unece.version} parameter.
@@ -17,7 +20,20 @@ import java.net.URL;
 public final class UneceSchemaLoader {
     public static final String PROPERTY = "unece.version";
     public static final String ENV = "UNECE_VERSION";
-    public static final String DEFAULT_VERSION = "D23B";
+    private static final String DEFAULT_VERSION;
+
+    static {
+        String version = null;
+        try (InputStream in = UneceSchemaLoader.class.getResourceAsStream("/unece-version.properties")) {
+            if (in != null) {
+                Properties props = new Properties();
+                props.load(in);
+                version = props.getProperty(PROPERTY);
+            }
+        } catch (IOException ignored) {
+        }
+        DEFAULT_VERSION = (version == null || version.isEmpty()) ? "D23B" : version;
+    }
 
     private UneceSchemaLoader() {
     }

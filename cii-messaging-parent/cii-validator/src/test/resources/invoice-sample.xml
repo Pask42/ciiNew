@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B"
-                          xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B"
-                          xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B">
+<rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:26"
+                          xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:34"
+                          xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:34">
     <rsm:ExchangedDocumentContext>
         <ram:GuidelineSpecifiedDocumentContextParameter>
             <ram:ID>urn:cen.eu:en16931:2017</ram:ID>

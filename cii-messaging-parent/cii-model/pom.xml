@@ -48,8 +48,24 @@
                 </dependency>
         </dependencies>
 	
-	<build>
-	  <plugins>
+        <build>
+          <resources>
+            <resource>
+              <directory>src/main/resources</directory>
+              <filtering>false</filtering>
+              <excludes>
+                <exclude>unece-version.properties</exclude>
+              </excludes>
+            </resource>
+            <resource>
+              <directory>src/main/resources</directory>
+              <filtering>true</filtering>
+              <includes>
+                <include>unece-version.properties</include>
+              </includes>
+            </resource>
+          </resources>
+          <plugins>
 	    <plugin>
 	      <groupId>org.codehaus.mojo</groupId>
 	      <artifactId>jaxb2-maven-plugin</artifactId>

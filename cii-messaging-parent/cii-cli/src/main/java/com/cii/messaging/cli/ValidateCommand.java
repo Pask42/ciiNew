@@ -22,8 +22,8 @@ public class ValidateCommand extends AbstractCommand implements Callable<Integer
     @Parameters(index = "0", description = "XML file(s) to validate", arity = "1..*")
     private File[] inputFiles;
     
-    @Option(names = {"--schema"}, description = "Schema version: D16B, D20B, D21B", defaultValue = "D16B")
-    private SchemaVersion schemaVersion;
+    @Option(names = {"--schema"}, description = "Schema version: D16B, D20B, D21B, D23B")
+    private SchemaVersion schemaVersion = SchemaVersion.getDefault();
     
     @Option(names = {"-v", "--verbose"}, description = "Show detailed validation results")
     private boolean verbose;

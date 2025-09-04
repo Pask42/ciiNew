@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class SchematronValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(SchematronValidator.class);
-    private SchemaVersion schemaVersion = SchemaVersion.D16B;
+    private SchemaVersion schemaVersion = SchemaVersion.getDefault();
     private final Processor processor;
     private XsltExecutable schematronXslt;
     

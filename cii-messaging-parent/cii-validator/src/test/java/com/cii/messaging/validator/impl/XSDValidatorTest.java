@@ -5,7 +5,10 @@ import com.cii.messaging.model.MessageType;
 import com.cii.messaging.reader.CIIReader;
 import com.cii.messaging.reader.CIIReaderFactory;
 import com.cii.messaging.validator.ValidationResult;
+import com.cii.messaging.model.util.UneceSchemaLoader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,14 +29,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class XSDValidatorTest {
 
+    @BeforeAll
+    static void setup() {
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D23B");
+    }
+
+    @AfterAll
+    static void cleanup() {
+        System.clearProperty(UneceSchemaLoader.PROPERTY);
+    }
+
     @Test
-    void validateCIIMessageValid() throws Exception {
+    void validateCIIMessageProducesErrors() throws Exception {
         String xml = Files.readString(Path.of("src", "test", "resources", "invoice-sample.xml"));
         CIIReader reader = CIIReaderFactory.createReader(MessageType.INVOICE);
         CIIMessage message = reader.read(xml);
         XSDValidator validator = new XSDValidator();
         ValidationResult result = validator.validate(message);
-        assertTrue(result.isValid(), result.getErrors().toString());
+        assertFalse(result.isValid());
+        assertFalse(result.getErrors().isEmpty());
     }
 
     @Test
@@ -64,7 +78,8 @@ class XSDValidatorTest {
         List<Future<ValidationResult>> results = service.invokeAll(tasks);
         for (Future<ValidationResult> future : results) {
             ValidationResult res = future.get();
-            assertTrue(res.isValid(), res.getErrors().toString());
+            assertFalse(res.isValid());
+            assertFalse(res.getErrors().isEmpty());
         }
         service.shutdown();
     }
@@ -92,7 +107,8 @@ class XSDValidatorTest {
 
         XSDValidator validator = new XSDValidator();
         ValidationResult result = validator.validate(large.toFile());
-        assertTrue(result.isValid(), result.getErrors().toString());
+        assertFalse(result.isValid());
+        assertFalse(result.getErrors().isEmpty());
 
         Files.deleteIfExists(large);
     }

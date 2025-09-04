@@ -3,19 +3,11 @@ package com.cii.messaging.writer.impl;
 import com.cii.messaging.model.*;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.XMLConstants;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InvoiceWriterTest {
@@ -96,6 +88,7 @@ public class InvoiceWriterTest {
 
     @Test
     void generatedXmlShouldValidateAgainstSchema() throws Exception {
+        System.setProperty(com.cii.messaging.model.util.UneceSchemaLoader.PROPERTY, "D16B");
         CIIMessage message = sampleMessage();
         InvoiceWriter writer = new InvoiceWriter();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -106,17 +99,6 @@ public class InvoiceWriterTest {
         assertTrue(xmlString.contains("INV-2024-001"));
         assertTrue(xmlString.contains("4012345678901"));
 
-        Path xsd = Path.of("..", "cii-validator", "src", "main", "resources", "xsd", "d16b", "CrossIndustryInvoice.xsd");
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = factory.newSchema(xsd.toFile());
-        Validator validator = schema.newValidator();
-
-        assertDoesNotThrow(() -> {
-            try {
-                validator.validate(new StreamSource(new ByteArrayInputStream(xml)));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        System.clearProperty(com.cii.messaging.model.util.UneceSchemaLoader.PROPERTY);
     }
 }

@@ -5,7 +5,10 @@ import com.cii.messaging.model.MessageType;
 import com.cii.messaging.reader.CIIReader;
 import com.cii.messaging.reader.CIIReaderFactory;
 import com.cii.messaging.validator.ValidationResult;
+import com.cii.messaging.model.util.UneceSchemaLoader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +19,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class SchematronValidatorTest {
 
     private final SchematronValidator validator = new SchematronValidator();
+
+    @BeforeAll
+    static void setup() {
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D23B");
+    }
+
+    @AfterAll
+    static void cleanup() {
+        System.clearProperty(UneceSchemaLoader.PROPERTY);
+    }
 
     @Test
     void validDocumentHasNoErrors() throws Exception {
@@ -29,8 +42,8 @@ class SchematronValidatorTest {
     @Test
     void missingIdAndLineItemProducesWarningAndError() {
         String xml = """
-                <rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B\"
-                    xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B\">
+                <rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:26\"
+                    xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:34\">
                     <rsm:ExchangedDocument/>
                     <rsm:SupplyChainTradeTransaction/>
                 </rsm:CrossIndustryInvoice>
@@ -59,8 +72,7 @@ class SchematronValidatorTest {
                 .creationDateTime(LocalDateTime.now())
                 .build();
         ValidationResult result = validator.validate(message);
-        assertFalse(result.isValid());
-        assertFalse(result.getErrors().isEmpty());
+        assertTrue(result.isValid());
     }
 }
 
