@@ -2,6 +2,7 @@ package com.cii.messaging.writer.impl;
 
 import com.cii.messaging.model.*;
 import com.cii.messaging.writer.CIIWriterException;
+import com.cii.messaging.model.util.UneceSchemaLoader;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import org.w3c.dom.Document;
@@ -21,9 +22,10 @@ import java.time.format.DateTimeFormatter;
 public class InvoiceWriter extends AbstractCIIWriter {
 
     public InvoiceWriter() {
-        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B");
-        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B");
-        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B");
+        String version = UneceSchemaLoader.resolveVersion().substring(1);
+        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:" + version);
+        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:" + version);
+        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:" + version);
     }
 
     @Override
@@ -61,14 +63,15 @@ public class InvoiceWriter extends AbstractCIIWriter {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.newDocument();
             
-            // Create root element for D16B namespace
+            // Create root element for configured namespace
+            String version = UneceSchemaLoader.resolveVersion().substring(1);
             Element root = createElement(doc, "rsm:CrossIndustryInvoice");
             root.setAttribute("xmlns:rsm",
-                    "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B");
+                    "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:" + version);
             root.setAttribute("xmlns:ram",
-                    "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B");
+                    "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:" + version);
             root.setAttribute("xmlns:udt",
-                    "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16B");
+                    "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:" + version);
             doc.appendChild(root);
             DocumentHeader header = message.getHeader() != null ? message.getHeader() : DocumentHeader.builder().build();
 

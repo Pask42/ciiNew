@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class XSDValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(XSDValidator.class);
-    private SchemaVersion schemaVersion = SchemaVersion.D16B;
+    private SchemaVersion schemaVersion = SchemaVersion.getDefault();
     private final Map<String, Schema> schemaCache = new ConcurrentHashMap<>();
     
     @Override
