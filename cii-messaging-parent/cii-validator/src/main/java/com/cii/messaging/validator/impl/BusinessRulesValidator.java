@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -109,8 +110,10 @@ public class BusinessRulesValidator implements CIIValidator {
         } else {
             for (LineItem item : message.getLineItems()) {
                 if (item.getQuantity() != null && item.getUnitPrice() != null && item.getLineAmount() != null) {
-                    BigDecimal expected = item.getQuantity().multiply(item.getUnitPrice());
-                    if (expected.compareTo(item.getLineAmount()) != 0) {
+                    BigDecimal expected = item.getQuantity().multiply(item.getUnitPrice())
+                            .setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal lineAmount = item.getLineAmount().setScale(2, RoundingMode.HALF_UP);
+                    if (expected.compareTo(lineAmount) != 0) {
                         errors.add(ValidationError.builder()
                                 .message("Line amount must equal quantity multiplied by unit price")
                                 .severity(ValidationError.ErrorSeverity.ERROR)
@@ -126,8 +129,10 @@ public class BusinessRulesValidator implements CIIValidator {
             BigDecimal sumLines = message.getLineItems().stream()
                     .map(LineItem::getLineAmount)
                     .filter(Objects::nonNull)
+                    .map(amount -> amount.setScale(2, RoundingMode.HALF_UP))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            if (totals.getLineTotalAmount() != null && sumLines.compareTo(totals.getLineTotalAmount()) != 0) {
+            if (totals.getLineTotalAmount() != null &&
+                    sumLines.compareTo(totals.getLineTotalAmount().setScale(2, RoundingMode.HALF_UP)) != 0) {
                 errors.add(ValidationError.builder()
                         .message("Line total amount must equal sum of line item amounts")
                         .severity(ValidationError.ErrorSeverity.ERROR)

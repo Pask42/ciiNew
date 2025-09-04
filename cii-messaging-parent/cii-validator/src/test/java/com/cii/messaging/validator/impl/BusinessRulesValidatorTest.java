@@ -119,4 +119,31 @@ class BusinessRulesValidatorTest {
         assertTrue(result.getErrors().stream().anyMatch(e -> "BR-07".equals(e.getRule())));
         assertTrue(result.getErrors().stream().anyMatch(e -> "BR-08".equals(e.getRule())));
     }
+
+    @Test
+    void validateMessageWithRoundingDifferences() {
+        CIIMessage message = CIIMessage.builder()
+                .header(DocumentHeader.builder()
+                        .documentNumber("INV-2")
+                        .documentDate(LocalDate.now())
+                        .buyerReference("BUY-2")
+                        .build())
+                .lineItems(List.of(LineItem.builder()
+                        .lineNumber("1")
+                        .quantity(new BigDecimal("3"))
+                        .unitPrice(new BigDecimal("6.86"))
+                        .lineAmount(new BigDecimal("20.580000000000002"))
+                        .build()))
+                .totals(TotalsInformation.builder()
+                        .lineTotalAmount(new BigDecimal("20.58"))
+                        .grandTotalAmount(new BigDecimal("20.58"))
+                        .duePayableAmount(new BigDecimal("20.58"))
+                        .build())
+                .build();
+
+        BusinessRulesValidator validator = new BusinessRulesValidator();
+        ValidationResult result = validator.validate(message);
+        assertTrue(result.isValid());
+        assertTrue(result.getErrors().isEmpty());
+    }
 }

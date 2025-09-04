@@ -145,23 +145,29 @@ public class OrderReader extends AbstractCIIReader {
     }
     
     private TotalsInformation extractOrderTotals(Document doc) {
-        BigDecimal lineTotal = parseBigDecimal(extractTextContent(doc, "LineTotalAmount"));
-        if (lineTotal == null || lineTotal.equals(BigDecimal.ZERO)) {
-            // Calculate from line items if not present
+        BigDecimal lineTotal = null;
+        NodeList headerNodes = doc.getElementsByTagNameNS("*", "ApplicableHeaderTradeSettlement");
+        if (headerNodes.getLength() > 0) {
+            Element header = (Element) headerNodes.item(0);
+            lineTotal = parseBigDecimal(extractTextContent(header, "LineTotalAmount"));
+        }
+        if (lineTotal == null) {
+            // Calculate from line items if not present in header
             lineTotal = calculateLineTotalFromItems(doc);
         }
-        
+
         return TotalsInformation.builder()
                 .lineTotalAmount(lineTotal)
                 .grandTotalAmount(lineTotal)
                 .build();
     }
-    
+
     private BigDecimal calculateLineTotalFromItems(Document doc) {
         BigDecimal total = BigDecimal.ZERO;
-        NodeList lineAmounts = doc.getElementsByTagNameNS("*", "LineTotalAmount");
-        for (int i = 0; i < lineAmounts.getLength(); i++) {
-            BigDecimal amount = parseBigDecimal(lineAmounts.item(i).getTextContent());
+        NodeList lineSummations = doc.getElementsByTagNameNS("*", "SpecifiedTradeSettlementLineMonetarySummation");
+        for (int i = 0; i < lineSummations.getLength(); i++) {
+            Element lineSum = (Element) lineSummations.item(i);
+            BigDecimal amount = parseBigDecimal(extractTextContent(lineSum, "LineTotalAmount"));
             if (amount != null) {
                 total = total.add(amount);
             }
