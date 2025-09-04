@@ -1,10 +1,9 @@
 package com.cii.messaging.model.util;
 
 import javax.xml.XMLConstants;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.InputStream;
+import java.net.URL;
 
 /**
  * Utility to load UN/CEFACT XSD schemas based on the {@code unece.version} parameter.
@@ -33,13 +32,13 @@ public final class UneceSchemaLoader {
     public static Schema loadSchema(String schemaFile) {
         String version = resolveVersion();
         String resourcePath = String.format("/xsd/%s/uncefact/data/standard/%s", version, schemaFile);
-        InputStream xsd = UneceSchemaLoader.class.getResourceAsStream(resourcePath);
+        URL xsd = UneceSchemaLoader.class.getResource(resourcePath);
         if (xsd == null) {
             throw new IllegalArgumentException("XSD schema not found for version " + version + " at " + resourcePath);
         }
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            return factory.newSchema(new StreamSource(xsd));
+            return factory.newSchema(xsd);
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable to load schema from " + resourcePath, e);
         }
