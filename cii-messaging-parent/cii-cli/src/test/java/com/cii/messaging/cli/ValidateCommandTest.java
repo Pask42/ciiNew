@@ -25,7 +25,7 @@ class ValidateCommandTest {
         int exitCode = cli.execute(tempDir.toString());
 
         assertThat(exitCode).isEqualTo(1);
-        assertThat(err.toString()).contains("Not a file: " + tempDir.toFile());
+        assertThat(err.toString()).contains("N'est pas un fichier : " + tempDir.toFile());
     }
 
     @Test
@@ -49,7 +49,7 @@ class ValidateCommandTest {
         int exitCode = cli.execute(file.toString());
 
         assertThat(exitCode).isEqualTo(1);
-        assertThat(err.toString()).contains("Cannot read file: " + file.toFile());
+        assertThat(err.toString()).contains("Impossible de lire le fichier : " + file.toFile());
     }
 
     @Test

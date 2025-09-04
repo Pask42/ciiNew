@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
     name = "cii-messaging",
     mixinStandardHelpOptions = true,
     version = "CII Messaging CLI 1.0.0",
-    description = "Command line tool for CII message processing",
+    description = "Outil en ligne de commande pour traiter les messages CII",
     subcommands = {
         GenerateCommand.class,
         ParseCommand.class,
@@ -33,7 +33,7 @@ public class CIIMessagingCLI extends AbstractCommand implements Runnable {
     @Override
     public void run() {
         configureLogging();
-        logger.info("No command specified. Showing usage.");
+        logger.info("Aucune commande spécifiée. Affichage de l'aide.");
         spec.commandLine().usage(System.out);
     }
 }

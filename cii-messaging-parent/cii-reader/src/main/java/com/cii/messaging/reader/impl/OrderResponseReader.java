@@ -33,7 +33,7 @@ public class OrderResponseReader extends AbstractCIIReader {
             Document doc = builder.parse(xmlFile);
             return parseDocument(doc);
         } catch (Exception e) {
-            throw new CIIReaderException("Failed to read ORDERSP file", e);
+            throw new CIIReaderException("Échec de la lecture du fichier ORDERSP", e);
         }
     }
     

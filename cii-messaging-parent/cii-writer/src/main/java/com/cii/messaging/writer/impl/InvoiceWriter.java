@@ -51,7 +51,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             transformer.transform(source, result);
             
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to write invoice", e);
+            throw new CIIWriterException("Échec de l'écriture de la facture", e);
         }
     }
     
@@ -178,7 +178,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             return doc;
             
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to create invoice document", e);
+            throw new CIIWriterException("Échec de la création du document facture", e);
         }
     }
 

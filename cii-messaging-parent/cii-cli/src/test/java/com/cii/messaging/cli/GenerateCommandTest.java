@@ -22,7 +22,7 @@ class GenerateCommandTest {
         cmd.setErr(new PrintWriter(err));
         int exit = cmd.execute("INVOICE", "-o", output.toString(), "--from-order", tempDir.toString());
         assertEquals(1, exit);
-        assertTrue(err.toString().contains("readable"));
+        assertTrue(err.toString().contains("lisible"));
     }
 
     @Test
@@ -35,7 +35,7 @@ class GenerateCommandTest {
         cmd.setErr(new PrintWriter(err));
         int exit = cmd.execute("INVOICE", "-o", output.toString());
         assertEquals(1, exit);
-        assertTrue(err.toString().contains("Failed to create directories"));
+        assertTrue(err.toString().contains("Impossible de créer les répertoires"));
     }
 
     @Test
@@ -46,7 +46,7 @@ class GenerateCommandTest {
         cmd.setErr(new PrintWriter(err));
         int exit = cmd.execute("INVOICE", "-o", dir.toString());
         assertEquals(1, exit);
-        assertTrue(err.toString().contains("Failed to write output"));
+        assertTrue(err.toString().contains("Impossible d'écrire le fichier de sortie"));
     }
 
     @Test

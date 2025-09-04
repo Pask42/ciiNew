@@ -40,7 +40,7 @@ public class ConvertCommandTest {
                     .execute(input.toString(), "-o", output.toString(), "-t", "JSON");
             assertEquals(1, exitCode);
             boolean logged = appender.list.stream()
-                    .anyMatch(e -> e.getFormattedMessage().contains("Input is already JSON"));
+                    .anyMatch(e -> e.getFormattedMessage().contains("L'entrée est déjà au format JSON"));
             assertTrue(logged);
         } finally {
             logger.detachAppender(appender);
@@ -62,7 +62,7 @@ public class ConvertCommandTest {
                     .execute(input.toString(), "-o", output.toString(), "-t", "XML");
             assertEquals(1, exitCode);
             boolean logged = appender.list.stream()
-                    .anyMatch(e -> e.getFormattedMessage().contains("Input is already XML"));
+                    .anyMatch(e -> e.getFormattedMessage().contains("L'entrée est déjà au format XML"));
             assertTrue(logged);
         } finally {
             logger.detachAppender(appender);
@@ -82,7 +82,7 @@ public class ConvertCommandTest {
             int exitCode = new CommandLine(new ConvertCommand())
                     .execute(input.toString(), "-o", output.toString(), "-t", "JSON");
             assertEquals(1, exitCode);
-            assertTrue(err.toString().contains("neither valid JSON nor XML"));
+            assertTrue(err.toString().contains("n'est ni un JSON valide ni un XML"));
         } finally {
             System.setErr(originalErr);
         }

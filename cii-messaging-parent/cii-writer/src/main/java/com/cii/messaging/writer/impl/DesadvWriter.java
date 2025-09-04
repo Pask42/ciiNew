@@ -42,7 +42,7 @@ public class DesadvWriter extends AbstractCIIWriter {
             transformer.transform(source, result);
             
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to write DESADV", e);
+            throw new CIIWriterException("Échec de l'écriture du DESADV", e);
         }
     }
     
@@ -109,7 +109,7 @@ public class DesadvWriter extends AbstractCIIWriter {
             return doc;
             
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to create DESADV document", e);
+            throw new CIIWriterException("Échec de la création du document DESADV", e);
         }
     }
     

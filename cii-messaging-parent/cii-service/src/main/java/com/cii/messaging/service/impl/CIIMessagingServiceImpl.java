@@ -38,7 +38,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIReader reader = CIIReaderFactory.createReader(xmlFile.toPath());
             return reader.read(xmlFile);
         } catch (Exception e) {
-            throw new ServiceException("Failed to read message from file: " + xmlFile.getName(), e);
+            throw new ServiceException("Échec de la lecture du message à partir du fichier : " + xmlFile.getName(), e);
         }
     }
     
@@ -48,7 +48,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIReader reader = CIIReaderFactory.createReader(expectedType);
             return reader.read(inputStream);
         } catch (Exception e) {
-            throw new ServiceException("Failed to read message from stream", e);
+            throw new ServiceException("Échec de la lecture du message depuis le flux", e);
         }
     }
     
@@ -58,7 +58,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIReader reader = CIIReaderFactory.createReader(xmlContent);
             return reader.read(xmlContent);
         } catch (Exception e) {
-            throw new ServiceException("Failed to read message from XML content", e);
+            throw new ServiceException("Échec de la lecture du message à partir du contenu XML", e);
         }
     }
     
@@ -68,7 +68,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
             writer.write(message, outputFile);
         } catch (Exception e) {
-            throw new ServiceException("Failed to write message to file: " + outputFile.getName(), e);
+            throw new ServiceException("Échec de l'écriture du message dans le fichier : " + outputFile.getName(), e);
         }
     }
     
@@ -78,7 +78,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
             writer.write(message, outputStream);
         } catch (Exception e) {
-            throw new ServiceException("Failed to write message to stream", e);
+            throw new ServiceException("Échec de l'écriture du message dans le flux", e);
         }
     }
     
@@ -88,7 +88,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
             return writer.writeToString(message);
         } catch (Exception e) {
-            throw new ServiceException("Failed to write message to string", e);
+            throw new ServiceException("Échec de l'écriture du message en chaîne", e);
         }
     }
     
@@ -97,7 +97,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
         try {
             return validator.validate(xmlFile);
         } catch (Exception e) {
-            throw new ServiceException("Failed to validate file: " + xmlFile.getName(), e);
+            throw new ServiceException("Échec de la validation du fichier : " + xmlFile.getName(), e);
         }
     }
     
@@ -106,7 +106,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
         try {
             return validator.validate(xmlContent);
         } catch (Exception e) {
-            throw new ServiceException("Failed to validate XML content", e);
+            throw new ServiceException("Échec de la validation du contenu XML", e);
         }
     }
     
@@ -117,7 +117,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             String xml = writeMessageToString(message);
             return validator.validate(xml);
         } catch (Exception e) {
-            throw new ServiceException("Failed to validate message", e);
+            throw new ServiceException("Échec de la validation du message", e);
         }
     }
 
@@ -131,7 +131,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
         try {
             return jsonMapper.writeValueAsString(message);
         } catch (Exception e) {
-            throw new ServiceException("Failed to convert message to JSON", e);
+            throw new ServiceException("Échec de la conversion du message en JSON", e);
         }
     }
     
@@ -143,18 +143,18 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             if (message.getMessageType() == null) {
                 message.setMessageType(messageType);
             } else if (message.getMessageType() != messageType) {
-                throw new ServiceException("Message type mismatch: expected " + messageType + " but found " + message.getMessageType());
+                throw new ServiceException("Type de message incohérent : attendu " + messageType + " mais trouvé " + message.getMessageType());
             }
             return message;
         } catch (Exception e) {
-            throw new ServiceException("Failed to convert JSON to message", e);
+            throw new ServiceException("Échec de la conversion du JSON en message", e);
         }
     }
     
     @Override
     public CIIMessage createInvoiceResponse(CIIMessage order) throws ServiceException {
         if (order.getMessageType() != MessageType.ORDER) {
-            throw new ServiceException("Input must be an ORDER message");
+            throw new ServiceException("L'entrée doit être un message ORDER");
         }
         
         try {
@@ -171,14 +171,14 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             
             return invoice;
         } catch (Exception e) {
-            throw new ServiceException("Failed to create invoice from order", e);
+            throw new ServiceException("Échec de la création de la facture à partir de l'ordre", e);
         }
     }
     
     @Override
     public CIIMessage createDespatchAdvice(CIIMessage order) throws ServiceException {
         if (order.getMessageType() != MessageType.ORDER) {
-            throw new ServiceException("Input must be an ORDER message");
+            throw new ServiceException("L'entrée doit être un message ORDER");
         }
         
         try {
@@ -194,14 +194,14 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             
             return desadv;
         } catch (Exception e) {
-            throw new ServiceException("Failed to create despatch advice from order", e);
+            throw new ServiceException("Échec de la création de l'avis d'expédition à partir de l'ordre", e);
         }
     }
     
     @Override
     public CIIMessage createOrderResponse(CIIMessage order, OrderResponseType responseType) throws ServiceException {
         if (order.getMessageType() != MessageType.ORDER) {
-            throw new ServiceException("Input must be an ORDER message");
+            throw new ServiceException("L'entrée doit être un message ORDER");
         }
         
         try {
@@ -217,7 +217,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             
             return ordersp;
         } catch (Exception e) {
-            throw new ServiceException("Failed to create order response", e);
+            throw new ServiceException("Échec de la création de la réponse à l'ordre", e);
         }
     }
     

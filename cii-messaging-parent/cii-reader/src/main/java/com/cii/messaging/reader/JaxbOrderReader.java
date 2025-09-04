@@ -19,7 +19,7 @@ public class JaxbOrderReader implements CIIReader {
         try {
             this.context = JAXBContext.newInstance(CIIMessage.class);
         } catch (JAXBException e) {
-            throw new RuntimeException("Failed to initialize JAXB context", e);
+            throw new RuntimeException("Échec de l'initialisation du contexte JAXB", e);
         }
     }
 
@@ -29,7 +29,7 @@ public class JaxbOrderReader implements CIIReader {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             return (CIIMessage) unmarshaller.unmarshal(xmlFile);
         } catch (JAXBException e) {
-            throw new CIIReaderException("Failed to parse XML file: " + xmlFile.getName(), e);
+            throw new CIIReaderException("Échec de l'analyse du fichier XML : " + xmlFile.getName(), e);
         }
     }
 
@@ -39,7 +39,7 @@ public class JaxbOrderReader implements CIIReader {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             return (CIIMessage) unmarshaller.unmarshal(inputStream);
         } catch (JAXBException e) {
-            throw new CIIReaderException("Failed to parse XML from input stream", e);
+            throw new CIIReaderException("Échec de l'analyse du XML depuis le flux d'entrée", e);
         }
     }
 
@@ -49,7 +49,7 @@ public class JaxbOrderReader implements CIIReader {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             return (CIIMessage) unmarshaller.unmarshal(new StringReader(xml));
         } catch (JAXBException e) {
-            throw new CIIReaderException("Failed to parse XML content", e);
+            throw new CIIReaderException("Échec de l'analyse du contenu XML", e);
         }
-    }
+}
 }

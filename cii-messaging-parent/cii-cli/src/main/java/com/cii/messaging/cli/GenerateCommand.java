@@ -20,28 +20,28 @@ import org.slf4j.LoggerFactory;
 
 @Command(
     name = "generate",
-    description = "Generate CII messages (INVOICE, DESADV, ORDERSP)"
+    description = "Générer des messages CII (INVOICE, DESADV, ORDERSP)"
 )
 public class GenerateCommand extends AbstractCommand implements Callable<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(GenerateCommand.class);
     
-    @Parameters(index = "0", description = "Message type: INVOICE, DESADV, or ORDERSP")
+    @Parameters(index = "0", description = "Type de message : INVOICE, DESADV ou ORDERSP")
     private MessageType messageType;
     
-    @Option(names = {"-o", "--output"}, description = "Output file", required = true)
+    @Option(names = {"-o", "--output"}, description = "Fichier de sortie", required = true)
     private File outputFile;
     
-    @Option(names = {"-f", "--from-order"}, description = "Generate from ORDER file")
+    @Option(names = {"-f", "--from-order"}, description = "Générer à partir d'un fichier ORDER")
     private File orderFile;
     
-    @Option(names = {"--sender"}, description = "Sender party ID", defaultValue = "SENDER001")
+    @Option(names = {"--sender"}, description = "Identifiant de l'expéditeur", defaultValue = "SENDER001")
     private String senderPartyId;
     
-    @Option(names = {"--receiver"}, description = "Receiver party ID", defaultValue = "RECEIVER001")
+    @Option(names = {"--receiver"}, description = "Identifiant du destinataire", defaultValue = "RECEIVER001")
     private String receiverPartyId;
     
-    @Option(names = {"--format"}, description = "Output format: XML or JSON", defaultValue = "XML")
+    @Option(names = {"--format"}, description = "Format de sortie : XML ou JSON", defaultValue = "XML")
     private OutputFormat format;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
@@ -52,13 +52,13 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
     @Override
     public Integer call() throws Exception {
         configureLogging();
-        logger.info("Generating {} message...", messageType);
+        logger.info("Génération du message {}...", messageType);
         
         CIIMessage message;
 
         if (orderFile != null) {
             if (!orderFile.exists() || !orderFile.isFile() || !orderFile.canRead()) {
-                spec.commandLine().getErr().println("Order file must be a readable file: " + orderFile);
+                spec.commandLine().getErr().println("Le fichier ORDER doit être un fichier lisible : " + orderFile);
                 return 1;
             }
             // Generate from existing ORDER
@@ -76,7 +76,7 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
                         com.cii.messaging.service.OrderResponseType.ACCEPTED);
                     break;
                 default:
-                    logger.error("Cannot generate {} from ORDER", messageType);
+                    logger.error("Impossible de générer {} à partir de ORDER", messageType);
                     return 1;
             }
         } else {
@@ -89,11 +89,11 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
         if (parent != null) {
             if (parent.exists()) {
                 if (!parent.isDirectory()) {
-                    spec.commandLine().getErr().println("Output parent is not a directory: " + parent);
+                    spec.commandLine().getErr().println("Le dossier parent de sortie n'est pas un répertoire : " + parent);
                     return 1;
                 }
             } else if (!parent.mkdirs()) {
-                spec.commandLine().getErr().println("Failed to create directories for output file: " + parent);
+                spec.commandLine().getErr().println("Impossible de créer les répertoires pour le fichier de sortie : " + parent);
                 return 1;
             }
         }
@@ -107,10 +107,10 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
                 service.writeMessage(message, outputFile);
             }
         } catch (Exception e) {
-            spec.commandLine().getErr().println("Failed to write output file: " + e.getMessage());
+            spec.commandLine().getErr().println("Impossible d'écrire le fichier de sortie : " + e.getMessage());
             return 1;
         }   
-        logger.info("Generated {} saved to: {}", messageType, outputFile.getAbsolutePath());
+        logger.info("Message {} généré et enregistré dans : {}", messageType, outputFile.getAbsolutePath());
         return 0;
     }
     

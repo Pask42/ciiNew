@@ -25,7 +25,7 @@ public class BusinessRulesValidator implements CIIValidator {
             String xmlContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             return validate(xmlContent);
         } catch (IOException e) {
-            return buildFatalResult("Failed to read XML from file: " + e.getMessage());
+            return buildFatalResult("Échec de la lecture du XML depuis le fichier : " + e.getMessage());
         }
     }
 
@@ -35,7 +35,7 @@ public class BusinessRulesValidator implements CIIValidator {
             String xmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             return validate(xmlContent);
         } catch (IOException e) {
-            return buildFatalResult("Failed to read XML from input stream: " + e.getMessage());
+            return buildFatalResult("Échec de la lecture du XML depuis le flux d'entrée : " + e.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class BusinessRulesValidator implements CIIValidator {
             CIIMessage message = reader.read(xmlContent);
             return validate(message);
         } catch (Exception e) {
-            return buildFatalResult("Failed to parse XML: " + e.getMessage());
+            return buildFatalResult("Échec de l'analyse du XML : " + e.getMessage());
         }
     }
 
@@ -73,7 +73,7 @@ public class BusinessRulesValidator implements CIIValidator {
         // Basic checks on the document structure
         if (message.getHeader() == null) {
             errors.add(ValidationError.builder()
-                    .message("Document header is required")
+                    .message("L'en-tête du document est requis")
                     .severity(ValidationError.ErrorSeverity.ERROR)
                     .rule("BR-01")
                     .build());
@@ -81,21 +81,21 @@ public class BusinessRulesValidator implements CIIValidator {
             DocumentHeader header = message.getHeader();
             if (header.getDocumentNumber() == null || header.getDocumentNumber().isBlank()) {
                 errors.add(ValidationError.builder()
-                        .message("Document number is mandatory")
+                        .message("Le numéro de document est obligatoire")
                         .severity(ValidationError.ErrorSeverity.ERROR)
                         .rule("BR-03")
                         .build());
             }
             if (header.getDocumentDate() == null) {
                 errors.add(ValidationError.builder()
-                        .message("Document date is mandatory")
+                        .message("La date du document est obligatoire")
                         .severity(ValidationError.ErrorSeverity.ERROR)
                         .rule("BR-04")
                         .build());
             }
             if (header.getBuyerReference() == null || header.getBuyerReference().isBlank()) {
                 errors.add(ValidationError.builder()
-                        .message("Buyer reference is mandatory")
+                        .message("La référence acheteur est obligatoire")
                         .severity(ValidationError.ErrorSeverity.ERROR)
                         .rule("BR-05")
                         .build());
@@ -104,7 +104,7 @@ public class BusinessRulesValidator implements CIIValidator {
 
         if (message.getLineItems() == null || message.getLineItems().isEmpty()) {
             warnings.add(ValidationWarning.builder()
-                    .message("Document should contain at least one line item")
+                    .message("Le document doit contenir au moins une ligne")
                     .rule("BR-02")
                     .build());
         } else {
@@ -115,7 +115,7 @@ public class BusinessRulesValidator implements CIIValidator {
                     BigDecimal lineAmount = item.getLineAmount().setScale(2, RoundingMode.HALF_UP);
                     if (expected.compareTo(lineAmount) != 0) {
                         errors.add(ValidationError.builder()
-                                .message("Line amount must equal quantity multiplied by unit price")
+                                .message("Le montant de la ligne doit être égal à la quantité multipliée par le prix unitaire")
                                 .severity(ValidationError.ErrorSeverity.ERROR)
                                 .rule("BR-06")
                                 .build());
@@ -134,7 +134,7 @@ public class BusinessRulesValidator implements CIIValidator {
             if (totals.getLineTotalAmount() != null &&
                     sumLines.compareTo(totals.getLineTotalAmount().setScale(2, RoundingMode.HALF_UP)) != 0) {
                 errors.add(ValidationError.builder()
-                        .message("Line total amount must equal sum of line item amounts")
+                        .message("Le total des lignes doit être égal à la somme des montants des lignes")
                         .severity(ValidationError.ErrorSeverity.ERROR)
                         .rule("BR-07")
                         .build());
@@ -147,7 +147,7 @@ public class BusinessRulesValidator implements CIIValidator {
                 }
                 if (expectedDue.compareTo(totals.getDuePayableAmount()) != 0) {
                     errors.add(ValidationError.builder()
-                            .message("Due payable amount must equal grand total minus prepaid amount")
+                            .message("Le montant dû doit être égal au total général moins le montant prépayé")
                             .severity(ValidationError.ErrorSeverity.ERROR)
                             .rule("BR-08")
                             .build());

@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractCommand {
 
     @Option(names = {"-l", "--log-level"},
-            description = "Log level (ERROR, WARN, INFO, DEBUG, TRACE)")
+            description = "Niveau de log (ERROR, WARN, INFO, DEBUG, TRACE)")
     private String logLevel;
 
     @Option(names = {"-c", "--config"},
-            description = "Configuration file containing 'log.level'")
+            description = "Fichier de configuration contenant 'log.level'")
     private File configFile;
 
     /**
@@ -38,7 +38,7 @@ public abstract class AbstractCommand {
                 level = props.getProperty("log.level");
             } catch (IOException e) {
                 org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
-                logger.warn("Unable to read config file {}", cfgFile, e);
+                logger.warn("Impossible de lire le fichier de configuration {}", cfgFile, e);
             }
         }
 

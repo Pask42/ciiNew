@@ -45,7 +45,7 @@ public class OrderWriter extends AbstractCIIWriter {
             StreamResult result = new StreamResult(outputStream);
             transformer.transform(source, result);
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to write order", e);
+            throw new CIIWriterException("Échec de l'écriture de l'ordre", e);
         }
     }
 
@@ -105,7 +105,7 @@ public class OrderWriter extends AbstractCIIWriter {
 
             return doc;
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to create Order document", e);
+            throw new CIIWriterException("Échec de la création du document Order", e);
         }
     }
 
