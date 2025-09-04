@@ -47,16 +47,6 @@
             <version>${ph-schematron.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.helger.cii</groupId>
-            <artifactId>ph-cii-d16b</artifactId>
-            <version>${ph-cii.version}</version>
-        </dependency>
-<!--        <dependency>
-            <groupId>com.helger.cii</groupId>
-            <artifactId>ph-cii-d20b</artifactId>
-            <version>${ph-cii.version}</version>
-        </dependency>-->
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>

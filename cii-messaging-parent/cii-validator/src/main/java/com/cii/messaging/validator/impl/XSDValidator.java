@@ -186,7 +186,7 @@ public class XSDValidator implements CIIValidator {
         }
 
         String resourcePath = "/xsd/" + version.getVersion() + "/uncefact/data/standard/" + getSchemaFileName(type, version);
-        java.net.URL xsdUrl = XSDValidator.class.getResource(resourcePath);
+        java.net.URL xsdUrl = com.cii.messaging.model.util.UneceSchemaLoader.class.getResource(resourcePath);
         if (xsdUrl == null) {
             logger.warn("XSD schema not available for version: {} type: {}", version.getVersion(), type);
             throw new SAXException("XSD schema not found for version: " + version.getVersion() + " type: " + type);
@@ -216,7 +216,7 @@ public class XSDValidator implements CIIValidator {
                     case ORDERSP:
                         return "CrossIndustryOrderResponse_25p1.xsd";
                     default:
-                        return "CrossIndustryInvoice_26p1.xsd";
+                        throw new IllegalArgumentException("Unsupported message type: " + type);
                 }
             case D16B:
                 switch (type) {
@@ -229,21 +229,10 @@ public class XSDValidator implements CIIValidator {
                     case ORDERSP:
                         return "CrossIndustryOrderResponse_12p1.xsd";
                     default:
-                        return "CrossIndustryInvoice_13p1.xsd";
+                        throw new IllegalArgumentException("Unsupported message type: " + type);
                 }
             default:
-                switch (type) {
-                    case INVOICE:
-                        return "CrossIndustryInvoice.xsd";
-                    case DESADV:
-                        return "CrossIndustryDespatchAdvice.xsd";
-                    case ORDER:
-                        return "CrossIndustryOrder.xsd";
-                    case ORDERSP:
-                        return "CrossIndustryOrderResponse.xsd";
-                    default:
-                        return "CrossIndustryInvoice.xsd";
-                }
+                throw new IllegalArgumentException("Unsupported schema version: " + version);
         }
     }
 

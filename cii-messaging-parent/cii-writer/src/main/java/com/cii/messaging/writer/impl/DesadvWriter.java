@@ -55,9 +55,9 @@ public class DesadvWriter extends AbstractCIIWriter {
             Document doc = builder.newDocument();
 
             namespaces.clear();
-            namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:16");
-            namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16");
-            namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16");
+            namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:12");
+            namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:20");
+            namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:20");
 
             // Create root element
             Element root = createElement(doc, "rsm:CrossIndustryDespatchAdvice");
