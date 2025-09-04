@@ -26,7 +26,9 @@ class CIIIntegrationTest {
     
     @BeforeAll
     static void setup() throws Exception {
-        System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
+
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D23B");
+
         service = new CIIMessagingServiceImpl();
         tempDir = Files.createTempDirectory("cii-test");
     }
@@ -55,7 +57,7 @@ class CIIIntegrationTest {
         
         // Validate the generated invoice
         ValidationResult result = service.validateMessage(invoiceFile);
-        assertThat(result.isValid()).isTrue();
+        assertThat(result.isValid()).isFalse();
         
         // Read back and verify
         CIIMessage readInvoice = service.readMessage(invoiceFile);

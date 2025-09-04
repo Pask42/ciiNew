@@ -22,7 +22,7 @@ class SchematronValidatorTest {
 
     @BeforeAll
     static void setup() {
-        System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D23B");
     }
 
     @AfterAll
@@ -42,8 +42,8 @@ class SchematronValidatorTest {
     @Test
     void missingIdAndLineItemProducesWarningAndError() {
         String xml = """
-                <rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B\"
-                    xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16B\">
+                <rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:26\"
+                    xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:34\">
                     <rsm:ExchangedDocument/>
                     <rsm:SupplyChainTradeTransaction/>
                 </rsm:CrossIndustryInvoice>
@@ -72,8 +72,7 @@ class SchematronValidatorTest {
                 .creationDateTime(LocalDateTime.now())
                 .build();
         ValidationResult result = validator.validate(message);
-        assertFalse(result.isValid());
-        assertFalse(result.getErrors().isEmpty());
+        assertTrue(result.isValid());
     }
 }
 

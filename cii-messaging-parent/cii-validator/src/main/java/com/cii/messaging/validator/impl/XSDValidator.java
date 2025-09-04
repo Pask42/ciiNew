@@ -185,38 +185,65 @@ public class XSDValidator implements CIIValidator {
             return cached;
         }
 
-        String resourcePath = "/xsd/" + version.getVersion().toLowerCase() + "/" + getSchemaFileName(type);
-        InputStream xsdStream = XSDValidator.class.getResourceAsStream(resourcePath);
-        if (xsdStream == null) {
+        String resourcePath = "/xsd/" + version.getVersion() + "/uncefact/data/standard/" + getSchemaFileName(type, version);
+        java.net.URL xsdUrl = XSDValidator.class.getResource(resourcePath);
+        if (xsdUrl == null) {
             logger.warn("XSD schema not available for version: {} type: {}", version.getVersion(), type);
             throw new SAXException("XSD schema not found for version: " + version.getVersion() + " type: " + type);
         }
-        try (InputStream is = xsdStream) {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            try {
-                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            } catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
-                // Ignore if the underlying implementation does not support these properties
-            }
-            Schema schema = factory.newSchema(new StreamSource(is));
-            Schema existing = schemaCache.putIfAbsent(key, schema);
-            return existing != null ? existing : schema;
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        } catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
+            // Ignore
         }
+        Schema schema = factory.newSchema(xsdUrl);
+        Schema existing = schemaCache.putIfAbsent(key, schema);
+        return existing != null ? existing : schema;
     }
     
-    private String getSchemaFileName(MessageType type) {
-        switch (type) {
-            case INVOICE:
-                return "CrossIndustryInvoice.xsd";
-            case DESADV:
-                return "CrossIndustryDespatchAdvice.xsd";
-            case ORDER:
-                return "CrossIndustryOrder.xsd";
-            case ORDERSP:
-                return "CrossIndustryOrderResponse.xsd";
+    private String getSchemaFileName(MessageType type, SchemaVersion version) {
+        switch (version) {
+            case D23B:
+                switch (type) {
+                    case INVOICE:
+                        return "CrossIndustryInvoice_26p1.xsd";
+                    case DESADV:
+                        return "CrossIndustryDespatchAdvice_25p1.xsd";
+                    case ORDER:
+                        return "CrossIndustryOrder_25p1.xsd";
+                    case ORDERSP:
+                        return "CrossIndustryOrderResponse_25p1.xsd";
+                    default:
+                        return "CrossIndustryInvoice_26p1.xsd";
+                }
+            case D16B:
+                switch (type) {
+                    case INVOICE:
+                        return "CrossIndustryInvoice_13p1.xsd";
+                    case DESADV:
+                        return "CrossIndustryDespatchAdvice_12p1.xsd";
+                    case ORDER:
+                        return "CrossIndustryOrder_12p1.xsd";
+                    case ORDERSP:
+                        return "CrossIndustryOrderResponse_12p1.xsd";
+                    default:
+                        return "CrossIndustryInvoice_13p1.xsd";
+                }
             default:
-                return "CrossIndustryInvoice.xsd";
+                switch (type) {
+                    case INVOICE:
+                        return "CrossIndustryInvoice.xsd";
+                    case DESADV:
+                        return "CrossIndustryDespatchAdvice.xsd";
+                    case ORDER:
+                        return "CrossIndustryOrder.xsd";
+                    case ORDERSP:
+                        return "CrossIndustryOrderResponse.xsd";
+                    default:
+                        return "CrossIndustryInvoice.xsd";
+                }
         }
     }
 
