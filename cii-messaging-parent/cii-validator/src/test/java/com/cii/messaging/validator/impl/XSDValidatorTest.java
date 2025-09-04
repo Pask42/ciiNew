@@ -5,7 +5,10 @@ import com.cii.messaging.model.MessageType;
 import com.cii.messaging.reader.CIIReader;
 import com.cii.messaging.reader.CIIReaderFactory;
 import com.cii.messaging.validator.ValidationResult;
+import com.cii.messaging.model.util.UneceSchemaLoader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,6 +28,16 @@ import java.util.concurrent.Future;
 import static org.junit.jupiter.api.Assertions.*;
 
 class XSDValidatorTest {
+
+    @BeforeAll
+    static void setup() {
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
+    }
+
+    @AfterAll
+    static void cleanup() {
+        System.clearProperty(UneceSchemaLoader.PROPERTY);
+    }
 
     @Test
     void validateCIIMessageValid() throws Exception {

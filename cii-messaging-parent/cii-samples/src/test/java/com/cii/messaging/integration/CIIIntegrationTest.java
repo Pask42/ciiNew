@@ -5,6 +5,7 @@ import com.cii.messaging.service.*;
 import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import com.cii.messaging.validator.ValidationResult;
 import org.junit.jupiter.api.*;
+import com.cii.messaging.model.util.UneceSchemaLoader;
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -25,12 +26,14 @@ class CIIIntegrationTest {
     
     @BeforeAll
     static void setup() throws Exception {
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
         service = new CIIMessagingServiceImpl();
         tempDir = Files.createTempDirectory("cii-test");
     }
     
     @AfterAll
     static void cleanup() throws Exception {
+        System.clearProperty(UneceSchemaLoader.PROPERTY);
         Files.walk(tempDir)
             .sorted(java.util.Comparator.reverseOrder())
             .map(Path::toFile)

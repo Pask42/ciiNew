@@ -16,7 +16,7 @@ import java.util.List;
 
 public class CompositeValidator implements CIIValidator {
     private final List<CIIValidator> validators = new ArrayList<>();
-    private SchemaVersion schemaVersion = SchemaVersion.D16B;
+    private SchemaVersion schemaVersion = SchemaVersion.getDefault();
     
     public CompositeValidator() {
         validators.add(new XSDValidator());

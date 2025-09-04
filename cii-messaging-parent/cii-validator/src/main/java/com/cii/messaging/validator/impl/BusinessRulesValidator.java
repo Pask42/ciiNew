@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class BusinessRulesValidator implements CIIValidator {
-    private SchemaVersion schemaVersion = SchemaVersion.D16B;
+    private SchemaVersion schemaVersion = SchemaVersion.getDefault();
 
     @Override
     public ValidationResult validate(File xmlFile) {
