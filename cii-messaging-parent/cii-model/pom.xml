@@ -62,7 +62,7 @@
 	            <goal>xjc</goal>
 	          </goals>
 	          <configuration>
-	            <sources>${basedir}/src/main/resources/xsd</sources>
+                    <sources>${basedir}/src/main/resources/xsd/${unece.version}</sources>
 	            <packageName>com.helger.cii.d16b</packageName>
 			     <xjbSources>
 			      <!-- ici on pointe vers votre fichier bindings.xjb -->
