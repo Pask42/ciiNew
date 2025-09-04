@@ -50,13 +50,13 @@ public final class UneceSchemaLoader {
         String resourcePath = String.format("/xsd/%s/uncefact/data/standard/%s", version, schemaFile);
         URL xsd = UneceSchemaLoader.class.getResource(resourcePath);
         if (xsd == null) {
-            throw new IllegalArgumentException("XSD schema not found for version " + version + " at " + resourcePath);
+            throw new IllegalArgumentException("Schéma XSD introuvable pour la version " + version + " à " + resourcePath);
         }
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             return factory.newSchema(xsd);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to load schema from " + resourcePath, e);
+            throw new IllegalArgumentException("Impossible de charger le schéma depuis " + resourcePath, e);
         }
     }
 

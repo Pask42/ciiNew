@@ -33,7 +33,7 @@ public class DesadvReader extends AbstractCIIReader {
             Document doc = builder.parse(xmlFile);
             return parseDocument(doc);
         } catch (Exception e) {
-            throw new CIIReaderException("Failed to read DESADV file", e);
+            throw new CIIReaderException("Échec de la lecture du fichier DESADV", e);
         }
     }
     

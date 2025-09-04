@@ -16,19 +16,19 @@ import org.slf4j.LoggerFactory;
 
 @Command(
     name = "parse",
-    description = "Parse CII messages and extract data"
+    description = "Analyser les messages CII et extraire les données"
 )
 public class ParseCommand extends AbstractCommand implements Callable<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(ParseCommand.class);
     
-    @Parameters(index = "0", description = "Input XML file to parse")
+    @Parameters(index = "0", description = "Fichier XML d'entrée à analyser")
     private File inputFile;
     
-    @Option(names = {"-o", "--output"}, description = "Output file (optional)")
+    @Option(names = {"-o", "--output"}, description = "Fichier de sortie (optionnel)")
     private File outputFile;
 
-    @Option(names = {"--format"}, description = "Output format: JSON or SUMMARY", defaultValue = "SUMMARY")
+    @Option(names = {"--format"}, description = "Format de sortie : JSON ou SUMMARY", defaultValue = "SUMMARY")
     private OutputFormat format = OutputFormat.SUMMARY;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
@@ -38,14 +38,14 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
         configureLogging();
 
         if (!inputFile.exists()) {
-            logger.error("Input file not found: {}", inputFile);
+            logger.error("Fichier d'entrée introuvable : {}", inputFile);
             return 1;
         }
         if (!inputFile.canRead()) {
-              logger.error("Input file cannot be read: " + inputFile);
+              logger.error("Fichier d'entrée illisible : " + inputFile);
               return 1;
           }
-        logger.info("Parsing {}...", inputFile.getName());
+        logger.info("Analyse de {}...", inputFile.getName());
         
         try {
             CIIMessage message = service.readMessage(inputFile);
@@ -64,7 +64,7 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
                 }
                 java.nio.file.Files.writeString(outputFile.toPath(), output,
                         java.nio.charset.StandardCharsets.UTF_8);
-                logger.info("Output saved to: {}", outputFile.getAbsolutePath());
+                logger.info("Sortie enregistrée dans : {}", outputFile.getAbsolutePath());
 
             } else {
                 logger.info("\n{}", output);
@@ -73,31 +73,31 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
             return 0;
             
         } catch (Exception e) {
-            logger.error("Failed to parse file: {}", e.getMessage());
+            logger.error("Impossible d'analyser le fichier : {}", e.getMessage());
             return 1;
         }
     }
     
     private String generateSummary(CIIMessage message) {
         StringBuilder sb = new StringBuilder();
-        sb.append("=== CII Message Summary ===\n");
-        sb.append("Message Type: ").append(message.getMessageType()).append("\n");
-        sb.append("Message ID: ").append(message.getMessageId()).append("\n");
-        sb.append("Created: ").append(message.getCreationDateTime()).append("\n");
-        sb.append("Sender: ").append(message.getSenderPartyId()).append("\n");
-        sb.append("Receiver: ").append(message.getReceiverPartyId()).append("\n");
+        sb.append("=== Résumé du message CII ===\n");
+        sb.append("Type de message : ").append(message.getMessageType()).append("\n");
+        sb.append("ID du message : ").append(message.getMessageId()).append("\n");
+        sb.append("Créé le : ").append(message.getCreationDateTime()).append("\n");
+        sb.append("Expéditeur : ").append(message.getSenderPartyId()).append("\n");
+        sb.append("Destinataire : ").append(message.getReceiverPartyId()).append("\n");
         
         if (message.getHeader() != null) {
-            sb.append("\n--- Document Header ---\n");
-            sb.append("Document Number: ").append(message.getHeader().getDocumentNumber()).append("\n");
-            sb.append("Document Date: ").append(message.getHeader().getDocumentDate()).append("\n");
-            sb.append("Currency: ").append(message.getHeader().getCurrency()).append("\n");
+            sb.append("\n--- En-tête du document ---\n");
+            sb.append("Numéro de document : ").append(message.getHeader().getDocumentNumber()).append("\n");
+            sb.append("Date du document : ").append(message.getHeader().getDocumentDate()).append("\n");
+            sb.append("Devise : ").append(message.getHeader().getCurrency()).append("\n");
         }
         
         if (message.getLineItems() != null && !message.getLineItems().isEmpty()) {
-            sb.append("\n--- Line Items (").append(message.getLineItems().size()).append(") ---\n");
+            sb.append("\n--- Lignes (").append(message.getLineItems().size()).append(") ---\n");
             message.getLineItems().forEach(item -> {
-                sb.append("  Line ").append(item.getLineNumber()).append(": ")
+                sb.append("  Ligne ").append(item.getLineNumber()).append(" : ")
                   .append(item.getDescription()).append(" - ")
                   .append(item.getQuantity()).append(" ").append(item.getUnitCode())
                   .append(" @ ").append(item.getUnitPrice()).append(" = ")
@@ -106,10 +106,10 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
         }
         
         if (message.getTotals() != null) {
-            sb.append("\n--- Totals ---\n");
-            sb.append("Line Total: ").append(message.getTotals().getLineTotalAmount()).append("\n");
-            sb.append("Tax Total: ").append(message.getTotals().getTaxTotalAmount()).append("\n");
-            sb.append("Grand Total: ").append(message.getTotals().getGrandTotalAmount()).append("\n");
+            sb.append("\n--- Totaux ---\n");
+            sb.append("Total des lignes : ").append(message.getTotals().getLineTotalAmount()).append("\n");
+            sb.append("Total des taxes : ").append(message.getTotals().getTaxTotalAmount()).append("\n");
+            sb.append("Total général : ").append(message.getTotals().getGrandTotalAmount()).append("\n");
         }
         
         return sb.toString();

@@ -31,7 +31,7 @@ public class OrderReader extends AbstractCIIReader {
             Document doc = builder.parse(xmlFile);
             return parseOrderDocument(doc);
         } catch (Exception e) {
-            throw new CIIReaderException("Failed to read order file", e);
+            throw new CIIReaderException("Échec de la lecture du fichier order", e);
         }
     }
     
@@ -42,7 +42,7 @@ public class OrderReader extends AbstractCIIReader {
             Document doc = builder.parse(inputStream);
             return parseOrderDocument(doc);
         } catch (Exception e) {
-            throw new CIIReaderException("Failed to read order from stream", e);
+            throw new CIIReaderException("Échec de la lecture de l'ordre depuis le flux", e);
         }
     }
 
@@ -62,7 +62,7 @@ public class OrderReader extends AbstractCIIReader {
         if (document instanceof Document) {
             return parseOrderDocument((Document) document);
         }
-        throw new CIIReaderException("Invalid document type");
+        throw new CIIReaderException("Type de document invalide");
     }
     
     private CIIMessage parseOrderDocument(Document doc) {

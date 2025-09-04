@@ -27,7 +27,7 @@ public class CIIReaderFactory {
             case ORDERSP:
                 return new OrderResponseReader();
             default:
-                throw new IllegalArgumentException("Unsupported message type: " + messageType);
+                throw new IllegalArgumentException("Type de message non pris en charge : " + messageType);
         }
     }
 
@@ -43,7 +43,7 @@ public class CIIReaderFactory {
             while (reader.hasNext()) {
                 int event = reader.next();
                 if (event == XMLStreamConstants.DTD || event == XMLStreamConstants.ENTITY_REFERENCE) {
-                    throw new CIIReaderException("DOCTYPE is not allowed", new XMLStreamException("DOCTYPE is not allowed"));
+                    throw new CIIReaderException("DOCTYPE non autorisé", new XMLStreamException("DOCTYPE non autorisé"));
                 }
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     String localName = reader.getLocalName();
@@ -57,12 +57,12 @@ public class CIIReaderFactory {
                         case "CrossIndustryOrderResponse":
                             return new OrderResponseReader();
                         default:
-                            throw new CIIReaderException("Unsupported message type: " + localName);
+                            throw new CIIReaderException("Type de message non pris en charge : " + localName);
                     }
                 }
             }
         } catch (XMLStreamException e) {
-            throw new CIIReaderException("Invalid XML content", e);
+            throw new CIIReaderException("Contenu XML invalide", e);
         } finally {
             if (reader != null) {
                 try {
@@ -72,7 +72,7 @@ public class CIIReaderFactory {
                 }
             }
         }
-        throw new CIIReaderException("Unable to detect message type from XML content");
+        throw new CIIReaderException("Impossible de détecter le type de message à partir du contenu XML");
     }
 
     public static CIIReader createReader(Path xmlFile) throws CIIReaderException {
@@ -87,7 +87,7 @@ public class CIIReaderFactory {
             while (reader.hasNext()) {
                 int event = reader.next();
                 if (event == XMLStreamConstants.DTD || event == XMLStreamConstants.ENTITY_REFERENCE) {
-                    throw new CIIReaderException("DOCTYPE is not allowed", new XMLStreamException("DOCTYPE is not allowed"));
+                    throw new CIIReaderException("DOCTYPE non autorisé", new XMLStreamException("DOCTYPE non autorisé"));
                 }
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     String localName = reader.getLocalName();
@@ -101,12 +101,12 @@ public class CIIReaderFactory {
                         case "CrossIndustryOrderResponse":
                             return new OrderResponseReader();
                         default:
-                            throw new CIIReaderException("Unsupported message type: " + localName);
+                            throw new CIIReaderException("Type de message non pris en charge : " + localName);
                     }
                 }
             }
         } catch (IOException | XMLStreamException e) {
-            throw new CIIReaderException("Invalid XML file", e);
+            throw new CIIReaderException("Fichier XML invalide", e);
         } finally {
             if (reader != null) {
                 try {
@@ -116,6 +116,6 @@ public class CIIReaderFactory {
                 }
             }
         }
-        throw new CIIReaderException("Unable to detect message type from XML file");
+        throw new CIIReaderException("Impossible de détecter le type de message à partir du fichier XML");
     }
 }

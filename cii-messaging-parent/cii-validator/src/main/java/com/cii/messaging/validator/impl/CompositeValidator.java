@@ -70,7 +70,7 @@ public class CompositeValidator implements CIIValidator {
             return validateBuffered(data);
         } catch (IOException e) {
             ValidationError error = ValidationError.builder()
-                    .message("Failed to read input stream: " + e.getMessage())
+                    .message("Échec de la lecture du flux d'entrée : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();
@@ -96,7 +96,7 @@ public class CompositeValidator implements CIIValidator {
             return validate(xml);
         } catch (CIIWriterException e) {
             ValidationError error = ValidationError.builder()
-                    .message("Failed to serialize message: " + e.getMessage())
+                    .message("Échec de la sérialisation du message : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();

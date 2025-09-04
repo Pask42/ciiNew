@@ -33,7 +33,7 @@ class ConvertCommandLoggingTest {
         assertEquals(1, exitCode);
 
         boolean errorLogged = appender.list.stream()
-                .anyMatch(event -> event.getLevel() == Level.ERROR && event.getFormattedMessage().contains("Input file not found"));
+                .anyMatch(event -> event.getLevel() == Level.ERROR && event.getFormattedMessage().contains("Fichier d'entrée introuvable"));
         assertTrue(errorLogged);
 
         logger.detachAppender(appender);

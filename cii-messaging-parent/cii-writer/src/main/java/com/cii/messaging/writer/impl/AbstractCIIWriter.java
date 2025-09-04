@@ -28,7 +28,7 @@ public abstract class AbstractCIIWriter implements CIIWriter {
         try {
             initializeJAXBContext();
         } catch (JAXBException e) {
-            throw new RuntimeException("Failed to initialize JAXB context", e);
+            throw new RuntimeException("Échec de l'initialisation du contexte JAXB", e);
         }
     }
     
@@ -44,7 +44,7 @@ public abstract class AbstractCIIWriter implements CIIWriter {
         try (OutputStream os = new FileOutputStream(outputFile)) {
             write(message, os);
         } catch (IOException e) {
-            throw new CIIWriterException("Failed to write to file: " + outputFile.getName(), e);
+            throw new CIIWriterException("Échec de l'écriture dans le fichier : " + outputFile.getName(), e);
         }
     }
     
@@ -57,7 +57,7 @@ public abstract class AbstractCIIWriter implements CIIWriter {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
             marshaller.marshal(document, outputStream);
         } catch (JAXBException e) {
-            throw new CIIWriterException("Failed to marshal CII message", e);
+            throw new CIIWriterException("Échec du marshalling du message CII", e);
         }
     }
     

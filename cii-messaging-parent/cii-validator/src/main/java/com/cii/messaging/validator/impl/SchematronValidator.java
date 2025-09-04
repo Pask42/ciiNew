@@ -30,7 +30,7 @@ public class SchematronValidator implements CIIValidator {
         try (InputStream is = new FileInputStream(xmlFile)) {
             return validate(is);
         } catch (IOException e) {
-            return createErrorResult("Failed to read file: " + e.getMessage());
+            return createErrorResult("Échec de la lecture du fichier : " + e.getMessage());
         }
     }
     
@@ -41,7 +41,7 @@ public class SchematronValidator implements CIIValidator {
 
         try {
             if (schematronXslt == null) {
-                return createErrorResult("Schematron rules not loaded");
+                return createErrorResult("Règles Schematron non chargées");
             }
 
             XsltTransformer transformer = schematronXslt.load();
@@ -57,8 +57,8 @@ public class SchematronValidator implements CIIValidator {
 
             return resultBuilder.build();
         } catch (Exception e) {
-            logger.error("Schematron validation failed", e);
-            return createErrorResult("Validation error: " + e.getMessage());
+            logger.error("Échec de la validation Schematron", e);
+            return createErrorResult("Erreur de validation : " + e.getMessage());
         }
     }
     
@@ -75,7 +75,7 @@ public class SchematronValidator implements CIIValidator {
             return validate(xml);
         } catch (Exception e) {
             ValidationError error = ValidationError.builder()
-                    .message("Failed to serialize message: " + e.getMessage())
+                    .message("Échec de la sérialisation du message : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();
@@ -97,15 +97,15 @@ public class SchematronValidator implements CIIValidator {
         String resource = String.format("schematron/%s.xslt", schemaVersion.getVersion());
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
             if (is == null) {
-                logger.error("Schematron resource not found: {}", resource);
+                logger.error("Ressource Schematron introuvable : {}", resource);
                 schematronXslt = null;
                 return;
             }
-            logger.info("Loading Schematron rules from {}", resource);
+            logger.info("Chargement des règles Schematron depuis {}", resource);
             XsltCompiler compiler = processor.newXsltCompiler();
             schematronXslt = compiler.compile(new StreamSource(is));
         } catch (Exception e) {
-            logger.error("Failed to load Schematron rules", e);
+            logger.error("Échec du chargement des règles Schematron", e);
             schematronXslt = null;
         }
     }
@@ -159,7 +159,7 @@ public class SchematronValidator implements CIIValidator {
             builder.valid(errors.isEmpty());
 
         } catch (Exception e) {
-            logger.error("Failed to parse Schematron results", e);
+            logger.error("Échec de l'analyse des résultats Schematron", e);
         }
     }
     

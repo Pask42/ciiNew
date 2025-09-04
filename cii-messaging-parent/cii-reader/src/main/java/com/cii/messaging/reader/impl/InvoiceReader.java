@@ -33,7 +33,7 @@ public class InvoiceReader extends AbstractCIIReader {
             Document doc = builder.parse(xmlFile);
             return parseInvoiceDocument(doc);
         } catch (Exception e) {
-            throw new CIIReaderException("Failed to read invoice file", e);
+            throw new CIIReaderException("Échec de la lecture du fichier facture", e);
         }
     }
     
@@ -44,7 +44,7 @@ public class InvoiceReader extends AbstractCIIReader {
             Document doc = builder.parse(inputStream);
             return parseInvoiceDocument(doc);
         } catch (Exception e) {
-            throw new CIIReaderException("Failed to read invoice from stream", e);
+            throw new CIIReaderException("Échec de la lecture de la facture depuis le flux", e);
         }
     }
 
@@ -64,7 +64,7 @@ public class InvoiceReader extends AbstractCIIReader {
         if (document instanceof Document) {
             return parseInvoiceDocument((Document) document);
         }
-        throw new CIIReaderException("Invalid document type");
+        throw new CIIReaderException("Type de document invalide");
     }
     
     private CIIMessage parseInvoiceDocument(Document doc) {

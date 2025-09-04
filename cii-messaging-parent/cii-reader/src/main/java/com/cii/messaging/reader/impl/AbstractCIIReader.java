@@ -29,7 +29,7 @@ public abstract class AbstractCIIReader implements CIIReader {
         try {
             initializeJAXBContext();
         } catch (JAXBException e) {
-            throw new RuntimeException("Failed to initialize JAXB context", e);
+            throw new RuntimeException("Échec de l'initialisation du contexte JAXB", e);
         }
     }
     
@@ -43,7 +43,7 @@ public abstract class AbstractCIIReader implements CIIReader {
             Object document = unmarshaller.unmarshal(xmlFile);
             return parseDocument(document);
         } catch (JAXBException e) {
-            throw new CIIReaderException("Failed to parse XML file: " + xmlFile.getName(), e);
+            throw new CIIReaderException("Échec de l'analyse du fichier XML : " + xmlFile.getName(), e);
         }
     }
     
@@ -54,7 +54,7 @@ public abstract class AbstractCIIReader implements CIIReader {
             Object document = unmarshaller.unmarshal(inputStream);
             return parseDocument(document);
         } catch (JAXBException e) {
-            throw new CIIReaderException("Failed to parse XML from input stream", e);
+            throw new CIIReaderException("Échec de l'analyse du XML depuis le flux d'entrée", e);
         }
     }
     
@@ -70,7 +70,7 @@ public abstract class AbstractCIIReader implements CIIReader {
         try {
             return new BigDecimal(value);
         } catch (NumberFormatException e) {
-            logger.warn("Failed to parse BigDecimal from: {}", value);
+            logger.warn("Impossible d'analyser BigDecimal depuis : {}", value);
             return null;
         }
     }

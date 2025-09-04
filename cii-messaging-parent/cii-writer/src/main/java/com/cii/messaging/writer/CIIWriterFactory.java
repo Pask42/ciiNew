@@ -16,7 +16,7 @@ public class CIIWriterFactory {
             case ORDERSP:
                 return new OrderResponseWriter();
             default:
-                throw new IllegalArgumentException("Unsupported message type for writing: " + messageType);
+                throw new IllegalArgumentException("Type de message non pris en charge pour l'écriture : " + messageType);
         }
     }
     

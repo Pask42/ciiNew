@@ -51,7 +51,7 @@ public class XSDValidator implements CIIValidator {
             resultBuilder.valid(false);
             resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
             ValidationError error = ValidationError.builder()
-                    .message("Failed to validate file: " + e.getMessage())
+                    .message("Échec de la validation du fichier : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();
@@ -73,7 +73,7 @@ public class XSDValidator implements CIIValidator {
             resultBuilder.valid(false);
             resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
             ValidationError error = ValidationError.builder()
-                    .message("Failed to validate stream: " + e.getMessage())
+                    .message("Échec de la validation du flux : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();
@@ -93,7 +93,7 @@ public class XSDValidator implements CIIValidator {
         if (message.getBuyer() == null || message.getSeller() == null ||
                 message.getLineItems() == null || message.getLineItems().isEmpty()) {
             ValidationError error = ValidationError.builder()
-                    .message("Missing required message content")
+                    .message("Contenu du message requis manquant")
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();
@@ -111,7 +111,7 @@ public class XSDValidator implements CIIValidator {
             return validate(xml);
         } catch (Exception e) {
             ValidationError error = ValidationError.builder()
-                    .message("Failed to serialize message: " + e.getMessage())
+                    .message("Échec de la sérialisation du message : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             List<ValidationError> errors = new ArrayList<>();
@@ -164,11 +164,11 @@ public class XSDValidator implements CIIValidator {
             return resultBuilder.build();
 
         } catch (Exception e) {
-            logger.error("Validation failed", e);
+            logger.error("Échec de la validation", e);
             resultBuilder.valid(false);
             resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
             ValidationError error = ValidationError.builder()
-                    .message("Validation error: " + e.getMessage())
+                    .message("Erreur de validation : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             errors.add(error);
@@ -188,8 +188,8 @@ public class XSDValidator implements CIIValidator {
         String resourcePath = "/xsd/" + version.getVersion() + "/uncefact/data/standard/" + getSchemaFileName(type, version);
         java.net.URL xsdUrl = com.cii.messaging.model.util.UneceSchemaLoader.class.getResource(resourcePath);
         if (xsdUrl == null) {
-            logger.warn("XSD schema not available for version: {} type: {}", version.getVersion(), type);
-            throw new SAXException("XSD schema not found for version: " + version.getVersion() + " type: " + type);
+            logger.warn("Schéma XSD non disponible pour la version : {} type : {}", version.getVersion(), type);
+            throw new SAXException("Schéma XSD introuvable pour la version : " + version.getVersion() + " type : " + type);
         }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
@@ -216,7 +216,7 @@ public class XSDValidator implements CIIValidator {
                     case ORDERSP:
                         return "CrossIndustryOrderResponse_25p1.xsd";
                     default:
-                        throw new IllegalArgumentException("Unsupported message type: " + type);
+                        throw new IllegalArgumentException("Type de message non pris en charge : " + type);
                 }
             case D16B:
                 switch (type) {
@@ -229,10 +229,10 @@ public class XSDValidator implements CIIValidator {
                     case ORDERSP:
                         return "CrossIndustryOrderResponse_12p1.xsd";
                     default:
-                        throw new IllegalArgumentException("Unsupported message type: " + type);
+                        throw new IllegalArgumentException("Type de message non pris en charge : " + type);
                 }
             default:
-                throw new IllegalArgumentException("Unsupported schema version: " + version);
+                throw new IllegalArgumentException("Version de schéma non prise en charge : " + version);
         }
     }
 
@@ -253,9 +253,9 @@ public class XSDValidator implements CIIValidator {
             } else if ("CrossIndustryOrder".equals(root)) {
                 return MessageType.ORDER;
             } else if ("CrossIndustryOrderResponse".equals(root)) {
-                return MessageType.ORDERSP;
-            }
-            throw new SAXException("Unknown root element: " + root);
+            return MessageType.ORDERSP;
+        }
+        throw new SAXException("Élément racine inconnu : " + root);
         }
     }
     

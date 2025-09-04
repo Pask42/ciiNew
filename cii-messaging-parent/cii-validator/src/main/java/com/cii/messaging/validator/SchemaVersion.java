@@ -28,7 +28,7 @@ public enum SchemaVersion {
                 return v;
             }
         }
-        throw new IllegalArgumentException("Unsupported schema version: " + version);
+        throw new IllegalArgumentException("Version de schéma non prise en charge : " + version);
     }
 
     public static SchemaVersion getDefault() {

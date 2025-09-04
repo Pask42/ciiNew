@@ -20,22 +20,22 @@ import org.slf4j.LoggerFactory;
 
 @Command(
     name = "convert",
-    description = "Convert between XML and JSON formats"
+    description = "Convertir entre formats XML et JSON"
 )
 public class ConvertCommand extends AbstractCommand implements Callable<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
     
-    @Parameters(index = "0", description = "Input file")
+    @Parameters(index = "0", description = "Fichier d'entrée")
     private File inputFile;
     
-    @Option(names = {"-o", "--output"}, description = "Output file", required = true)
+    @Option(names = {"-o", "--output"}, description = "Fichier de sortie", required = true)
     private File outputFile;
 
-    @Option(names = {"-t", "--to"}, description = "Target format: XML or JSON", required = true)
+    @Option(names = {"-t", "--to"}, description = "Format cible : XML ou JSON", required = true)
     private TargetFormat targetFormat;
     
-    @Option(names = {"--type"}, description = "Message type (required for JSON to XML)")
+    @Option(names = {"--type"}, description = "Type de message (requis pour JSON vers XML)")
     private MessageType messageType;
     
     private final CIIMessagingService service = new CIIMessagingServiceImpl();
@@ -58,17 +58,17 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
         configureLogging();
 
         if (!inputFile.exists()) {
-            logger.error("Input file not found: {}", inputFile);
+            logger.error("Fichier d'entrée introuvable : {}", inputFile);
             return 1;
         }
-      
+
        if (!inputFile.canRead()) {
-            logger.error("Cannot read input file: " + inputFile);
+            logger.error("Impossible de lire le fichier d'entrée : " + inputFile);
             return 1;
         }
 
 
-        logger.info("Converting {} to {}...", inputFile.getName(), targetFormat);
+        logger.info("Conversion de {} vers {}...", inputFile.getName(), targetFormat);
         
         try {
             String inputContent = Files.readString(inputFile.toPath(), StandardCharsets.UTF_8);
@@ -96,12 +96,12 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
             }
 
             if (!isJson && !isXml) {
-                System.err.println("Input is neither valid JSON nor XML");
+                System.err.println("L'entrée n'est ni un JSON valide ni un XML");
                 if (jsonError != null) {
-                    System.err.println("JSON parse error: " + jsonError.getMessage());
+                    System.err.println("Erreur d'analyse JSON : " + jsonError.getMessage());
                 }
                 if (xmlError != null) {
-                    System.err.println("XML parse error: " + xmlError.getMessage());
+                    System.err.println("Erreur d'analyse XML : " + xmlError.getMessage());
                 }
                 return 1;
             }
@@ -113,7 +113,7 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
             
             if (targetFormat == TargetFormat.JSON) {
                 if (isJson) {
-                    logger.error("Input is already JSON");
+                    logger.error("L'entrée est déjà au format JSON");
                     return 1;
                 }
                 // XML to JSON
@@ -123,30 +123,30 @@ public class ConvertCommand extends AbstractCommand implements Callable<Integer>
 
             } else if (targetFormat == TargetFormat.XML) {
                 if (isXml) {
-                    logger.error("Input is already XML");
+                    logger.error("L'entrée est déjà au format XML");
                     return 1;
                 }
                 // JSON to XML
                 if (messageType == null) {
-                    logger.error("Message type required for JSON to XML conversion (use --type)");
+                    logger.error("Type de message requis pour la conversion JSON vers XML (utiliser --type)");
                     return 1;
                 }
                 CIIMessage message = service.convertFromJson(inputContent, messageType);
                 service.writeMessage(message, outputFile);
 
             } else {
-                logger.error("Invalid target format: {}", targetFormat);
+                logger.error("Format cible invalide : {}", targetFormat);
                 return 1;
             }
 
-            logger.info("Conversion successful! Output saved to: {}", outputFile.getAbsolutePath());
+            logger.info("Conversion réussie ! Résultat enregistré dans : {}", outputFile.getAbsolutePath());
 
             return 0;
 
         } catch (Exception e) {
-            logger.error("Conversion failed: {}", e.getMessage());
+            logger.error("Échec de la conversion : {}", e.getMessage());
             if (e.getCause() != null) {
-                logger.error("Cause: {}", e.getCause().getMessage());
+                logger.error("Cause : {}", e.getCause().getMessage());
             }
             return 1;
         }
