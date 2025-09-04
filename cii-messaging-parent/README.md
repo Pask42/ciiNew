@@ -242,7 +242,7 @@ Les schémas nécessaires se trouvent dans `cii-model/src/main/resources/xsd/unc
 - `QualifiedDataType_20p0.xsd`
 - `UnqualifiedDataType_20p0.xsd`
 
-Ils proviennent des publications officielles **UN/CEFACT** : <https://service.unece.org/trade/uncefact/v1/>
+Ils proviennent des publications officielles **UN/CEFACT** : <https://unece.org/trade/uncefact/mainstandards>
 
 ## 🧪 Tests
 
