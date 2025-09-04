@@ -19,9 +19,9 @@ import java.time.format.DateTimeFormatter;
 public class OrderWriter extends AbstractCIIWriter {
 
     public OrderWriter() {
-        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:16");
-        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16");
-        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16");
+        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:12");
+        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:20");
+        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:20");
     }
 
     @Override

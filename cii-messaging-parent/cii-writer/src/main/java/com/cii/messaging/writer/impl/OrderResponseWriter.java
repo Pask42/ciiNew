@@ -18,9 +18,9 @@ import java.io.OutputStream;
 public class OrderResponseWriter extends AbstractCIIWriter {
 
     public OrderResponseWriter() {
-        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:16");
-        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16");
-        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16");
+        namespaces.put("rsm", "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:12");
+        namespaces.put("ram", "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:20");
+        namespaces.put("udt", "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:20");
     }
 
     @Override

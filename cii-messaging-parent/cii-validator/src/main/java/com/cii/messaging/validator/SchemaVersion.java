@@ -4,8 +4,6 @@ import com.cii.messaging.model.util.UneceSchemaLoader;
 
 public enum SchemaVersion {
     D16B("D16B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B"),
-    D20B("D20B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:20B"),
-    D21B("D21B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:21B"),
     D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:23B");
 
     private final String version;
