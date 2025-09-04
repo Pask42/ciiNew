@@ -1,7 +1,6 @@
 package com.cii.messaging.validator.impl;
 
 import com.cii.messaging.model.MessageType;
-import com.cii.messaging.validator.SchemaVersion;
 import com.cii.messaging.validator.ValidationResult;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,37 +12,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class XSDValidatorSchemaTest {
 
-    static Stream<Arguments> provideVersionsAndTypes() {
-        return Stream.of(SchemaVersion.D16B, SchemaVersion.D23B)
-                .flatMap(v -> Stream.of(MessageType.values()).map(t -> Arguments.of(v, t)));
+    static Stream<Arguments> provideTypes() {
+        return Stream.of(MessageType.values()).map(Arguments::of);
     }
 
     @ParameterizedTest
-    @MethodSource("provideVersionsAndTypes")
-    void validatorLoadsOfficialSchemas(SchemaVersion version, MessageType type) {
+    @MethodSource("provideTypes")
+    void validatorLoadsOfficialSchemas(MessageType type) {
         XSDValidator validator = new XSDValidator();
-        validator.setSchemaVersion(version);
 
-        String xml = buildMinimalXml(version, type);
+        String xml = buildMinimalXml(type);
         ValidationResult result = validator.validate(xml);
 
         assertFalse(result.isValid());
         assertTrue(result.hasErrors());
-        assertEquals("XSD " + version.getVersion(), result.getValidatedAgainst());
+        assertEquals("XSD D23B", result.getValidatedAgainst());
     }
 
-    private String buildMinimalXml(SchemaVersion version, MessageType type) {
+    private String buildMinimalXml(MessageType type) {
         String root = rootName(type);
-        String rsmNs = rsmNamespace(version, type);
-        String ramNs = version == SchemaVersion.D23B
-                ? "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:34"
-                : "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:20";
-        String udtNs = version == SchemaVersion.D23B
-                ? "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:34"
-                : "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:20";
-        String qdtNs = version == SchemaVersion.D23B
-                ? "urn:un:unece:uncefact:data:standard:QualifiedDataType:34"
-                : "urn:un:unece:uncefact:data:Standard:QualifiedDataType:20";
+        String rsmNs = rsmNamespace(type);
+        String ramNs = "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:34";
+        String udtNs = "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:34";
+        String qdtNs = "urn:un:unece:uncefact:data:standard:QualifiedDataType:34";
         return String.format("<rsm:%s xmlns:rsm=\"%s\" xmlns:ram=\"%s\" xmlns:udt=\"%s\" xmlns:qdt=\"%s\"/>",
                 root, rsmNs, ramNs, udtNs, qdtNs);
     }
@@ -63,30 +54,19 @@ class XSDValidatorSchemaTest {
         }
     }
 
-    private String rsmNamespace(SchemaVersion version, MessageType type) {
-        if (version == SchemaVersion.D23B) {
-            switch (type) {
-                case INVOICE:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:26";
-                case ORDER:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:25";
-                case DESADV:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:25";
-                case ORDERSP:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:25";
-            }
-        } else {
-            switch (type) {
-                case INVOICE:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:13";
-                case ORDER:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:12";
-                case DESADV:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:12";
-                case ORDERSP:
-                    return "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:12";
-            }
+    private String rsmNamespace(MessageType type) {
+        switch (type) {
+            case INVOICE:
+                return "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:26";
+            case ORDER:
+                return "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:25";
+            case DESADV:
+                return "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:25";
+            case ORDERSP:
+                return "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:25";
+            default:
+                throw new IllegalArgumentException("Unsupported type: " + type);
         }
-        throw new IllegalArgumentException("Unsupported combination: " + version + " " + type);
     }
 }
+

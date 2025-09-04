@@ -7,19 +7,15 @@ import com.cii.messaging.writer.CIIWriter;
 import com.cii.messaging.writer.CIIWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
 import org.w3c.dom.Document;
+import org.xml.sax.*;
 
 import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
@@ -29,82 +25,70 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
+/**
+ * Validator de messages CII basé exclusivement sur les schémas XSD D23B.
+ * <p>
+ * Cette implémentation charge les schémas officiels UN/CEFACT pour la version
+ * D23B et exécute une validation XSD stricte pour chaque type de message
+ * supporté. Aucune autre version n'est autorisée.
+ * </p>
+ */
 public class XSDValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(XSDValidator.class);
-    private SchemaVersion schemaVersion = SchemaVersion.getDefault();
-    private final Map<String, Schema> schemaCache = new ConcurrentHashMap<>();
-    
+    private static final SchemaVersion SCHEMA_VERSION = SchemaVersion.D23B;
+
+    private final Map<MessageType, Schema> schemaCache = new ConcurrentHashMap<>();
+
     @Override
     public ValidationResult validate(File xmlFile) {
-        long startTime = System.currentTimeMillis();
-        ValidationResult.ValidationResultBuilder resultBuilder = ValidationResult.builder();
-        
+        long start = System.currentTimeMillis();
+        ValidationResult.ValidationResultBuilder builder = ValidationResult.builder();
+
         try (InputStream is = new FileInputStream(xmlFile)) {
             byte[] data = is.readAllBytes();
             MessageType type = detectMessageType(data);
-            return performValidation(new ByteArrayInputStream(data), resultBuilder, startTime, type);
+            return performValidation(new ByteArrayInputStream(data), builder, start, type);
         } catch (Exception e) {
-            resultBuilder.valid(false);
-            resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
+            builder.valid(false);
+            builder.validationTimeMs(System.currentTimeMillis() - start);
             ValidationError error = ValidationError.builder()
                     .message("Échec de la validation du fichier : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
-            List<ValidationError> errors = new ArrayList<>();
-            errors.add(error);
-            resultBuilder.errors(errors);
-            return resultBuilder.build();
+            builder.errors(List.of(error));
+            return builder.build();
         }
     }
-    
+
     @Override
     public ValidationResult validate(InputStream inputStream) {
-        long startTime = System.currentTimeMillis();
-        ValidationResult.ValidationResultBuilder resultBuilder = ValidationResult.builder();
+        long start = System.currentTimeMillis();
+        ValidationResult.ValidationResultBuilder builder = ValidationResult.builder();
+
         try {
             byte[] data = inputStream.readAllBytes();
             MessageType type = detectMessageType(data);
-            return performValidation(new ByteArrayInputStream(data), resultBuilder, startTime, type);
+            return performValidation(new ByteArrayInputStream(data), builder, start, type);
         } catch (Exception e) {
-            resultBuilder.valid(false);
-            resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
+            builder.valid(false);
+            builder.validationTimeMs(System.currentTimeMillis() - start);
             ValidationError error = ValidationError.builder()
                     .message("Échec de la validation du flux : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
-            List<ValidationError> errors = new ArrayList<>();
-            errors.add(error);
-            resultBuilder.errors(errors);
-            return resultBuilder.build();
+            builder.errors(List.of(error));
+            return builder.build();
         }
     }
-    
+
     @Override
     public ValidationResult validate(String xmlContent) {
         return validate(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
     }
-    
+
     @Override
     public ValidationResult validate(CIIMessage message) {
-        if (message.getBuyer() == null || message.getSeller() == null ||
-                message.getLineItems() == null || message.getLineItems().isEmpty()) {
-            ValidationError error = ValidationError.builder()
-                    .message("Contenu du message requis manquant")
-                    .severity(ValidationError.ErrorSeverity.FATAL)
-                    .build();
-            List<ValidationError> errors = new ArrayList<>();
-            errors.add(error);
-            return ValidationResult.builder()
-                    .valid(false)
-                    .errors(errors)
-                    .validatedAgainst("XSD " + schemaVersion.getVersion())
-                    .build();
-        }
-
         try {
             CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
             String xml = writer.writeToString(message);
@@ -114,36 +98,38 @@ public class XSDValidator implements CIIValidator {
                     .message("Échec de la sérialisation du message : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
-            List<ValidationError> errors = new ArrayList<>();
-            errors.add(error);
             return ValidationResult.builder()
                     .valid(false)
-                    .errors(errors)
-                    .validatedAgainst("XSD " + schemaVersion.getVersion())
+                    .errors(List.of(error))
+                    .validatedAgainst("XSD " + SCHEMA_VERSION.getVersion())
                     .build();
         }
     }
-    
+
+    /**
+     * Seule la version D23B est supportée. Toute autre valeur provoque une
+     * {@link IllegalArgumentException}.
+     */
     @Override
     public void setSchemaVersion(SchemaVersion version) {
-        this.schemaVersion = version;
+        if (version != SCHEMA_VERSION) {
+            throw new IllegalArgumentException("Seule la version D23B est supportée");
+        }
     }
-    
+
     private ValidationResult performValidation(InputStream inputStream,
-                                              ValidationResult.ValidationResultBuilder resultBuilder,
-                                              long startTime,
-                                              MessageType messageType) {
+                                               ValidationResult.ValidationResultBuilder builder,
+                                               long start,
+                                               MessageType type) {
         List<ValidationError> errors = new ArrayList<>();
         List<ValidationWarning> warnings = new ArrayList<>();
 
         try {
-            Schema schema = getSchemaForVersion(schemaVersion, messageType);
+            Schema schema = getSchema(type);
             Validator validator = schema.newValidator();
-
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
             validator.setErrorHandler(handler);
 
-            // Configure a secure SAX parser to avoid XXE attacks
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -155,85 +141,69 @@ public class XSDValidator implements CIIValidator {
             Source source = new SAXSource(reader, new InputSource(new BufferedInputStream(inputStream)));
             validator.validate(source);
 
-            resultBuilder.valid(!handler.hasErrors());
-            resultBuilder.errors(errors);
-            resultBuilder.warnings(warnings);
-            resultBuilder.validatedAgainst("XSD " + schemaVersion.getVersion());
-            resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
-
-            return resultBuilder.build();
-
+            builder.valid(!handler.hasErrors());
+            builder.errors(errors);
+            builder.warnings(warnings);
+            builder.validatedAgainst("XSD " + SCHEMA_VERSION.getVersion());
+            builder.validationTimeMs(System.currentTimeMillis() - start);
+            return builder.build();
         } catch (Exception e) {
             logger.error("Échec de la validation", e);
-            resultBuilder.valid(false);
-            resultBuilder.validationTimeMs(System.currentTimeMillis() - startTime);
+            builder.valid(false);
+            builder.validationTimeMs(System.currentTimeMillis() - start);
             ValidationError error = ValidationError.builder()
                     .message("Erreur de validation : " + e.getMessage())
                     .severity(ValidationError.ErrorSeverity.FATAL)
                     .build();
             errors.add(error);
-            resultBuilder.errors(errors);
-            resultBuilder.warnings(warnings);
-            return resultBuilder.build();
+            builder.errors(errors);
+            builder.warnings(warnings);
+            builder.validatedAgainst("XSD " + SCHEMA_VERSION.getVersion());
+            return builder.build();
         }
     }
 
-    private Schema getSchemaForVersion(SchemaVersion version, MessageType type) throws SAXException, IOException {
-        String key = version.getVersion() + "-" + type.name();
-        Schema cached = schemaCache.get(key);
+    private Schema getSchema(MessageType type) throws SAXException, IOException {
+        Schema cached = schemaCache.get(type);
         if (cached != null) {
             return cached;
         }
 
-        String resourcePath = "/xsd/" + version.getVersion() + "/uncefact/data/standard/" + getSchemaFileName(type, version);
-        java.net.URL xsdUrl = com.cii.messaging.model.util.UneceSchemaLoader.class.getResource(resourcePath);
-        if (xsdUrl == null) {
-            logger.warn("Schéma XSD non disponible pour la version : {} type : {}", version.getVersion(), type);
-            throw new SAXException("Schéma XSD introuvable pour la version : " + version.getVersion() + " type : " + type);
+        String schemaFile;
+        switch (type) {
+            case INVOICE:
+                schemaFile = "CrossIndustryInvoice_26p1.xsd";
+                break;
+            case DESADV:
+                schemaFile = "CrossIndustryDespatchAdvice_25p1.xsd";
+                break;
+            case ORDER:
+                schemaFile = "CrossIndustryOrder_25p1.xsd";
+                break;
+            case ORDERSP:
+                schemaFile = "CrossIndustryOrderResponse_25p1.xsd";
+                break;
+            default:
+                throw new IllegalArgumentException("Type de message non pris en charge : " + type);
         }
+
+        java.net.URL xsdUrl = com.cii.messaging.model.util.UneceSchemaLoader.class
+                .getResource("/xsd/" + SCHEMA_VERSION.getVersion() + "/uncefact/data/standard/" + schemaFile);
+        if (xsdUrl == null) {
+            throw new SAXException("Schéma XSD introuvable pour le type : " + type);
+        }
+
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        } catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
-            // Ignore
+        } catch (SAXNotRecognizedException | SAXNotSupportedException ignored) {
+            // Les implémentations JAXP peuvent ne pas supporter ces propriétés.
         }
+
         Schema schema = factory.newSchema(xsdUrl);
-        Schema existing = schemaCache.putIfAbsent(key, schema);
+        Schema existing = schemaCache.putIfAbsent(type, schema);
         return existing != null ? existing : schema;
-    }
-    
-    private String getSchemaFileName(MessageType type, SchemaVersion version) {
-        switch (version) {
-            case D23B:
-                switch (type) {
-                    case INVOICE:
-                        return "CrossIndustryInvoice_26p1.xsd";
-                    case DESADV:
-                        return "CrossIndustryDespatchAdvice_25p1.xsd";
-                    case ORDER:
-                        return "CrossIndustryOrder_25p1.xsd";
-                    case ORDERSP:
-                        return "CrossIndustryOrderResponse_25p1.xsd";
-                    default:
-                        throw new IllegalArgumentException("Type de message non pris en charge : " + type);
-                }
-            case D16B:
-                switch (type) {
-                    case INVOICE:
-                        return "CrossIndustryInvoice_13p1.xsd";
-                    case DESADV:
-                        return "CrossIndustryDespatchAdvice_12p1.xsd";
-                    case ORDER:
-                        return "CrossIndustryOrder_12p1.xsd";
-                    case ORDERSP:
-                        return "CrossIndustryOrderResponse_12p1.xsd";
-                    default:
-                        throw new IllegalArgumentException("Type de message non pris en charge : " + type);
-                }
-            default:
-                throw new IllegalArgumentException("Version de schéma non prise en charge : " + version);
-        }
     }
 
     private MessageType detectMessageType(byte[] data) throws Exception {
@@ -242,33 +212,36 @@ public class XSDValidator implements CIIValidator {
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
         DocumentBuilder builder = factory.newDocumentBuilder();
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
             Document doc = builder.parse(bais);
             String root = doc.getDocumentElement().getLocalName();
-            if ("CrossIndustryInvoice".equals(root)) {
-                return MessageType.INVOICE;
-            } else if ("CrossIndustryDespatchAdvice".equals(root)) {
-                return MessageType.DESADV;
-            } else if ("CrossIndustryOrder".equals(root)) {
-                return MessageType.ORDER;
-            } else if ("CrossIndustryOrderResponse".equals(root)) {
-            return MessageType.ORDERSP;
-        }
-        throw new SAXException("Élément racine inconnu : " + root);
+            switch (root) {
+                case "CrossIndustryInvoice":
+                    return MessageType.INVOICE;
+                case "CrossIndustryDespatchAdvice":
+                    return MessageType.DESADV;
+                case "CrossIndustryOrder":
+                    return MessageType.ORDER;
+                case "CrossIndustryOrderResponse":
+                    return MessageType.ORDERSP;
+                default:
+                    throw new SAXException("Élément racine inconnu : " + root);
+            }
         }
     }
-    
+
     private static class ValidationErrorHandler implements ErrorHandler {
         private final List<ValidationError> errors;
         private final List<ValidationWarning> warnings;
         private boolean hasErrors = false;
-        
-        public ValidationErrorHandler(List<ValidationError> errors, List<ValidationWarning> warnings) {
+
+        ValidationErrorHandler(List<ValidationError> errors, List<ValidationWarning> warnings) {
             this.errors = errors;
             this.warnings = warnings;
         }
-        
+
         @Override
         public void warning(SAXParseException e) {
             ValidationWarning warning = ValidationWarning.builder()
@@ -277,7 +250,7 @@ public class XSDValidator implements CIIValidator {
                     .build();
             warnings.add(warning);
         }
-        
+
         @Override
         public void error(SAXParseException e) {
             hasErrors = true;
@@ -289,7 +262,7 @@ public class XSDValidator implements CIIValidator {
                     .build();
             errors.add(error);
         }
-        
+
         @Override
         public void fatalError(SAXParseException e) {
             hasErrors = true;
@@ -301,9 +274,10 @@ public class XSDValidator implements CIIValidator {
                     .build();
             errors.add(error);
         }
-        
-        public boolean hasErrors() {
+
+        boolean hasErrors() {
             return hasErrors;
         }
     }
 }
+
