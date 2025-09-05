@@ -2,7 +2,6 @@ package com.cii.messaging.reader.impl;
 
 import com.cii.messaging.model.*;
 import com.cii.messaging.reader.CIIReaderException;
-import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

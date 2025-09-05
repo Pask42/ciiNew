@@ -3,7 +3,6 @@ package com.cii.messaging.writer.impl;
 import com.cii.messaging.model.*;
 import com.cii.messaging.writer.CIIWriterException;
 import com.cii.messaging.model.util.UneceSchemaLoader;
-import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -15,7 +14,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
