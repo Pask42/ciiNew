@@ -27,15 +27,14 @@
 		<jaxb-impl.version>4.0.4</jaxb-impl.version>
                 <mustang.version>2.18.0</mustang.version>
                 <ph-schematron.version>5.6.5</ph-schematron.version>
-                <ph-cii.version>3.1.0</ph-cii.version>
                 <xerces.version>2.12.2</xerces.version>
-		<saxon.version>12.3</saxon.version>
-		<junit.version>5.10.1</junit.version>
-		<jackson.version>2.16.0</jackson.version>
-		<slf4j.version>2.0.9</slf4j.version>
-		<logback.version>1.4.14</logback.version>
-		<lombok.version>1.18.30</lombok.version>
-	</properties>
+                <saxon.version>12.3</saxon.version>
+                <junit.version>5.10.1</junit.version>
+                <jackson.version>2.16.0</jackson.version>
+                <slf4j.version>2.0.9</slf4j.version>
+                <logback.version>1.4.14</logback.version>
+                <lombok.version>1.18.30</lombok.version>
+        </properties>
 
 	<modules>
 		<module>cii-model</module>
@@ -68,19 +67,7 @@
 				<version>${mustang.version}</version>
 			</dependency>
 
-                        <!-- ph-cii for CII/UBL conversion -->
-                        <dependency>
-                                <groupId>com.helger.cii</groupId>
-                                <artifactId>ph-cii-d16b</artifactId>
-                                <version>${ph-cii.version}</version>
-                        </dependency>
-                        <dependency>
-                                <groupId>com.helger.cii</groupId>
-                                <artifactId>ph-cii-d20b</artifactId>
-                                <version>${ph-cii.version}</version>
-                        </dependency>
-
-			<!-- XML Processing -->
+                        <!-- XML Processing -->
                         <dependency>
                                 <groupId>xerces</groupId>
                                 <artifactId>xercesImpl</artifactId>

@@ -30,10 +30,6 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
                 <dependency>
-                        <groupId>com.helger.cii</groupId>
-                        <artifactId>ph-cii-d16b</artifactId>
-                </dependency>
-                <dependency>
                         <groupId>com.fasterxml.jackson.core</groupId>
                         <artifactId>jackson-databind</artifactId>
                 </dependency>
@@ -79,7 +75,7 @@
 	          </goals>
 	          <configuration>
                     <sources>${basedir}/src/main/resources/xsd/${unece.version}</sources>
-	            <packageName>com.helger.cii.d16b</packageName>
+                    <packageName>com.cii.messaging.unece</packageName>
 			     <xjbSources>
 			      <!-- ici on pointe vers votre fichier bindings.xjb -->
 			      <xjbSource>${basedir}/src/main/resources/bindings/bindings.xjb</xjbSource>

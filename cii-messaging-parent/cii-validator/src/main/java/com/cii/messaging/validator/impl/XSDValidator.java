@@ -169,39 +169,25 @@ public class XSDValidator implements CIIValidator {
             return cached;
         }
 
-        String schemaFile;
+        String baseFile;
         switch (type) {
             case INVOICE:
-                schemaFile = "CrossIndustryInvoice_26p1.xsd";
+                baseFile = "CrossIndustryInvoice.xsd";
                 break;
             case DESADV:
-                schemaFile = "CrossIndustryDespatchAdvice_25p1.xsd";
+                baseFile = "CrossIndustryDespatchAdvice.xsd";
                 break;
             case ORDER:
-                schemaFile = "CrossIndustryOrder_25p1.xsd";
+                baseFile = "CrossIndustryOrder.xsd";
                 break;
             case ORDERSP:
-                schemaFile = "CrossIndustryOrderResponse_25p1.xsd";
+                baseFile = "CrossIndustryOrderResponse.xsd";
                 break;
             default:
                 throw new IllegalArgumentException("Type de message non pris en charge : " + type);
         }
 
-        java.net.URL xsdUrl = com.cii.messaging.model.util.UneceSchemaLoader.class
-                .getResource("/xsd/" + SCHEMA_VERSION.getVersion() + "/uncefact/data/standard/" + schemaFile);
-        if (xsdUrl == null) {
-            throw new SAXException("Schéma XSD introuvable pour le type : " + type);
-        }
-
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        try {
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        } catch (SAXNotRecognizedException | SAXNotSupportedException ignored) {
-            // Les implémentations JAXP peuvent ne pas supporter ces propriétés.
-        }
-
-        Schema schema = factory.newSchema(xsdUrl);
+        Schema schema = com.cii.messaging.model.util.UneceSchemaLoader.loadSchema(baseFile);
         Schema existing = schemaCache.putIfAbsent(type, schema);
         return existing != null ? existing : schema;
     }

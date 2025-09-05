@@ -14,13 +14,13 @@ class UneceSchemaLoaderTest {
 
     @Test
     void defaultVersionIsD23B() {
-        assertDoesNotThrow(() -> UneceSchemaLoader.loadSchema("QualifiedDataType_34p0.xsd"));
+        assertDoesNotThrow(() -> UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd"));
     }
 
     @Test
     void loadD16BWhenSpecified() {
         System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
-        assertDoesNotThrow(() -> UneceSchemaLoader.loadSchema("QualifiedDataType_20p0.xsd"));
+        assertDoesNotThrow(() -> UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd"));
     }
 
     @Test
@@ -35,7 +35,7 @@ class UneceSchemaLoaderTest {
     void loadingWrongVersionThrows() {
         System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
         assertThrows(IllegalArgumentException.class, () ->
-                UneceSchemaLoader.loadSchema("QualifiedDataType_34p0.xsd"));
+                UneceSchemaLoader.loadSchema("CrossIndustryInvoice_26p1.xsd"));
     }
 }
 
