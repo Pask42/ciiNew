@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Jacksonized
 public class PaymentTerms {
     private String description;
-    private LocalDate dueDate;
+    private OffsetDateTime dueDate;
     private String paymentMeansCode;
     private String accountNumber;
     private String accountName;
