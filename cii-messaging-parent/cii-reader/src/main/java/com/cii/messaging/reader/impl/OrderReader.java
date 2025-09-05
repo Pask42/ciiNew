@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Currency;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,13 +106,26 @@ public class OrderReader extends AbstractCIIReader {
         }
         return null;
     }
-    
+
+    private OffsetDateTime extractIssueDate(Document doc) {
+        NodeList nodes = doc.getElementsByTagNameNS("*", "IssueDateTime");
+        if (nodes.getLength() > 0) {
+            String text = extractTextContent((Element) nodes.item(0), "DateTimeString");
+            if (text != null && text.length() >= 8) {
+                LocalDate ld = LocalDate.parse(text.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+                return ld.atStartOfDay().atOffset(ZoneOffset.UTC);
+            }
+        }
+        return OffsetDateTime.now(ZoneOffset.UTC);
+    }
+
     private DocumentHeader extractOrderHeader(Document doc) {
         return DocumentHeader.builder()
                 .documentNumber(extractMessageId(doc))
                 .buyerReference(extractTextContent(doc, "BuyerReference"))
-                  .currency(parseCurrency(extractTextContent(doc, "OrderCurrencyCode")))
-                  .build();
+                .documentDate(extractIssueDate(doc))
+                .currency(parseCurrency(extractTextContent(doc, "OrderCurrencyCode")))
+                .build();
     }
     
     private List<LineItem> extractOrderLineItems(Document doc) {
