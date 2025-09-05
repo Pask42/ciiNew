@@ -47,16 +47,54 @@ public final class UneceSchemaLoader {
      */
     public static Schema loadSchema(String schemaFile) {
         String version = resolveVersion();
-        String resourcePath = String.format("/xsd/%s/uncefact/data/standard/%s", version, schemaFile);
-        URL xsd = UneceSchemaLoader.class.getResource(resourcePath);
+        String baseDir = String.format("/xsd/%s/uncefact/data/standard/", version);
+
+        String resolvedName = schemaFile;
+        URL xsd = UneceSchemaLoader.class.getResource(baseDir + resolvedName);
         if (xsd == null) {
-            throw new IllegalArgumentException("Schéma XSD introuvable pour la version " + version + " à " + resourcePath);
+            // si aucun fichier exact, tenter avec suffixe de version connu
+            String prefix = schemaFile.endsWith(".xsd") ? schemaFile.substring(0, schemaFile.length() - 4) : schemaFile;
+            String suffix = switch (version) {
+                case "D16B" -> switch (prefix) {
+                    case "CrossIndustryInvoice" -> "13p1";
+                    case "CrossIndustryOrder" -> "12p1";
+                    case "CrossIndustryOrderChange" -> "12p1";
+                    case "CrossIndustryOrderResponse" -> "12p1";
+                    case "CrossIndustryDespatchAdvice" -> "12p1";
+                    default -> null;
+                };
+                case "D23B" -> switch (prefix) {
+                    case "CrossIndustryInvoice" -> "26p1";
+                    case "CrossIndustryOrder" -> "25p1";
+                    case "CrossIndustryOrderChange" -> "25p1";
+                    case "CrossIndustryOrderResponse" -> "25p1";
+                    case "CrossIndustryDespatchAdvice" -> "25p1";
+                    default -> null;
+                };
+                default -> null;
+            };
+
+            if (suffix != null) {
+                resolvedName = prefix + "_" + suffix + ".xsd";
+                xsd = UneceSchemaLoader.class.getResource(baseDir + resolvedName);
+            }
         }
+
+        if (xsd == null) {
+            throw new IllegalArgumentException("Schéma XSD introuvable pour la version " + version + " à " + baseDir + resolvedName);
+        }
+
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            try {
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "file,jar,jar:file");
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file,jar,jar:file");
+            } catch (Exception ignored) {
+                // Certains parseurs ne supportent pas ces propriétés
+            }
             return factory.newSchema(xsd);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Impossible de charger le schéma depuis " + resourcePath, e);
+            throw new IllegalArgumentException("Impossible de charger le schéma depuis " + baseDir + resolvedName, e);
         }
     }
 

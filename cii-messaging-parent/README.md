@@ -58,6 +58,7 @@ Exemple de chargement en Java :
 
 ```java
 Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
+// Le chargeur résout automatiquement le suffixe spécifique à la version
 ```
 
 Le JAR exécutable de la CLI est ensuite disponible dans `cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar`.
