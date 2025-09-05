@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -16,7 +16,7 @@ import java.util.List;
 public class CIIMessage {
     private String messageId;
     private MessageType messageType;
-    private LocalDateTime creationDateTime;
+    private OffsetDateTime creationDateTime;
     private String senderPartyId;
     private String receiverPartyId;
     private TradeParty seller;

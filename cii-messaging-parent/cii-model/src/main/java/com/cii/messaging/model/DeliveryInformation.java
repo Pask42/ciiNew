@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Jacksonized
 public class DeliveryInformation {
-    private LocalDate deliveryDate;
+    private OffsetDateTime deliveryDate;
     private String deliveryLocationId;
     private Address deliveryAddress;
     private String deliveryPartyName;

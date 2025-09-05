@@ -5,7 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Currency;
 
 @Data
 @Builder
@@ -14,11 +15,11 @@ import java.time.LocalDate;
 @Jacksonized
 public class DocumentHeader {
     private String documentNumber;
-    private LocalDate documentDate;
+    private OffsetDateTime documentDate;
     private String buyerReference;
     private String sellerReference;
     private String contractReference;
-    private String currency;
+    private Currency currency;
     private PaymentTerms paymentTerms;
     private DeliveryInformation delivery;
 }
