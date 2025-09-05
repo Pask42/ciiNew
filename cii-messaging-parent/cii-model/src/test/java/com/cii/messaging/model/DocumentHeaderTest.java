@@ -2,7 +2,9 @@ package com.cii.messaging.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Currency;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,7 +13,7 @@ class DocumentHeaderTest {
     private PaymentTerms samplePaymentTerms() {
         return PaymentTerms.builder()
                 .description("Net 30")
-                .dueDate(LocalDate.of(2023, 6, 15))
+                .dueDate(OffsetDateTime.of(2023, 6, 15, 0, 0, 0, 0, ZoneOffset.UTC))
                 .paymentMeansCode("30")
                 .accountNumber("123456")
                 .accountName("Main Account")
@@ -29,7 +31,7 @@ class DocumentHeaderTest {
                 .build();
 
         return DeliveryInformation.builder()
-                .deliveryDate(LocalDate.of(2023, 5, 20))
+                .deliveryDate(OffsetDateTime.of(2023, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC))
                 .deliveryLocationId("LOC1")
                 .deliveryAddress(address)
                 .deliveryPartyName("John Doe")
@@ -43,21 +45,21 @@ class DocumentHeaderTest {
 
         DocumentHeader header = DocumentHeader.builder()
                 .documentNumber("INV-1")
-                .documentDate(LocalDate.of(2023, 5, 1))
+                .documentDate(OffsetDateTime.of(2023, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .buyerReference("BUYER")
                 .sellerReference("SELLER")
                 .contractReference("CONTRACT")
-                .currency("USD")
+                .currency(Currency.getInstance("USD"))
                 .paymentTerms(terms)
                 .delivery(delivery)
                 .build();
 
         assertEquals("INV-1", header.getDocumentNumber());
-        assertEquals(LocalDate.of(2023, 5, 1), header.getDocumentDate());
+        assertEquals(OffsetDateTime.of(2023, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC), header.getDocumentDate());
         assertEquals("BUYER", header.getBuyerReference());
         assertEquals("SELLER", header.getSellerReference());
         assertEquals("CONTRACT", header.getContractReference());
-        assertEquals("USD", header.getCurrency());
+        assertEquals(Currency.getInstance("USD"), header.getCurrency());
         assertEquals(terms, header.getPaymentTerms());
         assertEquals(delivery, header.getDelivery());
     }
@@ -69,33 +71,33 @@ class DocumentHeaderTest {
 
         DocumentHeader header1 = DocumentHeader.builder()
                 .documentNumber("INV-1")
-                .documentDate(LocalDate.of(2023, 5, 1))
+                .documentDate(OffsetDateTime.of(2023, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .buyerReference("BUYER")
                 .sellerReference("SELLER")
                 .contractReference("CONTRACT")
-                .currency("USD")
+                .currency(Currency.getInstance("USD"))
                 .paymentTerms(terms)
                 .delivery(delivery)
                 .build();
 
         DocumentHeader header2 = DocumentHeader.builder()
                 .documentNumber("INV-1")
-                .documentDate(LocalDate.of(2023, 5, 1))
+                .documentDate(OffsetDateTime.of(2023, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .buyerReference("BUYER")
                 .sellerReference("SELLER")
                 .contractReference("CONTRACT")
-                .currency("USD")
+                .currency(Currency.getInstance("USD"))
                 .paymentTerms(terms)
                 .delivery(delivery)
                 .build();
 
         DocumentHeader header3 = DocumentHeader.builder()
                 .documentNumber("INV-2")
-                .documentDate(LocalDate.of(2023, 6, 1))
+                .documentDate(OffsetDateTime.of(2023, 6, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .buyerReference("OTHER")
                 .sellerReference("SELLER")
                 .contractReference("CONTRACT")
-                .currency("EUR")
+                .currency(Currency.getInstance("EUR"))
                 .paymentTerms(terms)
                 .delivery(delivery)
                 .build();

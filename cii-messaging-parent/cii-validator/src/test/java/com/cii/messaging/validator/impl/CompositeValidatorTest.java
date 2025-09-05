@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -150,7 +151,7 @@ class CompositeValidatorTest {
         CIIMessage msg = CIIMessage.builder()
                 .messageId("1")
                 .messageType(MessageType.INVOICE)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .senderPartyId("S")
                 .receiverPartyId("R")
                 .build();

@@ -11,8 +11,8 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -36,7 +36,7 @@ public class OrderResponseWriterTest {
         return CIIMessage.builder()
                 .messageId("MSG-ORDERSP")
                 .messageType(MessageType.ORDERSP)
-                .creationDateTime(LocalDateTime.parse("20240201120000", DateTimeFormatter.ofPattern("yyyyMMddHHmmss")))
+                  .creationDateTime(OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC))
                 .seller(TradeParty.builder().id("SELLER").name("Seller Corp").build())
                 .buyer(TradeParty.builder().id("BUYER").name("Buyer Corp").build())
                 .header(header)

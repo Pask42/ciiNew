@@ -14,8 +14,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Currency;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +75,7 @@ public class InvoiceReader extends AbstractCIIReader {
         return CIIMessage.builder()
                 .messageId(extractDocumentId(doc))
                 .messageType(MessageType.INVOICE)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .senderPartyId(seller != null ? seller.getId() : null)
                 .receiverPartyId(buyer != null ? buyer.getId() : null)
                 .seller(seller)
@@ -145,8 +147,8 @@ public class InvoiceReader extends AbstractCIIReader {
         return DocumentHeader.builder()
                 .documentNumber(extractDocumentId(doc))
                 .buyerReference(extractTextContent(doc, "BuyerReference"))
-                .documentDate(extractIssueDate(doc))
-                .currency(extractTextContent(doc, "InvoiceCurrencyCode"))
+                  .documentDate(extractIssueDate(doc))
+                  .currency(parseCurrency(extractTextContent(doc, "InvoiceCurrencyCode")))
                 .paymentTerms(extractPaymentTerms(doc))
                 .delivery(extractDeliveryInformation(doc))
                 .build();
@@ -164,16 +166,17 @@ public class InvoiceReader extends AbstractCIIReader {
         return null;
     }
 
-    private LocalDate extractIssueDate(Document doc) {
+      private OffsetDateTime extractIssueDate(Document doc) {
         NodeList nodes = doc.getElementsByTagNameNS("*", "IssueDateTime");
         if (nodes.getLength() > 0) {
             String text = extractTextContent((Element) nodes.item(0), "DateTimeString");
-            if (text != null && text.length() >= 8) {
-                return LocalDate.parse(text.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
-            }
-        }
-        return LocalDate.now();
-    }
+              if (text != null && text.length() >= 8) {
+                  LocalDate ld = LocalDate.parse(text.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+                  return ld.atStartOfDay().atOffset(ZoneOffset.UTC);
+              }
+          }
+          return OffsetDateTime.now(ZoneOffset.UTC);
+      }
 
     private PaymentTerms extractPaymentTerms(Document doc) {
         NodeList nodes = doc.getElementsByTagNameNS("*", "SpecifiedTradeSettlementPaymentTerms");
@@ -181,14 +184,15 @@ public class InvoiceReader extends AbstractCIIReader {
             Element terms = (Element) nodes.item(0);
             String description = extractTextContent(terms, "Description");
             String dateStr = extractTextContent(terms, "DateTimeString");
-            LocalDate dueDate = null;
-            if (dateStr != null && dateStr.length() >= 8) {
-                dueDate = LocalDate.parse(dateStr.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
-            }
-            return PaymentTerms.builder()
-                    .description(description)
-                    .dueDate(dueDate)
-                    .build();
+              OffsetDateTime dueDate = null;
+              if (dateStr != null && dateStr.length() >= 8) {
+                  LocalDate ld = LocalDate.parse(dateStr.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+                  dueDate = ld.atStartOfDay().atOffset(ZoneOffset.UTC);
+              }
+              return PaymentTerms.builder()
+                      .description(description)
+                      .dueDate(dueDate)
+                      .build();
         }
         return null;
     }
@@ -198,14 +202,15 @@ public class InvoiceReader extends AbstractCIIReader {
         if (nodes.getLength() > 0) {
             Element delivery = (Element) nodes.item(0);
             String dateStr = extractTextContent(delivery, "DateTimeString");
-            LocalDate deliveryDate = null;
-            if (dateStr != null && dateStr.length() >= 8) {
-                deliveryDate = LocalDate.parse(dateStr.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
-            }
-            return DeliveryInformation.builder()
-                    .deliveryDate(deliveryDate)
-                    .build();
-        }
+              OffsetDateTime deliveryDate = null;
+              if (dateStr != null && dateStr.length() >= 8) {
+                  LocalDate ld = LocalDate.parse(dateStr.substring(0, 8), DateTimeFormatter.ofPattern("yyyyMMdd"));
+                  deliveryDate = ld.atStartOfDay().atOffset(ZoneOffset.UTC);
+              }
+              return DeliveryInformation.builder()
+                      .deliveryDate(deliveryDate)
+                      .build();
+      }
         return null;
     }
     
@@ -251,17 +256,28 @@ public class InvoiceReader extends AbstractCIIReader {
                 .build();
     }
 
-    private BigDecimal calculateLineTotalFromItems(Document doc) {
-        BigDecimal total = BigDecimal.ZERO;
-        NodeList lineAmounts = doc.getElementsByTagNameNS("*", "LineTotalAmount");
-        for (int i = 0; i < lineAmounts.getLength(); i++) {
-            BigDecimal amount = parseBigDecimal(lineAmounts.item(i).getTextContent());
-            if (amount != null) {
-                total = total.add(amount);
-            }
-        }
-        return total;
-    }
+      private BigDecimal calculateLineTotalFromItems(Document doc) {
+          BigDecimal total = BigDecimal.ZERO;
+          NodeList lineAmounts = doc.getElementsByTagNameNS("*", "LineTotalAmount");
+          for (int i = 0; i < lineAmounts.getLength(); i++) {
+              BigDecimal amount = parseBigDecimal(lineAmounts.item(i).getTextContent());
+              if (amount != null) {
+                  total = total.add(amount);
+              }
+          }
+          return total;
+      }
+
+      private Currency parseCurrency(String code) {
+          if (code == null || code.isBlank()) {
+              return null;
+          }
+          try {
+              return Currency.getInstance(code);
+          } catch (IllegalArgumentException e) {
+              return null;
+          }
+      }
     
     private String extractTextContent(Element element, String tagName) {
         NodeList nodes = element.getElementsByTagNameNS("*", tagName);

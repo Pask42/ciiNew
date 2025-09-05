@@ -11,8 +11,8 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -32,7 +32,7 @@ public class DesadvWriterTest {
         return CIIMessage.builder()
                 .messageId("MSG-DESADV")
                 .messageType(MessageType.DESADV)
-                .creationDateTime(LocalDateTime.parse("20240201120000", DateTimeFormatter.ofPattern("yyyyMMddHHmmss")))
+                  .creationDateTime(OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC))
                 .senderPartyId("SELLER")
                 .receiverPartyId("BUYER")
                 .lineItems(java.util.List.of(line))

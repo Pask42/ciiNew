@@ -14,7 +14,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 public class DesadvWriter extends AbstractCIIWriter {
@@ -73,11 +74,11 @@ public class DesadvWriter extends AbstractCIIWriter {
             addElement(doc, exchangedDoc, "ram:ID", message.getMessageId());
             addElement(doc, exchangedDoc, "ram:TypeCode", "351"); // Despatch advice type code
 
-            Element issueDateTime = createElement(doc, "ram:IssueDateTime");
-            Element dateTimeString = createElement(doc, "udt:DateTimeString");
-            dateTimeString.setAttribute("format", "102");
-            dateTimeString.setTextContent(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
-            issueDateTime.appendChild(dateTimeString);
+              Element issueDateTime = createElement(doc, "ram:IssueDateTime");
+              Element dateTimeString = createElement(doc, "udt:DateTimeString");
+              dateTimeString.setAttribute("format", "102");
+              dateTimeString.setTextContent(OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+              issueDateTime.appendChild(dateTimeString);
             exchangedDoc.appendChild(issueDateTime);
 
             // Add SupplyChainTradeTransaction

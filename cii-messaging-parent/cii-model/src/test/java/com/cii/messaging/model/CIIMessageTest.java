@@ -3,8 +3,9 @@ package com.cii.messaging.model;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Currency;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +15,7 @@ class CIIMessageTest {
     private DocumentHeader sampleHeader() {
         PaymentTerms terms = PaymentTerms.builder()
                 .description("Net 30")
-                .dueDate(LocalDate.of(2023, 6, 15))
+                .dueDate(OffsetDateTime.of(2023, 6, 15, 0, 0, 0, 0, ZoneOffset.UTC))
                 .paymentMeansCode("30")
                 .accountNumber("123456")
                 .accountName("Main Account")
@@ -22,7 +23,7 @@ class CIIMessageTest {
                 .build();
 
         DeliveryInformation delivery = DeliveryInformation.builder()
-                .deliveryDate(LocalDate.of(2023, 5, 20))
+                  .deliveryDate(OffsetDateTime.of(2023, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC))
                 .deliveryLocationId("LOC1")
                 .deliveryAddress(Address.builder()
                         .street("123 Main St")
@@ -36,11 +37,11 @@ class CIIMessageTest {
 
         return DocumentHeader.builder()
                 .documentNumber("INV-1")
-                .documentDate(LocalDate.of(2023, 5, 1))
+                  .documentDate(OffsetDateTime.of(2023, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .buyerReference("BUYER")
                 .sellerReference("SELLER")
                 .contractReference("CONTRACT")
-                .currency("USD")
+                  .currency(Currency.getInstance("USD"))
                 .paymentTerms(terms)
                 .delivery(delivery)
                 .build();
@@ -111,7 +112,7 @@ class CIIMessageTest {
         DocumentHeader header = sampleHeader();
         LineItem lineItem = sampleLineItem();
         TotalsInformation totals = sampleTotals();
-        LocalDateTime timestamp = LocalDateTime.of(2023, 5, 1, 12, 0);
+          OffsetDateTime timestamp = OffsetDateTime.of(2023, 5, 1, 12, 0, 0, 0, ZoneOffset.UTC);
 
         CIIMessage message = CIIMessage.builder()
                 .messageId("MSG1")
@@ -128,7 +129,7 @@ class CIIMessageTest {
 
         assertEquals("MSG1", message.getMessageId());
         assertEquals(MessageType.INVOICE, message.getMessageType());
-        assertEquals(timestamp, message.getCreationDateTime());
+          assertEquals(timestamp, message.getCreationDateTime());
         assertEquals("SENDER", message.getSenderPartyId());
         assertEquals("RECEIVER", message.getReceiverPartyId());
         assertEquals("Seller", message.getSeller().getName());
@@ -146,7 +147,7 @@ class CIIMessageTest {
         LineItem item2 = sampleLineItem();
         TotalsInformation totals1 = sampleTotals();
         TotalsInformation totals2 = sampleTotals();
-        LocalDateTime timestamp = LocalDateTime.of(2023, 5, 1, 12, 0);
+          OffsetDateTime timestamp = OffsetDateTime.of(2023, 5, 1, 12, 0, 0, 0, ZoneOffset.UTC);
 
         CIIMessage message1 = CIIMessage.builder()
                 .messageId("MSG1")

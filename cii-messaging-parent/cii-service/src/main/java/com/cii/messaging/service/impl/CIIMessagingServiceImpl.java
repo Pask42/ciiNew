@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -161,7 +161,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIMessage invoice = CIIMessage.builder()
                     .messageId(generateMessageId())
                     .messageType(MessageType.INVOICE)
-                    .creationDateTime(LocalDateTime.now())
+                      .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                     .senderPartyId(order.getReceiverPartyId()) // Swap sender/receiver
                     .receiverPartyId(order.getSenderPartyId())
                     .header(createInvoiceHeader(order.getHeader()))
@@ -185,7 +185,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIMessage desadv = CIIMessage.builder()
                     .messageId(generateMessageId())
                     .messageType(MessageType.DESADV)
-                    .creationDateTime(LocalDateTime.now())
+                      .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                     .senderPartyId(order.getReceiverPartyId())
                     .receiverPartyId(order.getSenderPartyId())
                     .header(createDesadvHeader(order.getHeader()))
@@ -208,7 +208,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
             CIIMessage ordersp = CIIMessage.builder()
                     .messageId(generateMessageId())
                     .messageType(MessageType.ORDERSP)
-                    .creationDateTime(LocalDateTime.now())
+                      .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                     .senderPartyId(order.getReceiverPartyId())
                     .receiverPartyId(order.getSenderPartyId())
                     .header(createOrderResponseHeader(order.getHeader(), responseType))
@@ -234,7 +234,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
         
         return DocumentHeader.builder()
                 .documentNumber("INV-" + UUID.randomUUID().toString().substring(0, 8))
-                .documentDate(LocalDate.now())
+                  .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                 .buyerReference(orderHeader.getBuyerReference())
                 .sellerReference(orderHeader.getSellerReference())
                 .contractReference(orderHeader.getContractReference())
@@ -251,7 +251,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
         
         return DocumentHeader.builder()
                 .documentNumber("DES-" + UUID.randomUUID().toString().substring(0, 8))
-                .documentDate(LocalDate.now())
+                  .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                 .buyerReference(orderHeader.getBuyerReference())
                 .sellerReference(orderHeader.getSellerReference())
                 .delivery(orderHeader.getDelivery())
@@ -265,7 +265,7 @@ public class CIIMessagingServiceImpl implements CIIMessagingService {
         
         return DocumentHeader.builder()
                 .documentNumber("ORD-RSP-" + UUID.randomUUID().toString().substring(0, 8))
-                .documentDate(LocalDate.now())
+                .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                 .buyerReference(orderHeader.getBuyerReference())
                 .sellerReference(orderHeader.getSellerReference())
                 .build();

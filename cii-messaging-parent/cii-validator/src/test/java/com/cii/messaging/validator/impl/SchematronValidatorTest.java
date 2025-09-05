@@ -12,7 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,7 +70,7 @@ class SchematronValidatorTest {
         CIIMessage message = CIIMessage.builder()
                 .messageId("INV-1")
                 .messageType(MessageType.INVOICE)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .build();
         ValidationResult result = validator.validate(message);
         assertTrue(result.isValid());

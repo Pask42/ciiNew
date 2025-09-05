@@ -16,7 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -55,7 +56,7 @@ class XSDValidatorTest {
         CIIMessage message = CIIMessage.builder()
                 .messageId("INV-1")
                 .messageType(MessageType.INVOICE)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .build();
         XSDValidator validator = new XSDValidator();
         ValidationResult result = validator.validate(message);
