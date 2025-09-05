@@ -13,7 +13,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Currency;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +71,7 @@ public class OrderReader extends AbstractCIIReader {
         return CIIMessage.builder()
                 .messageId(extractMessageId(doc))
                 .messageType(MessageType.ORDER)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .senderPartyId(extractBuyerPartyId(doc))
                 .receiverPartyId(extractSellerPartyId(doc))
                 .header(extractOrderHeader(doc))
@@ -108,8 +110,8 @@ public class OrderReader extends AbstractCIIReader {
         return DocumentHeader.builder()
                 .documentNumber(extractMessageId(doc))
                 .buyerReference(extractTextContent(doc, "BuyerReference"))
-                .currency(extractTextContent(doc, "OrderCurrencyCode"))
-                .build();
+                  .currency(parseCurrency(extractTextContent(doc, "OrderCurrencyCode")))
+                  .build();
     }
     
     private List<LineItem> extractOrderLineItems(Document doc) {
@@ -189,5 +191,16 @@ public class OrderReader extends AbstractCIIReader {
             return nodes.item(0).getTextContent().trim();
         }
         return null;
+    }
+
+    private Currency parseCurrency(String code) {
+        if (code == null || code.isBlank()) {
+            return null;
+        }
+        try {
+            return Currency.getInstance(code);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

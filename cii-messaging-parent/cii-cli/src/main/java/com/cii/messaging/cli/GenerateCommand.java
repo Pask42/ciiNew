@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Currency;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
@@ -118,7 +119,7 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
         return CIIMessage.builder()
                 .messageId("MSG-" + System.currentTimeMillis())
                 .messageType(messageType)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .senderPartyId(senderPartyId)
                 .receiverPartyId(receiverPartyId)
                 .header(createSampleHeader())
@@ -130,13 +131,13 @@ public class GenerateCommand extends AbstractCommand implements Callable<Integer
     private DocumentHeader createSampleHeader() {
         return DocumentHeader.builder()
                 .documentNumber("DOC-" + System.currentTimeMillis())
-                .documentDate(LocalDate.now())
-                .currency("EUR")
+                  .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
+                  .currency(Currency.getInstance("EUR"))
                 .buyerReference("BUY-REF-001")
                 .sellerReference("SEL-REF-001")
                 .paymentTerms(PaymentTerms.builder()
                         .description("30 days net")
-                        .dueDate(LocalDate.now().plusDays(30))
+                          .dueDate(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
                         .build())
                 .build();
     }

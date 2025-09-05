@@ -12,7 +12,8 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,7 +67,7 @@ class BusinessRulesValidatorTest {
     void validateMessageMissingRequiredReferences() {
         CIIMessage message = CIIMessage.builder()
                 .header(DocumentHeader.builder()
-                        .documentDate(LocalDate.now())
+                          .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                         .build())
                 .lineItems(List.of(LineItem.builder()
                         .lineNumber("1")
@@ -94,7 +95,7 @@ class BusinessRulesValidatorTest {
         CIIMessage message = CIIMessage.builder()
                 .header(DocumentHeader.builder()
                         .documentNumber("INV-1")
-                        .documentDate(LocalDate.now())
+                          .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                         .buyerReference("BUY-1")
                         .build())
                 .lineItems(List.of(LineItem.builder()
@@ -125,7 +126,7 @@ class BusinessRulesValidatorTest {
         CIIMessage message = CIIMessage.builder()
                 .header(DocumentHeader.builder()
                         .documentNumber("INV-2")
-                        .documentDate(LocalDate.now())
+                          .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                         .buyerReference("BUY-2")
                         .build())
                 .lineItems(List.of(LineItem.builder()

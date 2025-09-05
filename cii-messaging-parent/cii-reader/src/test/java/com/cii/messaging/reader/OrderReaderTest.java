@@ -9,6 +9,7 @@ import java.net.URL;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.Currency;
 
 public class OrderReaderTest {
 
@@ -19,9 +20,9 @@ public class OrderReaderTest {
         assertNotNull(resource);
         File file = new File(resource.toURI());
         CIIMessage message = reader.read(file);
-        assertNotNull(message.getHeader());
-        assertEquals("EUR", message.getHeader().getCurrency());
-    }
+          assertNotNull(message.getHeader());
+          assertEquals(Currency.getInstance("EUR"), message.getHeader().getCurrency());
+      }
 
     @Test
     void extractsLineTotalFromHeader() throws Exception {

@@ -10,7 +10,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 public class DesadvReader extends AbstractCIIReader {
     
@@ -41,8 +42,8 @@ public class DesadvReader extends AbstractCIIReader {
     protected CIIMessage parseDocument(Object document) throws CIIReaderException {
         // Basic implementation for DESADV parsing
         return CIIMessage.builder()
-                .messageType(MessageType.DESADV)
-                .creationDateTime(LocalDateTime.now())
-                .build();
+                  .messageType(MessageType.DESADV)
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
+                  .build();
     }
 }

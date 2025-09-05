@@ -4,9 +4,9 @@ import com.cii.messaging.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Currency;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,12 +44,12 @@ public class InvoiceWriterTest {
                         .build())
                 .build();
 
-        DocumentHeader header = DocumentHeader.builder()
-                .documentNumber("INV-2024-001")
-                .documentDate(LocalDate.now())
-                .buyerReference("BUY-REF-2024-001")
-                .currency("EUR")
-                .build();
+          DocumentHeader header = DocumentHeader.builder()
+                  .documentNumber("INV-2024-001")
+                  .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
+                  .buyerReference("BUY-REF-2024-001")
+                  .currency(Currency.getInstance("EUR"))
+                  .build();
 
         LineItem line = LineItem.builder()
                 .lineNumber("1")
@@ -75,7 +75,7 @@ public class InvoiceWriterTest {
         return CIIMessage.builder()
                 .messageId("MSG1")
                 .messageType(MessageType.INVOICE)
-                .creationDateTime(LocalDateTime.parse("20240201120000", DateTimeFormatter.ofPattern("yyyyMMddHHmmss")))
+                  .creationDateTime(OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC))
                 .senderPartyId(seller.getId())
                 .receiverPartyId(buyer.getId())
                 .seller(seller)

@@ -105,7 +105,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             // Add line items
             if (message.getLineItems() != null) {
                 for (LineItem lineItem : message.getLineItems()) {
-                    Element lineElement = createLineItemElement(doc, lineItem, header.getCurrency());
+                      Element lineElement = createLineItemElement(doc, lineItem, header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null);
                     transaction.appendChild(lineElement);
                 }
             }
@@ -146,7 +146,7 @@ public class InvoiceWriter extends AbstractCIIWriter {
             Element headerSettlement = createElement(doc, "ram:ApplicableHeaderTradeSettlement");
             transaction.appendChild(headerSettlement);
 
-            addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode", header.getCurrency());
+              addElement(doc, headerSettlement, "ram:InvoiceCurrencyCode", header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null);
 
             if (header.getPaymentTerms() != null) {
                 PaymentTerms terms = header.getPaymentTerms();
@@ -168,11 +168,11 @@ public class InvoiceWriter extends AbstractCIIWriter {
                 Element monetarySummation = createElement(doc, "ram:SpecifiedTradeSettlementHeaderMonetarySummation");
                 headerSettlement.appendChild(monetarySummation);
 
-            addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount(), header.getCurrency(), false);
-                addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount(), header.getCurrency(), false);
-                addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount(), header.getCurrency(), true);
-                addAmountElement(doc, monetarySummation, "ram:GrandTotalAmount", message.getTotals().getGrandTotalAmount(), header.getCurrency(), false);
-                addAmountElement(doc, monetarySummation, "ram:DuePayableAmount", message.getTotals().getDuePayableAmount(), header.getCurrency(), false);
+              addAmountElement(doc, monetarySummation, "ram:LineTotalAmount", message.getTotals().getLineTotalAmount(), header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null, false);
+                  addAmountElement(doc, monetarySummation, "ram:TaxBasisTotalAmount", message.getTotals().getTaxBasisAmount(), header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null, false);
+                  addAmountElement(doc, monetarySummation, "ram:TaxTotalAmount", message.getTotals().getTaxTotalAmount(), header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null, true);
+                  addAmountElement(doc, monetarySummation, "ram:GrandTotalAmount", message.getTotals().getGrandTotalAmount(), header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null, false);
+                  addAmountElement(doc, monetarySummation, "ram:DuePayableAmount", message.getTotals().getDuePayableAmount(), header.getCurrency() != null ? header.getCurrency().getCurrencyCode() : null, false);
             }
             
             return doc;

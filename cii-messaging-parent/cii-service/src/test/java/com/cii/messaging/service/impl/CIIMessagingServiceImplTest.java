@@ -4,7 +4,8 @@ import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.model.MessageType;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +18,7 @@ class CIIMessagingServiceImplTest {
         CIIMessage original = CIIMessage.builder()
                 .messageId("123")
                 .messageType(MessageType.ORDER)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .build();
 
         String json = service.convertToJson(original);

@@ -10,7 +10,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 public class OrderResponseReader extends AbstractCIIReader {
     
@@ -41,8 +42,8 @@ public class OrderResponseReader extends AbstractCIIReader {
     protected CIIMessage parseDocument(Object document) throws CIIReaderException {
         // Basic implementation for ORDERSP parsing
         return CIIMessage.builder()
-                .messageType(MessageType.ORDERSP)
-                .creationDateTime(LocalDateTime.now())
-                .build();
+                  .messageType(MessageType.ORDERSP)
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
+                  .build();
     }
 }

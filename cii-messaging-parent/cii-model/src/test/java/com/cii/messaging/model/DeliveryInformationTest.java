@@ -2,7 +2,8 @@ package com.cii.messaging.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +19,7 @@ class DeliveryInformationTest {
                 .countryName("United States")
                 .build();
 
-        LocalDate date = LocalDate.of(2023, 5, 20);
+        OffsetDateTime date = OffsetDateTime.of(2023, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC);
 
         DeliveryInformation info = DeliveryInformation.builder()
                 .deliveryDate(date)
@@ -44,21 +45,21 @@ class DeliveryInformationTest {
                 .build();
 
         DeliveryInformation info1 = DeliveryInformation.builder()
-                .deliveryDate(LocalDate.of(2023, 5, 20))
+                .deliveryDate(OffsetDateTime.of(2023, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC))
                 .deliveryLocationId("LOC1")
                 .deliveryAddress(address)
                 .deliveryPartyName("John Doe")
                 .build();
 
         DeliveryInformation info2 = DeliveryInformation.builder()
-                .deliveryDate(LocalDate.of(2023, 5, 20))
+                .deliveryDate(OffsetDateTime.of(2023, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC))
                 .deliveryLocationId("LOC1")
                 .deliveryAddress(address)
                 .deliveryPartyName("John Doe")
                 .build();
 
         DeliveryInformation info3 = DeliveryInformation.builder()
-                .deliveryDate(LocalDate.of(2023, 5, 21))
+                .deliveryDate(OffsetDateTime.of(2023, 5, 21, 0, 0, 0, 0, ZoneOffset.UTC))
                 .deliveryLocationId("LOC2")
                 .deliveryAddress(address)
                 .deliveryPartyName("Jane Doe")

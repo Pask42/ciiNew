@@ -11,8 +11,9 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Currency;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.*;
@@ -163,17 +164,17 @@ class CIIIntegrationTest {
         return CIIMessage.builder()
                 .messageId("INV-TEST-001")
                 .messageType(MessageType.INVOICE)
-                .creationDateTime(LocalDateTime.now())
+                  .creationDateTime(OffsetDateTime.now(ZoneOffset.UTC))
                 .senderPartyId("SELLER001")
                 .receiverPartyId("BUYER001")
                 .header(DocumentHeader.builder()
                         .documentNumber("INV-2024-001")
-                        .documentDate(LocalDate.now())
+                          .documentDate(OffsetDateTime.now(ZoneOffset.UTC))
                         .buyerReference("BR-REF-001")
-                        .currency("EUR")
+                          .currency(Currency.getInstance("EUR"))
                         .paymentTerms(PaymentTerms.builder()
                                 .description("30 days net")
-                                .dueDate(LocalDate.now().plusDays(30))
+                                  .dueDate(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
                                 .build())
                         .build())
                 .lineItems(Arrays.asList(
