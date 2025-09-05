@@ -9,15 +9,11 @@ import jakarta.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractCIIReader implements CIIReader {
     protected static final Logger logger = LoggerFactory.getLogger(AbstractCIIReader.class);

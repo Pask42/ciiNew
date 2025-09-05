@@ -6,7 +6,6 @@ import com.cii.messaging.service.impl.CIIMessagingServiceImpl;
 import picocli.CommandLine.*;
 import picocli.CommandLine.Model.CommandSpec;
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
