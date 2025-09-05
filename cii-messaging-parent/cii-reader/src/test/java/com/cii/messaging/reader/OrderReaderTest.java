@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.net.URL;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Currency;
@@ -22,6 +24,7 @@ public class OrderReaderTest {
         CIIMessage message = reader.read(file);
           assertNotNull(message.getHeader());
           assertEquals(Currency.getInstance("EUR"), message.getHeader().getCurrency());
+          assertEquals(OffsetDateTime.of(2024,1,15,0,0,0,0, ZoneOffset.UTC), message.getHeader().getDocumentDate());
       }
 
     @Test
