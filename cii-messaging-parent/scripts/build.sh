@@ -3,10 +3,10 @@
 
 echo "🏗️ Building CII Messaging System..."
 
-# Vérifier Java 17
+# Vérifier Java 21
 java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d. -f1)
-if [ "$java_version" -lt "17" ]; then
-    echo "❌ Java 17 or higher is required"
+if [ "$java_version" -lt "21" ]; then
+    echo "❌ Java 21 or higher is required"
     exit 1
 fi
 

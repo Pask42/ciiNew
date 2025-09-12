@@ -1,6 +1,6 @@
 # CII Messaging System
 
-Système Java 17 modulaire pour la lecture, l'écriture et la validation de messages **UN/CEFACT Cross Industry**.
+Système Java 21 modulaire pour la lecture, l'écriture et la validation de messages **UN/CEFACT Cross Industry**.
 Il couvre les flux ORDER, ORDERSP, DESADV et INVOICE et reste compatible avec ZUGFeRD, XRechnung et Factur-X.
 
 ## 📦 Modules
@@ -17,7 +17,7 @@ Il couvre les flux ORDER, ORDERSP, DESADV et INVOICE et reste compatible avec ZU
 
 ## ✅ Prérequis
 
-- Java 17+
+- Java 21+
 - Maven 3.6+
 
 ## 🔨 Compilation
