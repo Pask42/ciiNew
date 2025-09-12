@@ -13,27 +13,27 @@
 	<description>Parent POM for Cross Industry Invoice messaging system</description>
 
 	<properties>
-		<java.version>17</java.version>
-		<maven.compiler.source>17</maven.compiler.source>
-                <maven.compiler.target>17</maven.compiler.target>
+                <java.version>21</java.version>
+                <maven.compiler.source>21</maven.compiler.source>
+                <maven.compiler.target>21</maven.compiler.target>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
                 <!-- UN/CEFACT schema version (can be overridden via -Dunece.version or env) -->
                 <unece.version>D23B</unece.version>
 
 		<!-- Dependencies versions -->
-		<jakarta.xml.bind.version>4.0.1</jakarta.xml.bind.version>
-		<jaxb-runtime.version>4.0.3</jaxb-runtime.version>
-		<jaxb-impl.version>4.0.4</jaxb-impl.version>
-                <mustang.version>2.18.0</mustang.version>
+                <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
+                <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+                <jaxb-impl.version>4.0.5</jaxb-impl.version>
+                <mustang.version>2.19.0</mustang.version>
                 <ph-schematron.version>5.6.5</ph-schematron.version>
                 <xerces.version>2.12.2</xerces.version>
-                <saxon.version>12.3</saxon.version>
-                <junit.version>5.10.1</junit.version>
-                <jackson.version>2.16.0</jackson.version>
-                <slf4j.version>2.0.9</slf4j.version>
-                <logback.version>1.4.14</logback.version>
-                <lombok.version>1.18.30</lombok.version>
+                <saxon.version>12.8</saxon.version>
+                <junit.version>5.13.4</junit.version>
+                <jackson.version>2.20.0</jackson.version>
+                <slf4j.version>2.0.17</slf4j.version>
+                <logback.version>1.5.18</logback.version>
+                <lombok.version>1.18.40</lombok.version>
         </properties>
 
 	<modules>
@@ -138,7 +138,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.11.0</version>
+                                        <version>3.14.0</version>
 					<configuration>
 						<source>${java.version}</source>
 						<target>${java.version}</target>
@@ -146,9 +146,9 @@
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.2.2</version>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-surefire-plugin</artifactId>
+                                        <version>3.5.3</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
