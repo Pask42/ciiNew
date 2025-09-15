@@ -123,6 +123,22 @@ java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/order-sample.
 java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/invoice-sample.xml
 ```
 
+```bash
+# Générer une facture (INVOICE) à partir d'une commande
+java -jar cii-cli.jar generate INVOICE \
+  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
+  --output invoice.xml
+
+# Générer un avis d'expédition (DESADV)
+java -jar cii-cli.jar generate DESADV \
+  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
+  --output desadv.xml
+
+# Générer une réponse à commande (ORDERSP)
+java -jar cii-cli.jar generate ORDERSP \
+  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
+  --output ordersp.xml
+```
 
 ## 📑 Schémas XSD
 
