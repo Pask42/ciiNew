@@ -20,10 +20,12 @@ public class CompositeValidator implements CIIValidator {
     public CompositeValidator() {
         validators.add(new XSDValidator());
         validators.add(new SchematronValidator());
+        validators.forEach(v -> v.setSchemaVersion(schemaVersion));
     }
-    
+
     public void addValidator(CIIValidator validator) {
         validators.add(validator);
+        validator.setSchemaVersion(schemaVersion);
     }
     
     @Override
