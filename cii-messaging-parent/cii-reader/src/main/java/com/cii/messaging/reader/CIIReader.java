@@ -1,11 +1,15 @@
 package com.cii.messaging.reader;
 
-import com.cii.messaging.model.CIIMessage;
 import java.io.File;
 import java.io.InputStream;
 
-public interface CIIReader {
-    CIIMessage read(File xmlFile) throws CIIReaderException;
-    CIIMessage read(InputStream inputStream) throws CIIReaderException;
-    CIIMessage read(String xmlContent) throws CIIReaderException;
+/**
+ * Generic reader contract for converting XML content into domain message models.
+ *
+ * @param <T> type of the message model produced by this reader
+ */
+public interface CIIReader<T> {
+    T read(File xmlFile) throws CIIReaderException;
+    T read(InputStream inputStream) throws CIIReaderException;
+    T read(String xmlContent) throws CIIReaderException;
 }
