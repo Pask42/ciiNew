@@ -1,9 +1,5 @@
 package com.cii.messaging.reader;
 
-import com.cii.messaging.model.MessageType;
-import com.cii.messaging.reader.impl.DesadvReader;
-import com.cii.messaging.reader.impl.InvoiceReader;
-import com.cii.messaging.reader.impl.OrderResponseReader;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.IOException;
@@ -14,12 +10,17 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+/**
+ * Factory responsible for instantiating the appropriate {@link CIIReader}
+ * implementation depending on either the expected {@link MessageType} or the
+ * root element of the provided XML content.
+ */
 public class CIIReaderFactory {
 
-    public static CIIReader createReader(MessageType messageType) {
+    public static CIIReader<?> createReader(MessageType messageType) {
         switch (messageType) {
             case ORDER:
-                return new com.cii.messaging.reader.impl.OrderReader();
+                return new OrderReader();
             case INVOICE:
                 return new InvoiceReader();
             case DESADV:
@@ -31,7 +32,7 @@ public class CIIReaderFactory {
         }
     }
 
-    public static CIIReader createReader(String xmlContent) throws CIIReaderException {
+    public static CIIReader<?> createReader(String xmlContent) throws CIIReaderException {
         XMLInputFactory factory = XMLInputFactory.newFactory();
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
@@ -49,7 +50,7 @@ public class CIIReaderFactory {
                     String localName = reader.getLocalName();
                     switch (localName) {
                         case "CrossIndustryOrder":
-                            return new com.cii.messaging.reader.impl.OrderReader();
+                            return new OrderReader();
                         case "CrossIndustryInvoice":
                             return new InvoiceReader();
                         case "CrossIndustryDespatchAdvice":
@@ -75,7 +76,7 @@ public class CIIReaderFactory {
         throw new CIIReaderException("Impossible de détecter le type de message à partir du contenu XML");
     }
 
-    public static CIIReader createReader(Path xmlFile) throws CIIReaderException {
+    public static CIIReader<?> createReader(Path xmlFile) throws CIIReaderException {
         XMLInputFactory factory = XMLInputFactory.newFactory();
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         factory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
@@ -93,7 +94,7 @@ public class CIIReaderFactory {
                     String localName = reader.getLocalName();
                     switch (localName) {
                         case "CrossIndustryOrder":
-                            return new com.cii.messaging.reader.impl.OrderReader();
+                            return new OrderReader();
                         case "CrossIndustryInvoice":
                             return new InvoiceReader();
                         case "CrossIndustryDespatchAdvice":

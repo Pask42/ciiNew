@@ -7,7 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 /**
  * Dedicated model for order responses based on UNECE CrossIndustryOrderResponseType.
  */
-@XmlRootElement(name = "CrossIndustryOrderResponse")
+@XmlRootElement(name = "CrossIndustryOrderResponse", namespace = "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:100")
 public class OrderResponse extends CrossIndustryOrderResponseType {
     // Additional domain-specific helpers or validations can be added here later.
 }
