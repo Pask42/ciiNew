@@ -61,6 +61,85 @@ InvoiceWriter writer = new InvoiceWriter();
 writer.write(invoice, new File("invoice-out.xml"));
 ```
 
+### Chargement manuel des schémas
+
+```java
+Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
+// Le chargeur résout automatiquement le suffixe spécifique à la version
+```
+
+## 🚀 Déploiement
+
+### Utilisation de la CLI
+
+```bash
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar --help
+```
+
+### Utilisation comme bibliothèque Maven
+
+```xml
+<dependency>
+  <groupId>com.cii.messaging</groupId>
+  <artifactId>cii-service</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+## 🤖 Scripts
+
+### `scripts/build.sh`
+Build Maven complet (tests ignorés) et copie du JAR de la CLI dans `dist/cii-cli.jar`.
+
+```bash
+./scripts/build.sh
+```
+
+### `scripts/run-cli.sh`
+Wrapper pour lancer la CLI depuis `dist`. À utiliser après le build.
+
+```bash
+./scripts/run-cli.sh --help
+```
+
+### `scripts/validate-all.sh`
+Valide tous les fichiers XML d'un répertoire via la CLI. Dépend de `dist/cii-cli.jar` généré par le build.
+
+```bash
+./scripts/validate-all.sh cii-samples/src/main/resources/samples
+```
+
+## 📝 Exemples d'utilisation
+
+### Lecture d'un message
+
+```bash
+# ORDER
+java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/order-sample.xml
+
+# INVOICE
+java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/invoice-sample.xml
+```
+
+### Génération de messages avec la CLI
+
+```bash
+# Générer une facture (INVOICE) à partir d'une commande
+java -jar cii-cli.jar generate INVOICE \
+  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
+  --output invoice.xml
+
+# Générer un avis d'expédition (DESADV)
+java -jar cii-cli.jar generate DESADV \
+  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
+  --output desadv.xml
+
+# Générer une réponse à commande (ORDERSP)
+java -jar cii-cli.jar generate ORDERSP \
+  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
+  --output ordersp.xml
+```
+
 ## 📑 Schémas XSD
 
 Les schémas nécessaires se trouvent dans `cii-model/src/main/resources/xsd/VERSION/` :
