@@ -7,7 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 /**
  * Dedicated model for invoices based on UNECE CrossIndustryInvoiceType.
  */
-@XmlRootElement(name = "CrossIndustryInvoice")
+@XmlRootElement(name = "CrossIndustryInvoice", namespace = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B")
 public class Invoice extends CrossIndustryInvoiceType {
     // Additional domain-specific helpers or validations can be added here later.
 }

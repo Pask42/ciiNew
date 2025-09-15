@@ -1,9 +1,6 @@
 package com.cii.messaging.validator.impl;
 
-import com.cii.messaging.model.CIIMessage;
 import com.cii.messaging.validator.*;
-import com.cii.messaging.writer.CIIWriter;
-import com.cii.messaging.writer.CIIWriterFactory;
 import net.sf.saxon.s9api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +8,12 @@ import org.slf4j.LoggerFactory;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Validates XML documents against EN 16931 Schematron rules.
+ */
 public class SchematronValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(SchematronValidator.class);
     private SchemaVersion schemaVersion = SchemaVersion.getDefault();
@@ -65,26 +65,6 @@ public class SchematronValidator implements CIIValidator {
     @Override
     public ValidationResult validate(String xmlContent) {
         return validate(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    @Override
-    public ValidationResult validate(CIIMessage message) {
-        try {
-            CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
-            String xml = writer.writeToString(message);
-            return validate(xml);
-        } catch (Exception e) {
-            ValidationError error = ValidationError.builder()
-                    .message("Échec de la sérialisation du message : " + e.getMessage())
-                    .severity(ValidationError.ErrorSeverity.FATAL)
-                    .build();
-            List<ValidationError> errors = new ArrayList<>();
-            errors.add(error);
-            return ValidationResult.builder()
-                    .valid(false)
-                    .errors(errors)
-                    .build();
-        }
     }
     
     @Override

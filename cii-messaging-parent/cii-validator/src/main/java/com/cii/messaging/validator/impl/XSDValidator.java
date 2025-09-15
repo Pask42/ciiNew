@@ -1,10 +1,7 @@
 package com.cii.messaging.validator.impl;
 
-import com.cii.messaging.model.CIIMessage;
-import com.cii.messaging.model.MessageType;
 import com.cii.messaging.validator.*;
-import com.cii.messaging.writer.CIIWriter;
-import com.cii.messaging.writer.CIIWriterFactory;
+import com.cii.messaging.validator.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -15,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -87,25 +85,6 @@ public class XSDValidator implements CIIValidator {
         return validate(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
     }
 
-    @Override
-    public ValidationResult validate(CIIMessage message) {
-        try {
-            CIIWriter writer = CIIWriterFactory.createWriter(message.getMessageType());
-            String xml = writer.writeToString(message);
-            return validate(xml);
-        } catch (Exception e) {
-            ValidationError error = ValidationError.builder()
-                    .message("Échec de la sérialisation du message : " + e.getMessage())
-                    .severity(ValidationError.ErrorSeverity.FATAL)
-                    .build();
-            return ValidationResult.builder()
-                    .valid(false)
-                    .errors(List.of(error))
-                    .validatedAgainst("XSD " + SCHEMA_VERSION.getVersion())
-                    .build();
-        }
-    }
-
     /**
      * Seule la version D23B est supportée. Toute autre valeur provoque une
      * {@link IllegalArgumentException}.
@@ -169,25 +148,24 @@ public class XSDValidator implements CIIValidator {
             return cached;
         }
 
-        String baseFile;
+        String resource;
         switch (type) {
-            case INVOICE:
-                baseFile = "CrossIndustryInvoice.xsd";
-                break;
-            case DESADV:
-                baseFile = "CrossIndustryDespatchAdvice.xsd";
-                break;
-            case ORDER:
-                baseFile = "CrossIndustryOrder.xsd";
-                break;
-            case ORDERSP:
-                baseFile = "CrossIndustryOrderResponse.xsd";
-                break;
-            default:
-                throw new IllegalArgumentException("Type de message non pris en charge : " + type);
+            case INVOICE -> resource = "xsd/CrossIndustryInvoice.xsd";
+            case DESADV -> resource = "xsd/CrossIndustryDespatchAdvice.xsd";
+            case ORDER -> resource = "xsd/CrossIndustryOrder.xsd";
+            case ORDERSP -> resource = "xsd/CrossIndustryOrderResponse.xsd";
+            default -> throw new IllegalArgumentException("Type de message non pris en charge : " + type);
         }
 
-        Schema schema = com.cii.messaging.model.util.UneceSchemaLoader.loadSchema(baseFile);
+        Schema schema;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
+            if (is == null) {
+                schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema();
+            } else {
+                schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+                        .newSchema(new StreamSource(is));
+            }
+        }
         Schema existing = schemaCache.putIfAbsent(type, schema);
         return existing != null ? existing : schema;
     }

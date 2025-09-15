@@ -1,7 +1,5 @@
 package com.cii.messaging.validator;
 
-import com.cii.messaging.model.util.UneceSchemaLoader;
-
 public enum SchemaVersion {
     D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:23B"),
 	D24A("D24A", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:24A");
@@ -32,6 +30,7 @@ public enum SchemaVersion {
     }
 
     public static SchemaVersion getDefault() {
-        return fromString(UneceSchemaLoader.resolveVersion());
+        String v = System.getProperty("unece.version", "D23B");
+        return fromString(v);
     }
 }
