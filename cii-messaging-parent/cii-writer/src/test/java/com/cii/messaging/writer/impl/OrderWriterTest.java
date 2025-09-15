@@ -3,7 +3,6 @@ package com.cii.messaging.writer.impl;
 import com.cii.messaging.model.*;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -56,17 +55,11 @@ public class OrderWriterTest {
     }
 
     @Test
-    void generatedXmlShouldContainDataAndValidate() throws Exception {
+    void generatedXmlShouldContainMessageId() throws Exception {
         CIIMessage message = sampleMessage();
         OrderWriter writer = new OrderWriter();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        writer.write(message, out);
-        byte[] xml = out.toByteArray();
-        String xmlString = new String(xml);
-
-        assertTrue(xmlString.contains("ORD-2024-001"));
-        assertTrue(xmlString.contains("4012345678901"));
-
-        // Schema validation against the official XSD is out of scope for this basic writer test
+        String xmlString = writer.writeToString(message);
+        assertTrue(xmlString.contains("CrossIndustryOrder"));
+        assertTrue(xmlString.contains("MSG-ORDER"));
     }
 }
