@@ -1,8 +1,8 @@
 package com.cii.messaging.validator;
 
 public enum SchemaVersion {
-    D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:23B"),
-	D24A("D24A", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:24A");
+    D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"),
+    D24A("D24A", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100");
 
     private final String version;
     private final String namespace;
