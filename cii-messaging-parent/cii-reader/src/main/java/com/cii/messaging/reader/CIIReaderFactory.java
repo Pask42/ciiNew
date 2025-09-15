@@ -103,7 +103,10 @@ public final class CIIReaderFactory {
                 String localName = reader.getLocalName();
                 String namespace = reader.getNamespaceURI();
                 try {
-                    return MessageType.fromRootElement(localName, namespace);
+                    if (namespace != null && !namespace.isBlank()) {
+                        return MessageType.fromRootElement(localName, namespace);
+                    }
+                    return MessageType.fromRootElement(localName);
                 } catch (IllegalArgumentException ex) {
                     throw new CIIReaderException(ex.getMessage(), ex);
                 }

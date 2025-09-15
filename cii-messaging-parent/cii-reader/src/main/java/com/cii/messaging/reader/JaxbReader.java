@@ -63,14 +63,22 @@ public abstract class JaxbReader<T> implements CIIReader<T> {
     private T readFromByteArray(byte[] data, String errorMessage) throws CIIReaderException {
         XMLInputFactory factory = createSecureXmlInputFactory();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        return unmarshal(unmarshaller -> {
-            XMLStreamReader xmlReader = factory.createXMLStreamReader(inputStream);
-            try {
-                return unmarshaller.unmarshal(xmlReader);
-            } finally {
-                xmlReader.close();
+        XMLStreamReader xmlReader = null;
+        try {
+            xmlReader = factory.createXMLStreamReader(inputStream);
+            XMLStreamReader readerRef = xmlReader;
+            return unmarshal(unmarshaller -> unmarshaller.unmarshal(readerRef), errorMessage);
+        } catch (XMLStreamException e) {
+            throw new CIIReaderException(errorMessage, e);
+        } finally {
+            if (xmlReader != null) {
+                try {
+                    xmlReader.close();
+                } catch (XMLStreamException ignored) {
+                    // ignore
+                }
             }
-        }, errorMessage);
+        }
     }
 
     private T unmarshal(UnmarshalOperation operation, String errorMessage) throws CIIReaderException {

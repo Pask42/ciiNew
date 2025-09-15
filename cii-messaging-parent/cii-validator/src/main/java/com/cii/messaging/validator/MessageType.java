@@ -24,8 +24,8 @@ public enum MessageType {
     private final Set<String> supportedNamespaces;
 
     MessageType(String rootElement, String namespace) {
-        this.rootElement = rootElement;
-        this.supportedNamespaces = Set.of(namespace);
+        this.rootElement = Objects.requireNonNull(rootElement, "rootElement");
+        this.supportedNamespaces = Set.of(Objects.requireNonNull(namespace, "namespace").trim());
     }
 
     public String getRootElement() {
@@ -51,13 +51,13 @@ public enum MessageType {
         if (messageType == null) {
             throw new IllegalArgumentException("Type de message non pris en charge : " + rootElement);
         }
+
         String sanitizedNamespace = namespaceUri == null ? "" : namespaceUri.trim();
-        if (!messageType.supportsNamespace(sanitizedNamespace)) {
-            String actual = sanitizedNamespace.isEmpty() ? "<non défini>" : sanitizedNamespace;
+        if (!sanitizedNamespace.isEmpty() && !messageType.supportsNamespace(sanitizedNamespace)) {
             throw new IllegalArgumentException(String.format(
                     "Espace de noms inattendu pour %s : %s (attendu %s)",
                     rootElement,
-                    actual,
+                    sanitizedNamespace,
                     messageType.describeSupportedNamespaces()));
         }
         return messageType;

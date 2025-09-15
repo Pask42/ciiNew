@@ -5,21 +5,27 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public enum SchemaVersion {
-    D23B("D23B"),
-    D24A("D24A");
+    D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"),
+    D24A("D24A", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100");
 
     private static final String PROPERTY_KEY = "unece.version";
     private static final String ENVIRONMENT_KEY = "UNECE_VERSION";
     private static final String VERSION_RESOURCE = "unece-version.properties";
 
     private final String version;
+    private final String namespace;
 
-    SchemaVersion(String version) {
+    SchemaVersion(String version, String namespace) {
         this.version = version;
+        this.namespace = namespace;
     }
 
     public String getVersion() {
         return version;
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 
     public static SchemaVersion fromString(String version) {

@@ -171,7 +171,10 @@ public class XSDValidator implements CIIValidator {
             String root = doc.getDocumentElement().getLocalName();
             String namespace = doc.getDocumentElement().getNamespaceURI();
             try {
-                return MessageType.fromRootElement(root, namespace);
+                if (namespace != null && !namespace.isBlank()) {
+                    return MessageType.fromRootElement(root, namespace);
+                }
+                return MessageType.fromRootElement(root);
             } catch (IllegalArgumentException ex) {
                 throw new SAXException(ex.getMessage(), ex);
             }
@@ -228,4 +231,3 @@ public class XSDValidator implements CIIValidator {
         }
     }
 }
-
