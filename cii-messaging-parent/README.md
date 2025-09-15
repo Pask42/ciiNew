@@ -11,6 +11,8 @@ Il couvre les flux ORDER, ORDERSP, DESADV et INVOICE et reste compatible avec ZU
 | `cii-reader` | Parsing XML → objets Java |
 | `cii-writer` | Génération Java → XML |
 | `cii-validator` | Validation XSD et règles métiers |
+| `cii-cli` | Interface en ligne de commande |
+| `cii-samples` | Fichiers XML d'exemple |
 
 ## ✅ Prérequis
 
@@ -81,7 +83,7 @@ java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar --help
 ```xml
 <dependency>
   <groupId>com.cii.messaging</groupId>
-  <artifactId>cii-service</artifactId>
+  <artifactId>cii-validator</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -120,8 +122,6 @@ java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/order-sample.
 # INVOICE
 java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/invoice-sample.xml
 ```
-
-### Génération de messages avec la CLI
 
 ```bash
 # Générer une facture (INVOICE) à partir d'une commande
