@@ -9,7 +9,7 @@ public class ValidateCommandTest {
 
     @Test
     void invalidSampleReturnsError() {
-        String sample = getClass().getResource("/order-sample.xml").getPath();
+        String sample = getClass().getResource("/order-invalid-sample.xml").getPath();
         int exitCode = new CommandLine(new ValidateCommand()).execute(sample);
         assertThat(exitCode).isNotZero();
     }

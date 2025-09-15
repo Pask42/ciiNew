@@ -1,7 +1,7 @@
 # CII Messaging System
 
 Système Java 21 modulaire pour la lecture, l'écriture et la validation de messages **UN/CEFACT Cross Industry**.
-Il couvre les flux ORDER, ORDERSP, DESADV et INVOICE et reste compatible avec ZUGFeRD, XRechnung et Factur-X.
+Il couvre les flux ORDER, ORDER_RESPONSE, DESPATCH_ADVICE (DESADV) et INVOICE et reste compatible avec ZUGFeRD, XRechnung et Factur-X.
 
 ## 📦 Modules
 
@@ -124,20 +124,11 @@ java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/invoice-sampl
 ```
 
 ```bash
-# Générer une facture (INVOICE) à partir d'une commande
-java -jar cii-cli.jar generate INVOICE \
-  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
-  --output invoice.xml
+# Valider une commande
+java -jar cii-cli.jar validate cii-samples/src/main/resources/samples/order-sample.xml
 
-# Générer un avis d'expédition (DESADV)
-java -jar cii-cli.jar generate DESADV \
-  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
-  --output desadv.xml
-
-# Générer une réponse à commande (ORDERSP)
-java -jar cii-cli.jar generate ORDERSP \
-  --from-order cii-samples/src/main/resources/samples/order-sample.xml \
-  --output ordersp.xml
+# Valider une facture
+java -jar cii-cli.jar validate cii-samples/src/main/resources/samples/invoice-sample.xml
 ```
 
 ## 📑 Schémas XSD

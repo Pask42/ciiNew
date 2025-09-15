@@ -1,11 +1,65 @@
 package com.cii.messaging.reader;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 /**
- * Supported Cross Industry document types.
+ * Supported Cross Industry document types with their associated XML root elements.
  */
 public enum MessageType {
-    ORDER,
-    INVOICE,
-    DESADV,
-    ORDERSP
+    ORDER("CrossIndustryOrder", "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:100"),
+    INVOICE("CrossIndustryInvoice", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"),
+    DESPATCH_ADVICE("CrossIndustryDespatchAdvice", "urn:un:unece:uncefact:data:standard:CrossIndustryDespatchAdvice:100"),
+    ORDER_RESPONSE("CrossIndustryOrderResponse", "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:100");
+
+    private static final Map<String, MessageType> BY_ROOT_ELEMENT = Map.of(
+            ORDER.rootElement, ORDER,
+            INVOICE.rootElement, INVOICE,
+            DESPATCH_ADVICE.rootElement, DESPATCH_ADVICE,
+            ORDER_RESPONSE.rootElement, ORDER_RESPONSE
+    );
+
+    private final String rootElement;
+    private final Set<String> supportedNamespaces;
+
+    MessageType(String rootElement, String namespace) {
+        this.rootElement = rootElement;
+        this.supportedNamespaces = Set.of(namespace);
+    }
+
+    public String getRootElement() {
+        return rootElement;
+    }
+
+    public boolean supportsNamespace(String namespaceUri) {
+        String candidate = namespaceUri == null ? "" : namespaceUri.trim();
+        return supportedNamespaces.contains(candidate);
+    }
+
+    public String describeSupportedNamespaces() {
+        return String.join(", ", supportedNamespaces);
+    }
+
+    public static MessageType fromRootElement(String rootElement) {
+        return fromRootElement(rootElement, null);
+    }
+
+    public static MessageType fromRootElement(String rootElement, String namespaceUri) {
+        Objects.requireNonNull(rootElement, "rootElement");
+        MessageType messageType = BY_ROOT_ELEMENT.get(rootElement);
+        if (messageType == null) {
+            throw new IllegalArgumentException("Type de message non pris en charge : " + rootElement);
+        }
+        String sanitizedNamespace = namespaceUri == null ? "" : namespaceUri.trim();
+        if (!messageType.supportsNamespace(sanitizedNamespace)) {
+            String actual = sanitizedNamespace.isEmpty() ? "<non défini>" : sanitizedNamespace;
+            throw new IllegalArgumentException(String.format(
+                    "Espace de noms inattendu pour %s : %s (attendu %s)",
+                    rootElement,
+                    actual,
+                    messageType.describeSupportedNamespaces()));
+        }
+        return messageType;
+    }
 }

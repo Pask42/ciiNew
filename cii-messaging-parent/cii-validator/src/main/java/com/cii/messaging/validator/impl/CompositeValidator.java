@@ -20,10 +20,12 @@ public class CompositeValidator implements CIIValidator {
     public CompositeValidator() {
         validators.add(new XSDValidator());
         validators.add(new SchematronValidator());
+        validators.forEach(v -> v.setSchemaVersion(schemaVersion));
     }
-    
+
     public void addValidator(CIIValidator validator) {
         validators.add(validator);
+        validator.setSchemaVersion(schemaVersion);
     }
     
     @Override
@@ -47,10 +49,7 @@ public class CompositeValidator implements CIIValidator {
             allErrors.addAll(result.getErrors());
             allWarnings.addAll(result.getWarnings());
             
-            if (validatedAgainst.length() > 0) {
-                validatedAgainst.append(", ");
-            }
-            validatedAgainst.append(result.getValidatedAgainst());
+            appendValidatedAgainst(validatedAgainst, result);
         }
         
         combinedResult.errors(allErrors);
@@ -112,10 +111,7 @@ public class CompositeValidator implements CIIValidator {
             allErrors.addAll(result.getErrors());
             allWarnings.addAll(result.getWarnings());
 
-            if (validatedAgainst.length() > 0) {
-                validatedAgainst.append(", ");
-            }
-            validatedAgainst.append(result.getValidatedAgainst());
+            appendValidatedAgainst(validatedAgainst, result);
         }
 
         combinedResult.errors(allErrors);
@@ -124,5 +120,15 @@ public class CompositeValidator implements CIIValidator {
         combinedResult.validationTimeMs(System.currentTimeMillis() - start);
 
         return combinedResult.build();
+    }
+
+    private static void appendValidatedAgainst(StringBuilder target, ValidationResult result) {
+        String validatorName = result.getValidatedAgainst();
+        if (validatorName != null && !validatorName.isBlank()) {
+            if (target.length() > 0) {
+                target.append(", ");
+            }
+            target.append(validatorName);
+        }
     }
 }
