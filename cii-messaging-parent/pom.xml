@@ -39,11 +39,8 @@
 	<modules>
 		<module>cii-model</module>
 		<module>cii-reader</module>
-		<module>cii-writer</module>
-		<module>cii-validator</module>
-		<module>cii-service</module>
-		<module>cii-cli</module>
-		<module>cii-samples</module>
+                <module>cii-writer</module>
+                <module>cii-validator</module>
 	</modules>
 
 	<dependencyManagement>
