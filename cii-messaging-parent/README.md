@@ -42,11 +42,11 @@ Exemples :
 # Utiliser la version par défaut (D23B)
 mvn clean install
 
-# Forcer la version D16B
-mvn -Dunece.version=D16B clean install
+# Forcer la version D24A
+mvn -Dunece.version=D24A clean install
 
 # Ou via variable d'environnement
-UNECE_VERSION=D16B mvn clean install
+UNECE_VERSION=D24A mvn clean install
 ```
 
 Pour ajouter une nouvelle version (ex. `D24A`), déposez simplement les XSD dans
@@ -233,15 +233,12 @@ java -jar cii-cli.jar validate *.xml --verbose
 
 ## 📑 Schémas XSD
 
-Les schémas nécessaires se trouvent dans `cii-model/src/main/resources/xsd/uncefact/data/standard/` :
+Les schémas nécessaires se trouvent dans `cii-model/src/main/resources/xsd/VERSION/` :
 
-- `CrossIndustryOrder_12p1.xsd`
-- `CrossIndustryOrderResponse_12p1.xsd`
-- `CrossIndustryDespatchAdvice_12p1.xsd`
-- `CrossIndustryInvoice_13p1.xsd`
-- `ReusableAggregateBusinessInformationEntity_20p0.xsd`
-- `QualifiedDataType_20p0.xsd`
-- `UnqualifiedDataType_20p0.xsd`
+- `CrossIndustryOrder.xsd`
+- `CrossIndustryOrderResponse.xsd`
+- `CrossIndustryDespatchAdvice.xsd`
+- `CrossIndustryInvoice.xsd`
 
 Ils proviennent des publications officielles **UN/CEFACT** : <https://unece.org/trade/uncefact/mainstandards>
 

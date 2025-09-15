@@ -18,8 +18,8 @@ class UneceSchemaLoaderTest {
     }
 
     @Test
-    void loadD16BWhenSpecified() {
-        System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
+    void loadD24AWhenSpecified() {
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D24A");
         assertDoesNotThrow(() -> UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd"));
     }
 
@@ -33,7 +33,7 @@ class UneceSchemaLoaderTest {
 
     @Test
     void loadingWrongVersionThrows() {
-        System.setProperty(UneceSchemaLoader.PROPERTY, "D16B");
+        System.setProperty(UneceSchemaLoader.PROPERTY, "D24A");
         assertThrows(IllegalArgumentException.class, () ->
                 UneceSchemaLoader.loadSchema("CrossIndustryInvoice_26p1.xsd"));
     }

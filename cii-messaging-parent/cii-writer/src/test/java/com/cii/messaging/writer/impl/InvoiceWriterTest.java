@@ -88,7 +88,7 @@ public class InvoiceWriterTest {
 
     @Test
     void generatedXmlShouldValidateAgainstSchema() throws Exception {
-        System.setProperty(com.cii.messaging.model.util.UneceSchemaLoader.PROPERTY, "D16B");
+        System.setProperty(com.cii.messaging.model.util.UneceSchemaLoader.PROPERTY, "D24A");
         CIIMessage message = sampleMessage();
         InvoiceWriter writer = new InvoiceWriter();
         ByteArrayOutputStream out = new ByteArrayOutputStream();

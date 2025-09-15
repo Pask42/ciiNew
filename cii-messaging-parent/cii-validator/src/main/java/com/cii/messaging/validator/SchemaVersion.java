@@ -3,8 +3,8 @@ package com.cii.messaging.validator;
 import com.cii.messaging.model.util.UneceSchemaLoader;
 
 public enum SchemaVersion {
-    D16B("D16B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:16B"),
-    D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:23B");
+    D23B("D23B", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:23B"),
+	D24A("D24A", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:24A");
 
     private final String version;
     private final String namespace;

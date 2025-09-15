@@ -50,31 +50,17 @@ public final class UneceSchemaLoader {
 	 */
 	public static Schema loadSchema(String schemaFile) {
 		String version = resolveVersion();
-		String baseDir = switch (version) {
-		case "D16B" -> String.format("/xsd/%s/uncefact/data/standard/", version);
-		case "D23B" -> String.format("/xsd/%s/", version);
-		default -> String.format("/xsd/%s/", version);
-		};
+        String baseDir = String.format("/xsd/%s/", version);
+
 		String resolvedName = schemaFile;
 		URL xsd = UneceSchemaLoader.class.getResource(baseDir + resolvedName);
 		if (xsd == null) {
 			// si aucun fichier exact, tenter avec suffixe de version connu
 			String prefix = schemaFile.endsWith(".xsd") ? schemaFile.substring(0, schemaFile.length() - 4) : schemaFile;
-			String suffix = switch (version) {
-			case "D16B" -> switch (prefix) {
-			case "CrossIndustryInvoice" -> "13p1";
-			case "CrossIndustryOrder" -> "12p1";
-			case "CrossIndustryOrderChange" -> "12p1";
-			case "CrossIndustryOrderResponse" -> "12p1";
-			case "CrossIndustryDespatchAdvice" -> "12p1";
-			default -> null;
-			};
-			case "D23B" -> switch (prefix) {
+			String suffix = switch (prefix) {
 			case "CrossIndustryInvoice", "CrossIndustryOrder", "CrossIndustryOrderChange", "CrossIndustryOrderResponse",
 					"CrossIndustryDespatchAdvice" ->
 				"100p" + version;
-			default -> null;
-			};
 			default -> null;
 			};
 
