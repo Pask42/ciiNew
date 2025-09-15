@@ -1,27 +1,22 @@
 package com.cii.messaging.writer;
 
-import com.cii.messaging.model.MessageType;
-import com.cii.messaging.writer.impl.*;
-
+/**
+ * Factory providing writer implementations based on {@link MessageType}.
+ */
 public class CIIWriterFactory {
-    
-    public static CIIWriter createWriter(MessageType messageType) {
-        switch (messageType) {
-            case INVOICE:
-                return new InvoiceWriter();
-            case DESADV:
-                return new DesadvWriter();
-            case ORDER:
-                return new OrderWriter();
-            case ORDERSP:
-                return new OrderResponseWriter();
-            default:
-                throw new IllegalArgumentException("Type de message non pris en charge pour l'écriture : " + messageType);
-        }
+
+    @SuppressWarnings("unchecked")
+    public static <T> CIIWriter<T> createWriter(MessageType messageType) {
+        return switch (messageType) {
+            case INVOICE -> (CIIWriter<T>) new InvoiceWriter();
+            case DESPATCH_ADVICE -> (CIIWriter<T>) new DesadvWriter();
+            case ORDER -> (CIIWriter<T>) new OrderWriter();
+            case ORDER_RESPONSE -> (CIIWriter<T>) new OrderResponseWriter();
+        };
     }
-    
-    public static CIIWriter createWriter(MessageType messageType, WriterConfig config) {
-        CIIWriter writer = createWriter(messageType);
+
+    public static <T> CIIWriter<T> createWriter(MessageType messageType, WriterConfig config) {
+        CIIWriter<T> writer = createWriter(messageType);
         if (config != null) {
             writer.setFormatOutput(config.isFormatOutput());
             writer.setEncoding(config.getEncoding());
