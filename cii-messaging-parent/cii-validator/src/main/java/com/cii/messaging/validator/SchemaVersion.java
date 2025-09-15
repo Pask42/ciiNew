@@ -30,7 +30,13 @@ public enum SchemaVersion {
     }
 
     public static SchemaVersion getDefault() {
-        String v = System.getProperty("unece.version", "D23B");
-        return fromString(v);
+        String configuredVersion = System.getProperty("unece.version");
+        if (configuredVersion == null || configuredVersion.isBlank()) {
+            configuredVersion = System.getenv("UNECE_VERSION");
+        }
+        if (configuredVersion == null || configuredVersion.isBlank()) {
+            configuredVersion = "D23B";
+        }
+        return fromString(configuredVersion.trim());
     }
 }

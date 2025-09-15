@@ -1,52 +1,48 @@
 package com.cii.messaging.validator.impl;
 
 import com.cii.messaging.validator.*;
-import com.cii.messaging.validator.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.*;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Validator de messages CII basé exclusivement sur les schémas XSD D23B.
+ * Validator de messages CII basé sur les schémas XSD officiels UN/CEFACT.
  * <p>
- * Cette implémentation charge les schémas officiels UN/CEFACT pour la version
- * D23B et exécute une validation XSD stricte pour chaque type de message
- * supporté. Aucune autre version n'est autorisée.
+ * Les schémas sont chargés dynamiquement selon la version configurée via
+ * {@link SchemaVersion}.
  * </p>
  */
 public class XSDValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(XSDValidator.class);
-    private static final SchemaVersion SCHEMA_VERSION = SchemaVersion.D23B;
-
-    private final Map<MessageType, Schema> schemaCache = new ConcurrentHashMap<>();
+    private final Map<SchemaCacheKey, Schema> schemaCache = new ConcurrentHashMap<>();
+    private volatile SchemaVersion schemaVersion = SchemaVersion.getDefault();
 
     @Override
     public ValidationResult validate(File xmlFile) {
         long start = System.currentTimeMillis();
         ValidationResult.ValidationResultBuilder builder = ValidationResult.builder();
 
+        SchemaVersion currentVersion = this.schemaVersion;
         try (InputStream is = new FileInputStream(xmlFile)) {
             byte[] data = is.readAllBytes();
             MessageType type = detectMessageType(data);
-            return performValidation(new ByteArrayInputStream(data), builder, start, type);
+            return performValidation(new ByteArrayInputStream(data), builder, start, type, currentVersion);
         } catch (Exception e) {
             builder.valid(false);
             builder.validationTimeMs(System.currentTimeMillis() - start);
@@ -64,10 +60,11 @@ public class XSDValidator implements CIIValidator {
         long start = System.currentTimeMillis();
         ValidationResult.ValidationResultBuilder builder = ValidationResult.builder();
 
+        SchemaVersion currentVersion = this.schemaVersion;
         try {
             byte[] data = inputStream.readAllBytes();
             MessageType type = detectMessageType(data);
-            return performValidation(new ByteArrayInputStream(data), builder, start, type);
+            return performValidation(new ByteArrayInputStream(data), builder, start, type, currentVersion);
         } catch (Exception e) {
             builder.valid(false);
             builder.validationTimeMs(System.currentTimeMillis() - start);
@@ -85,26 +82,22 @@ public class XSDValidator implements CIIValidator {
         return validate(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
     }
 
-    /**
-     * Seule la version D23B est supportée. Toute autre valeur provoque une
-     * {@link IllegalArgumentException}.
-     */
     @Override
     public void setSchemaVersion(SchemaVersion version) {
-        if (version != SCHEMA_VERSION) {
-            throw new IllegalArgumentException("Seule la version D23B est supportée");
-        }
+        this.schemaVersion = Objects.requireNonNull(version, "version");
+        schemaCache.clear();
     }
 
     private ValidationResult performValidation(InputStream inputStream,
                                                ValidationResult.ValidationResultBuilder builder,
                                                long start,
-                                               MessageType type) {
+                                               MessageType type,
+                                               SchemaVersion version) {
         List<ValidationError> errors = new ArrayList<>();
         List<ValidationWarning> warnings = new ArrayList<>();
 
         try {
-            Schema schema = getSchema(type);
+            Schema schema = getSchema(type, version);
             Validator validator = schema.newValidator();
             ValidationErrorHandler handler = new ValidationErrorHandler(errors, warnings);
             validator.setErrorHandler(handler);
@@ -123,7 +116,7 @@ public class XSDValidator implements CIIValidator {
             builder.valid(!handler.hasErrors());
             builder.errors(errors);
             builder.warnings(warnings);
-            builder.validatedAgainst("XSD " + SCHEMA_VERSION.getVersion());
+            builder.validatedAgainst("XSD " + version.getVersion());
             builder.validationTimeMs(System.currentTimeMillis() - start);
             return builder.build();
         } catch (Exception e) {
@@ -137,36 +130,27 @@ public class XSDValidator implements CIIValidator {
             errors.add(error);
             builder.errors(errors);
             builder.warnings(warnings);
-            builder.validatedAgainst("XSD " + SCHEMA_VERSION.getVersion());
+            builder.validatedAgainst("XSD " + version.getVersion());
             return builder.build();
         }
     }
 
-    private Schema getSchema(MessageType type) throws SAXException, IOException {
-        Schema cached = schemaCache.get(type);
+    private Schema getSchema(MessageType type, SchemaVersion version) throws SAXException, IOException {
+        SchemaCacheKey cacheKey = new SchemaCacheKey(type, version);
+        Schema cached = schemaCache.get(cacheKey);
         if (cached != null) {
             return cached;
         }
 
-        String resource;
-        switch (type) {
-            case INVOICE -> resource = "xsd/CrossIndustryInvoice.xsd";
-            case DESADV -> resource = "xsd/CrossIndustryDespatchAdvice.xsd";
-            case ORDER -> resource = "xsd/CrossIndustryOrder.xsd";
-            case ORDERSP -> resource = "xsd/CrossIndustryOrderResponse.xsd";
-            default -> throw new IllegalArgumentException("Type de message non pris en charge : " + type);
-        }
+        String xsdName = switch (type) {
+            case INVOICE -> "CrossIndustryInvoice.xsd";
+            case DESPATCH_ADVICE -> "CrossIndustryDespatchAdvice.xsd";
+            case ORDER -> "CrossIndustryOrder.xsd";
+            case ORDER_RESPONSE -> "CrossIndustryOrderResponse.xsd";
+        };
 
-        Schema schema;
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
-            if (is == null) {
-                schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema();
-            } else {
-                schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-                        .newSchema(new StreamSource(is));
-            }
-        }
-        Schema existing = schemaCache.putIfAbsent(type, schema);
+        Schema schema = UneceSchemaLoader.loadSchema(xsdName, version);
+        Schema existing = schemaCache.putIfAbsent(cacheKey, schema);
         return existing != null ? existing : schema;
     }
 
@@ -181,20 +165,15 @@ public class XSDValidator implements CIIValidator {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
             Document doc = builder.parse(bais);
             String root = doc.getDocumentElement().getLocalName();
-            switch (root) {
-                case "CrossIndustryInvoice":
-                    return MessageType.INVOICE;
-                case "CrossIndustryDespatchAdvice":
-                    return MessageType.DESADV;
-                case "CrossIndustryOrder":
-                    return MessageType.ORDER;
-                case "CrossIndustryOrderResponse":
-                    return MessageType.ORDERSP;
-                default:
-                    throw new SAXException("Élément racine inconnu : " + root);
+            try {
+                return MessageType.fromRootElement(root);
+            } catch (IllegalArgumentException ex) {
+                throw new SAXException("Élément racine inconnu : " + root, ex);
             }
         }
     }
+
+    private record SchemaCacheKey(MessageType type, SchemaVersion version) { }
 
     private static class ValidationErrorHandler implements ErrorHandler {
         private final List<ValidationError> errors;
