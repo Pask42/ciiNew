@@ -67,7 +67,6 @@
               <artifactId>jaxb2-maven-plugin</artifactId>
               <version>3.3.0</version>
               <configuration>
-                <packageName>com.cii.messaging.unece</packageName>
                 <clearOutputDir>false</clearOutputDir>
                 <xjbSources>
                   <!-- ici on pointe vers votre fichier bindings.xjb -->
@@ -88,6 +87,8 @@
                   <phase>generate-sources</phase>
                   <goals><goal>xjc</goal></goals>
                   <configuration>
+                    <packageName>com.cii.messaging.unece.invoice</packageName>
+                    <outputDirectory>${project.build.directory}/generated-sources/jaxb/invoice</outputDirectory>
                     <sources>
                       <source>${basedir}/src/main/resources/xsd/${unece.version}/CrossIndustryInvoice_100p${unece.version}.xsd</source>
                     </sources>
@@ -98,6 +99,8 @@
                   <phase>generate-sources</phase>
                   <goals><goal>xjc</goal></goals>
                   <configuration>
+                    <packageName>com.cii.messaging.unece.order</packageName>
+                    <outputDirectory>${project.build.directory}/generated-sources/jaxb/order</outputDirectory>
                     <sources>
                       <source>${basedir}/src/main/resources/xsd/${unece.version}/CrossIndustryOrder_100p${unece.version}.xsd</source>
                     </sources>
@@ -108,6 +111,8 @@
                   <phase>generate-sources</phase>
                   <goals><goal>xjc</goal></goals>
                   <configuration>
+                    <packageName>com.cii.messaging.unece.orderresponse</packageName>
+                    <outputDirectory>${project.build.directory}/generated-sources/jaxb/order-response</outputDirectory>
                     <sources>
                       <source>${basedir}/src/main/resources/xsd/${unece.version}/CrossIndustryOrderResponse_100p${unece.version}.xsd</source>
                     </sources>
@@ -118,6 +123,8 @@
                   <phase>generate-sources</phase>
                   <goals><goal>xjc</goal></goals>
                   <configuration>
+                    <packageName>com.cii.messaging.unece.despatchadvice</packageName>
+                    <outputDirectory>${project.build.directory}/generated-sources/jaxb/despatch-advice</outputDirectory>
                     <sources>
                       <source>${basedir}/src/main/resources/xsd/${unece.version}/CrossIndustryDespatchAdvice_100p${unece.version}.xsd</source>
                     </sources>
@@ -136,13 +143,16 @@
 	          <phase>generate-sources</phase>
 	          <goals><goal>add-source</goal></goals>
 	          <configuration>
-	            <sources>
-	              <source>${project.build.directory}/generated-sources/jaxb</source>
-	            </sources>
-	          </configuration>
-	        </execution>
-	      </executions>
-	    </plugin>
+                    <sources>
+                      <source>${project.build.directory}/generated-sources/jaxb/invoice</source>
+                      <source>${project.build.directory}/generated-sources/jaxb/order</source>
+                      <source>${project.build.directory}/generated-sources/jaxb/order-response</source>
+                      <source>${project.build.directory}/generated-sources/jaxb/despatch-advice</source>
+                    </sources>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
 	  </plugins>
 	</build>
 </project>
