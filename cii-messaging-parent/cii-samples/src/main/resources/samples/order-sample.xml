@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryOrder xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryOrder:16"
+                        xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:16"
+                        xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:16">
+    <rsm:ExchangedDocument>
+        <ram:ID>ORD-2024-001</ram:ID>
+        <ram:TypeCode>220</ram:TypeCode>
+        <ram:IssueDateTime>
+            <udt:DateTimeString format="102">20240115133000</udt:DateTimeString>
+        </ram:IssueDateTime>
+    </rsm:ExchangedDocument>
+    <rsm:SupplyChainTradeTransaction>
+        <ram:ApplicableHeaderTradeAgreement>
+            <ram:BuyerReference>BUY-REF-2024-001</ram:BuyerReference>
+            <ram:SellerTradeParty>
+                <ram:ID>DE123456789</ram:ID>
+                <ram:Name>Seller Company GmbH</ram:Name>
+                <ram:PostalTradeAddress>
+                    <ram:PostcodeCode>10115</ram:PostcodeCode>
+                    <ram:LineOne>Hauptstraße 123</ram:LineOne>
+                    <ram:CityName>Berlin</ram:CityName>
+                    <ram:CountryID>DE</ram:CountryID>
+                </ram:PostalTradeAddress>
+            </ram:SellerTradeParty>
+            <ram:BuyerTradeParty>
+                <ram:ID>FR987654321</ram:ID>
+                <ram:Name>Buyer Company SAS</ram:Name>
+                <ram:PostalTradeAddress>
+                    <ram:PostcodeCode>75001</ram:PostcodeCode>
+                    <ram:LineOne>Rue de la Paix 456</ram:LineOne>
+                    <ram:CityName>Paris</ram:CityName>
+                    <ram:CountryID>FR</ram:CountryID>
+                </ram:PostalTradeAddress>
+            </ram:BuyerTradeParty>
+        </ram:ApplicableHeaderTradeAgreement>
+        <ram:ApplicableHeaderTradeDelivery>
+            <ram:ShipToTradeParty>
+                <ram:ID>FR987654321</ram:ID>
+                <ram:Name>Buyer Warehouse</ram:Name>
+                <ram:PostalTradeAddress>
+                    <ram:PostcodeCode>69001</ram:PostcodeCode>
+                    <ram:LineOne>Zone Industrielle 789</ram:LineOne>
+                    <ram:CityName>Lyon</ram:CityName>
+                    <ram:CountryID>FR</ram:CountryID>
+                </ram:PostalTradeAddress>
+            </ram:ShipToTradeParty>
+            <ram:RequestedDeliverySupplyChainEvent>
+                <ram:OccurrenceDateTime>
+                    <udt:DateTimeString format="102">20240130</udt:DateTimeString>
+                </ram:OccurrenceDateTime>
+            </ram:RequestedDeliverySupplyChainEvent>
+        </ram:ApplicableHeaderTradeDelivery>
+        <ram:ApplicableHeaderTradeSettlement>
+            <ram:OrderCurrencyCode>EUR</ram:OrderCurrencyCode>
+            <ram:SpecifiedTradeSettlementPaymentTerms>
+                <ram:Description>30 days net</ram:Description>
+            </ram:SpecifiedTradeSettlementPaymentTerms>
+        </ram:ApplicableHeaderTradeSettlement>
+        <ram:IncludedSupplyChainTradeLineItem>
+            <ram:AssociatedDocumentLineDocument>
+                <ram:LineID>1</ram:LineID>
+            </ram:AssociatedDocumentLineDocument>
+            <ram:SpecifiedTradeProduct>
+                <ram:GlobalID schemeID="GTIN">4012345678901</ram:GlobalID>
+                <ram:Name>Industrial Widget Type A</ram:Name>
+            </ram:SpecifiedTradeProduct>
+            <ram:SpecifiedLineTradeAgreement>
+                <ram:NetPriceProductTradePrice>
+                    <ram:ChargeAmount>150.00</ram:ChargeAmount>
+                </ram:NetPriceProductTradePrice>
+            </ram:SpecifiedLineTradeAgreement>
+            <ram:SpecifiedLineTradeDelivery>
+                <ram:RequestedQuantity unitCode="EA">100</ram:RequestedQuantity>
+            </ram:SpecifiedLineTradeDelivery>
+            <ram:SpecifiedLineTradeSettlement>
+                <ram:SpecifiedTradeSettlementLineMonetarySummation>
+                    <ram:LineTotalAmount>15000.00</ram:LineTotalAmount>
+                </ram:SpecifiedTradeSettlementLineMonetarySummation>
+            </ram:SpecifiedLineTradeSettlement>
+        </ram:IncludedSupplyChainTradeLineItem>
+        <ram:IncludedSupplyChainTradeLineItem>
+            <ram:AssociatedDocumentLineDocument>
+                <ram:LineID>2</ram:LineID>
+            </ram:AssociatedDocumentLineDocument>
+            <ram:SpecifiedTradeProduct>
+                <ram:GlobalID schemeID="GTIN">4012345678902</ram:GlobalID>
+                <ram:Name>Industrial Widget Type B</ram:Name>
+            </ram:SpecifiedTradeProduct>
+            <ram:SpecifiedLineTradeAgreement>
+                <ram:NetPriceProductTradePrice>
+                    <ram:ChargeAmount>200.00</ram:ChargeAmount>
+                </ram:NetPriceProductTradePrice>
+            </ram:SpecifiedLineTradeAgreement>
+            <ram:SpecifiedLineTradeDelivery>
+                <ram:RequestedQuantity unitCode="EA">50</ram:RequestedQuantity>
+            </ram:SpecifiedLineTradeDelivery>
+            <ram:SpecifiedLineTradeSettlement>
+                <ram:SpecifiedTradeSettlementLineMonetarySummation>
+                    <ram:LineTotalAmount>10000.00</ram:LineTotalAmount>
+                </ram:SpecifiedTradeSettlementLineMonetarySummation>
+            </ram:SpecifiedLineTradeSettlement>
+        </ram:IncludedSupplyChainTradeLineItem>
+    </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryOrder>

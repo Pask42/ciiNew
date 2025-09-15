@@ -11,6 +11,8 @@ Il couvre les flux ORDER, ORDERSP, DESADV et INVOICE et reste compatible avec ZU
 | `cii-reader` | Parsing XML → objets Java |
 | `cii-writer` | Génération Java → XML |
 | `cii-validator` | Validation XSD et règles métiers |
+| `cii-cli` | Interface en ligne de commande |
+| `cii-samples` | Fichiers XML d'exemple |
 
 ## ✅ Prérequis
 
@@ -60,6 +62,67 @@ Invoice invoice = reader.read(new File("invoice.xml"));
 InvoiceWriter writer = new InvoiceWriter();
 writer.write(invoice, new File("invoice-out.xml"));
 ```
+
+### Chargement manuel des schémas
+
+```java
+Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
+// Le chargeur résout automatiquement le suffixe spécifique à la version
+```
+
+## 🚀 Déploiement
+
+### Utilisation de la CLI
+
+```bash
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar --help
+```
+
+### Utilisation comme bibliothèque Maven
+
+```xml
+<dependency>
+  <groupId>com.cii.messaging</groupId>
+  <artifactId>cii-validator</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+## 🤖 Scripts
+
+### `scripts/build.sh`
+Build Maven complet (tests ignorés) et copie du JAR de la CLI dans `dist/cii-cli.jar`.
+
+```bash
+./scripts/build.sh
+```
+
+### `scripts/run-cli.sh`
+Wrapper pour lancer la CLI depuis `dist`. À utiliser après le build.
+
+```bash
+./scripts/run-cli.sh --help
+```
+
+### `scripts/validate-all.sh`
+Valide tous les fichiers XML d'un répertoire via la CLI. Dépend de `dist/cii-cli.jar` généré par le build.
+
+```bash
+./scripts/validate-all.sh cii-samples/src/main/resources/samples
+```
+
+## 📝 Exemples d'utilisation
+
+### Lecture d'un message
+
+```bash
+# ORDER
+java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/order-sample.xml
+
+# INVOICE
+java -jar cii-cli.jar parse cii-samples/src/main/resources/samples/invoice-sample.xml
+```
+
 
 ## 📑 Schémas XSD
 

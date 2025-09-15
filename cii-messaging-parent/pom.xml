@@ -36,12 +36,14 @@
                 <lombok.version>1.18.40</lombok.version>
         </properties>
 
-	<modules>
-		<module>cii-model</module>
-		<module>cii-reader</module>
+        <modules>
+                <module>cii-model</module>
+                <module>cii-reader</module>
                 <module>cii-writer</module>
                 <module>cii-validator</module>
-	</modules>
+                <module>cii-cli</module>
+                <module>cii-samples</module>
+        </modules>
 
 	<dependencyManagement>
 		<dependencies>
