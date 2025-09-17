@@ -84,6 +84,7 @@ class CiiReaderXmlSamplesTest {
             assertNotNull(secondLine.getSpecifiedTradeProduct(), "La seconde ligne doit référencer un produit");
             assertFalse(secondLine.getSpecifiedTradeProduct().getName().isEmpty(), "Le produit de la seconde ligne doit être nommé");
             assertEquals("Industrial Widget Type B", secondLine.getSpecifiedTradeProduct().getName().get(0).getValue(), "Le produit de la seconde ligne doit correspondre");
+
         }
     }
 
