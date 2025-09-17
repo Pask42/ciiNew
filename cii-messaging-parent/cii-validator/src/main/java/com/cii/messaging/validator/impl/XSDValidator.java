@@ -1,13 +1,17 @@
 package com.cii.messaging.validator.impl;
 
+import com.cii.messaging.model.common.MessageType;
+import com.cii.messaging.model.common.MessageTypeDetectionException;
+import com.cii.messaging.model.common.MessageTypeDetector;
 import com.cii.messaging.validator.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.*;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
@@ -41,8 +45,10 @@ public class XSDValidator implements CIIValidator {
         SchemaVersion currentVersion = this.schemaVersion;
         try (InputStream is = new FileInputStream(xmlFile)) {
             byte[] data = is.readAllBytes();
-            MessageType type = detectMessageType(data);
+            MessageType type = MessageTypeDetector.detect(data);
             return performValidation(new ByteArrayInputStream(data), builder, start, type, currentVersion);
+        } catch (MessageTypeDetectionException e) {
+            return buildDetectionFailure(builder, start, e);
         } catch (Exception e) {
             builder.valid(false);
             builder.validationTimeMs(System.currentTimeMillis() - start);
@@ -63,8 +69,10 @@ public class XSDValidator implements CIIValidator {
         SchemaVersion currentVersion = this.schemaVersion;
         try {
             byte[] data = inputStream.readAllBytes();
-            MessageType type = detectMessageType(data);
+            MessageType type = MessageTypeDetector.detect(data);
             return performValidation(new ByteArrayInputStream(data), builder, start, type, currentVersion);
+        } catch (MessageTypeDetectionException e) {
+            return buildDetectionFailure(builder, start, e);
         } catch (Exception e) {
             builder.valid(false);
             builder.validationTimeMs(System.currentTimeMillis() - start);
@@ -154,26 +162,35 @@ public class XSDValidator implements CIIValidator {
         return existing != null ? existing : schema;
     }
 
-    private MessageType detectMessageType(byte[] data) throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
-            Document doc = builder.parse(bais);
-            String root = doc.getDocumentElement().getLocalName();
-            try {
-                return MessageType.fromRootElement(root);
-            } catch (IllegalArgumentException ex) {
-                throw new SAXException("Élément racine inconnu : " + root, ex);
-            }
-        }
-    }
-
     private record SchemaCacheKey(MessageType type, SchemaVersion version) { }
+
+    private ValidationResult buildDetectionFailure(ValidationResult.ValidationResultBuilder builder,
+                                                   long start,
+                                                   MessageTypeDetectionException detectionException) {
+        builder.valid(false);
+        builder.validationTimeMs(System.currentTimeMillis() - start);
+
+        String message = switch (detectionException.getReason()) {
+            case PROHIBITED_DTD -> "DOCTYPE non autorisé";
+            case UNKNOWN_ROOT -> detectionException.getMessage();
+            case EMPTY_DOCUMENT -> "Document XML vide : type de message introuvable";
+            case INVALID_XML -> {
+                String details = detectionException.getCause() != null
+                        ? detectionException.getCause().getMessage()
+                        : detectionException.getMessage();
+                yield "XML invalide : " + details;
+            }
+        };
+
+        ValidationError error = ValidationError.builder()
+                .message(message)
+                .severity(ValidationError.ErrorSeverity.FATAL)
+                .build();
+
+        builder.errors(List.of(error));
+        builder.warnings(List.of());
+        return builder.build();
+    }
 
     private static class ValidationErrorHandler implements ErrorHandler {
         private final List<ValidationError> errors;

@@ -1,5 +1,9 @@
 package com.cii.messaging.writer;
 
+import com.cii.messaging.model.common.MessageType;
+
+import java.util.Objects;
+
 /**
  * Factory providing writer implementations based on {@link MessageType}.
  */
@@ -7,6 +11,7 @@ public class CIIWriterFactory {
 
     @SuppressWarnings("unchecked")
     public static <T> CIIWriter<T> createWriter(MessageType messageType) {
+        Objects.requireNonNull(messageType, "messageType");
         return switch (messageType) {
             case INVOICE -> (CIIWriter<T>) new InvoiceWriter();
             case DESPATCH_ADVICE -> (CIIWriter<T>) new DesadvWriter();

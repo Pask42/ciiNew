@@ -1,5 +1,6 @@
 package com.cii.messaging.cli;
 
+import com.cii.messaging.model.common.MessageType;
 import com.cii.messaging.reader.CIIReader;
 import com.cii.messaging.reader.CIIReaderFactory;
 import com.cii.messaging.reader.CIIReaderException;
@@ -47,7 +48,14 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
                 mapper.findAndRegisterModules();
                 output = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
             } else {
-                output = "Type de message : " + message.getClass().getSimpleName();
+                String label;
+                try {
+                    MessageType detectedType = MessageType.fromModelClass(message.getClass());
+                    label = detectedType.getDisplayName();
+                } catch (IllegalArgumentException ex) {
+                    label = message.getClass().getSimpleName();
+                }
+                output = "Type de message : " + label;
             }
 
             if (outputFile != null) {

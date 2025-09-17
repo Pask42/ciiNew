@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Chains multiple {@link CIIValidator} implementations and aggregates their results.
@@ -24,12 +25,13 @@ public class CompositeValidator implements CIIValidator {
     }
 
     public void addValidator(CIIValidator validator) {
-        validators.add(validator);
+        validators.add(Objects.requireNonNull(validator, "validator"));
         validator.setSchemaVersion(schemaVersion);
     }
-    
+
     @Override
     public ValidationResult validate(File xmlFile) {
+        Objects.requireNonNull(xmlFile, "xmlFile");
         long start = System.currentTimeMillis();
 
         ValidationResult.ValidationResultBuilder combinedResult = ValidationResult.builder();
@@ -41,23 +43,30 @@ public class CompositeValidator implements CIIValidator {
         
         for (CIIValidator validator : validators) {
             ValidationResult result = validator.validate(xmlFile);
-            
+
             if (!result.isValid()) {
                 combinedResult.valid(false);
             }
-            
-            allErrors.addAll(result.getErrors());
-            allWarnings.addAll(result.getWarnings());
-            
-            if (validatedAgainst.length() > 0) {
-                validatedAgainst.append(", ");
+
+            if (result.getErrors() != null) {
+                allErrors.addAll(result.getErrors());
             }
-            validatedAgainst.append(result.getValidatedAgainst());
+            if (result.getWarnings() != null) {
+                allWarnings.addAll(result.getWarnings());
+            }
+
+            String against = result.getValidatedAgainst();
+            if (against != null && !against.isBlank()) {
+                if (validatedAgainst.length() > 0) {
+                    validatedAgainst.append(", ");
+                }
+                validatedAgainst.append(against);
+            }
         }
         
         combinedResult.errors(allErrors);
         combinedResult.warnings(allWarnings);
-        combinedResult.validatedAgainst(validatedAgainst.toString());
+        combinedResult.validatedAgainst(validatedAgainst.length() == 0 ? null : validatedAgainst.toString());
         combinedResult.validationTimeMs(System.currentTimeMillis() - start);
 
         return combinedResult.build();
@@ -65,6 +74,7 @@ public class CompositeValidator implements CIIValidator {
     
     @Override
     public ValidationResult validate(InputStream inputStream) {
+        Objects.requireNonNull(inputStream, "inputStream");
         try {
             byte[] data = inputStream.readAllBytes();
             return validateBuffered(data);
@@ -84,6 +94,7 @@ public class CompositeValidator implements CIIValidator {
 
     @Override
     public ValidationResult validate(String xmlContent) {
+        Objects.requireNonNull(xmlContent, "xmlContent");
         byte[] data = xmlContent.getBytes(StandardCharsets.UTF_8);
         return validateBuffered(data);
     }
@@ -111,18 +122,25 @@ public class CompositeValidator implements CIIValidator {
                 combinedResult.valid(false);
             }
 
-            allErrors.addAll(result.getErrors());
-            allWarnings.addAll(result.getWarnings());
-
-            if (validatedAgainst.length() > 0) {
-                validatedAgainst.append(", ");
+            if (result.getErrors() != null) {
+                allErrors.addAll(result.getErrors());
             }
-            validatedAgainst.append(result.getValidatedAgainst());
+            if (result.getWarnings() != null) {
+                allWarnings.addAll(result.getWarnings());
+            }
+
+            String against = result.getValidatedAgainst();
+            if (against != null && !against.isBlank()) {
+                if (validatedAgainst.length() > 0) {
+                    validatedAgainst.append(", ");
+                }
+                validatedAgainst.append(against);
+            }
         }
 
         combinedResult.errors(allErrors);
         combinedResult.warnings(allWarnings);
-        combinedResult.validatedAgainst(validatedAgainst.toString());
+        combinedResult.validatedAgainst(validatedAgainst.length() == 0 ? null : validatedAgainst.toString());
         combinedResult.validationTimeMs(System.currentTimeMillis() - start);
 
         return combinedResult.build();

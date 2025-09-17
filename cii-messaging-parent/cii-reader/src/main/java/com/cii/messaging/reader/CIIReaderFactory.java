@@ -1,14 +1,14 @@
 package com.cii.messaging.reader;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import com.cii.messaging.model.common.MessageType;
+import com.cii.messaging.model.common.MessageTypeDetectionException;
+import com.cii.messaging.model.common.MessageTypeDetector;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Factory responsible for instantiating the appropriate {@link CIIReader}
@@ -22,6 +22,7 @@ public final class CIIReaderFactory {
     }
 
     public static CIIReader<?> createReader(MessageType messageType) {
+        Objects.requireNonNull(messageType, "messageType");
         return switch (messageType) {
             case ORDER -> new OrderReader();
             case INVOICE -> new InvoiceReader();
@@ -31,68 +32,32 @@ public final class CIIReaderFactory {
     }
 
     public static CIIReader<?> createReader(String xmlContent) throws CIIReaderException {
-        XMLInputFactory factory = createSecureXmlInputFactory();
-        XMLStreamReader reader = null;
         try {
-            reader = factory.createXMLStreamReader(new StringReader(xmlContent));
-            MessageType messageType = detectMessageType(reader);
+            MessageType messageType = MessageTypeDetector.detect(xmlContent);
             return createReader(messageType);
-        } catch (XMLStreamException e) {
-            throw new CIIReaderException("Contenu XML invalide", e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (XMLStreamException ignored) {
-                    // ignore
-                }
-            }
+        } catch (MessageTypeDetectionException e) {
+            throw mapDetectionException(e);
         }
     }
 
     public static CIIReader<?> createReader(Path xmlFile) throws CIIReaderException {
-        XMLInputFactory factory = createSecureXmlInputFactory();
-        XMLStreamReader reader = null;
         try (InputStream inputStream = Files.newInputStream(xmlFile)) {
-            reader = factory.createXMLStreamReader(inputStream);
-            MessageType messageType = detectMessageType(reader);
+            MessageType messageType = MessageTypeDetector.detect(inputStream);
             return createReader(messageType);
-        } catch (IOException | XMLStreamException e) {
-            throw new CIIReaderException("Fichier XML invalide", e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (XMLStreamException ignored) {
-                    // ignore
-                }
-            }
+        } catch (IOException e) {
+            throw new CIIReaderException("Impossible de lire le fichier XML", e);
+        } catch (MessageTypeDetectionException e) {
+            throw mapDetectionException(e);
         }
     }
 
-    private static XMLInputFactory createSecureXmlInputFactory() {
-        XMLInputFactory factory = XMLInputFactory.newFactory();
-        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-        factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
-        return factory;
-    }
-
-    private static MessageType detectMessageType(XMLStreamReader reader) throws XMLStreamException, CIIReaderException {
-        while (reader.hasNext()) {
-            int event = reader.next();
-            if (event == XMLStreamConstants.DTD || event == XMLStreamConstants.ENTITY_REFERENCE) {
-                throw new CIIReaderException("DOCTYPE non autorisé", new XMLStreamException("DOCTYPE non autorisé"));
-            }
-            if (event == XMLStreamConstants.START_ELEMENT) {
-                String localName = reader.getLocalName();
-                try {
-                    return MessageType.fromRootElement(localName);
-                } catch (IllegalArgumentException ex) {
-                    throw new CIIReaderException("Type de message non pris en charge : " + localName, ex);
-                }
-            }
-        }
-        throw new CIIReaderException("Impossible de détecter le type de message à partir du contenu XML");
+    private static CIIReaderException mapDetectionException(MessageTypeDetectionException e) {
+        return switch (e.getReason()) {
+            case PROHIBITED_DTD -> new CIIReaderException("DOCTYPE non autorisé", e);
+            case UNKNOWN_ROOT -> new CIIReaderException(e.getMessage(), e);
+            case EMPTY_DOCUMENT ->
+                    new CIIReaderException("Impossible de détecter le type de message à partir du contenu XML", e);
+            case INVALID_XML -> new CIIReaderException("Contenu XML invalide", e);
+        };
     }
 }
