@@ -1,5 +1,6 @@
 package com.cii.messaging.validator.impl;
 
+import com.cii.messaging.model.common.MessageType;
 import com.cii.messaging.validator.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
