@@ -41,23 +41,30 @@ public class CompositeValidator implements CIIValidator {
         
         for (CIIValidator validator : validators) {
             ValidationResult result = validator.validate(xmlFile);
-            
+
             if (!result.isValid()) {
                 combinedResult.valid(false);
             }
-            
-            allErrors.addAll(result.getErrors());
-            allWarnings.addAll(result.getWarnings());
-            
-            if (validatedAgainst.length() > 0) {
-                validatedAgainst.append(", ");
+
+            if (result.getErrors() != null) {
+                allErrors.addAll(result.getErrors());
             }
-            validatedAgainst.append(result.getValidatedAgainst());
+            if (result.getWarnings() != null) {
+                allWarnings.addAll(result.getWarnings());
+            }
+
+            String against = result.getValidatedAgainst();
+            if (against != null && !against.isBlank()) {
+                if (validatedAgainst.length() > 0) {
+                    validatedAgainst.append(", ");
+                }
+                validatedAgainst.append(against);
+            }
         }
         
         combinedResult.errors(allErrors);
         combinedResult.warnings(allWarnings);
-        combinedResult.validatedAgainst(validatedAgainst.toString());
+        combinedResult.validatedAgainst(validatedAgainst.length() == 0 ? null : validatedAgainst.toString());
         combinedResult.validationTimeMs(System.currentTimeMillis() - start);
 
         return combinedResult.build();
@@ -111,18 +118,25 @@ public class CompositeValidator implements CIIValidator {
                 combinedResult.valid(false);
             }
 
-            allErrors.addAll(result.getErrors());
-            allWarnings.addAll(result.getWarnings());
-
-            if (validatedAgainst.length() > 0) {
-                validatedAgainst.append(", ");
+            if (result.getErrors() != null) {
+                allErrors.addAll(result.getErrors());
             }
-            validatedAgainst.append(result.getValidatedAgainst());
+            if (result.getWarnings() != null) {
+                allWarnings.addAll(result.getWarnings());
+            }
+
+            String against = result.getValidatedAgainst();
+            if (against != null && !against.isBlank()) {
+                if (validatedAgainst.length() > 0) {
+                    validatedAgainst.append(", ");
+                }
+                validatedAgainst.append(against);
+            }
         }
 
         combinedResult.errors(allErrors);
         combinedResult.warnings(allWarnings);
-        combinedResult.validatedAgainst(validatedAgainst.toString());
+        combinedResult.validatedAgainst(validatedAgainst.length() == 0 ? null : validatedAgainst.toString());
         combinedResult.validationTimeMs(System.currentTimeMillis() - start);
 
         return combinedResult.build();

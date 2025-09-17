@@ -1,5 +1,7 @@
 package com.cii.messaging.writer;
 
+import com.cii.messaging.model.common.MessageType;
+
 /**
  * Factory providing writer implementations based on {@link MessageType}.
  */

@@ -1,5 +1,7 @@
 package com.cii.messaging.reader;
 
+import com.cii.messaging.model.common.MessageType;
+
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;

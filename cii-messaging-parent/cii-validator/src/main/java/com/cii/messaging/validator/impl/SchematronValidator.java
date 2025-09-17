@@ -168,6 +168,7 @@ public class SchematronValidator implements CIIValidator {
         return ValidationResult.builder()
                 .valid(false)
                 .errors(errors)
+                .validatedAgainst("Schematron EN 16931")
                 .build();
     }
 }
