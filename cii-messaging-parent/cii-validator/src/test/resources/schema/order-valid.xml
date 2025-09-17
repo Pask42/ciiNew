@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<order>
+    <id>CMD-12345</id>
+    <date>2024-05-15</date>
+    <buyer>Supermarché Démo</buyer>
+    <line>
+        <sku>SKU-001</sku>
+        <quantity>10</quantity>
+    </line>
+    <line>
+        <sku>SKU-002</sku>
+        <quantity>5</quantity>
+    </line>
+</order>
