@@ -1,173 +1,177 @@
-# CII Messaging System
+# Système de messagerie CII
 
-Modular Java 21 toolkit for reading, writing, and validating **UN/CEFACT Cross Industry** messages.
-It covers ORDER, ORDER_RESPONSE (ORDERSP), DESPATCH_ADVICE (DESADV), and INVOICE flows while remaining
-compatible with ZUGFeRD, XRechnung, and Factur-X profiles.
+Boîte à outils modulaire Java 21 pour lire, écrire et valider les messages **UN/CEFACT Cross Industry**.
+Elle couvre les flux ORDER, ORDER_RESPONSE (ORDERSP), DESPATCH_ADVICE (DESADV) et INVOICE tout en restant
+compatible avec les profils ZUGFeRD, XRechnung et Factur-X.
 
 ## 📦 Modules
 
-| Module | Primary responsibility |
-|--------|------------------------|
-| `cii-model` | Data models (POJOs) and embedded UNECE XSD schemas |
-| `cii-reader` | Parsing XML to strongly typed Java objects |
-| `cii-writer` | Generating Java objects to XML |
-| `cii-validator` | XSD validation and business rules |
-| `cii-cli` | Command-line tooling |
-| `cii-samples` | Sample XML payloads |
+| Module | Responsabilité principale |
+|--------|---------------------------|
+| `cii-model` | Modèles de données (POJO) et schémas XSD UNECE embarqués |
+| `cii-reader` | Analyse d’XML vers des objets Java fortement typés |
+| `cii-writer` | Génération d’objets Java vers XML |
+| `cii-validator` | Validation XSD et règles métier |
+| `cii-cli` | Outils en ligne de commande |
+| `cii-samples` | Charges utiles XML d’exemple |
 
-## ✅ Technical prerequisites
+## ✅ Prérequis techniques
 
-- Java 21 or newer
-- Maven 3.6 or newer
-- For CLI execution ensure `$JAVA_HOME` is set and the `java` executable is available on your `PATH`
+- Java 21 ou version ultérieure
+- Maven 3.6 ou version ultérieure
+- Pour exécuter le CLI, vérifiez que `$JAVA_HOME` est défini et que l’exécutable `java` est disponible dans votre `PATH`
 
-## 🔨 Build and test
+## 🔨 Compilation et tests
 
 ```bash
-# Clone the project
+# Cloner le projet
 git clone <repository-url>/cii-messaging-parent.git
 cd cii-messaging-parent
 
-# Build every module and run the full test suite
+# Construire tous les modules et exécuter l’ensemble de la suite de tests
 mvn clean install
 ```
 
-### Build the CLI module only
+### Construire uniquement le module CLI
 
 ```bash
 mvn -pl cii-cli -am clean package
 ```
 
-The CLI build produces two artifacts under `cii-cli/target/`:
+La construction du CLI produit deux artefacts dans `cii-cli/target/` :
 
-- `cii-cli-<version>.jar`: thin jar that relies on Maven dependency resolution
-- `cii-cli-<version>-jar-with-dependencies.jar`: executable jar bundled with every dependency
+- `cii-cli-<version>.jar` : JAR fin qui s’appuie sur la résolution des dépendances Maven
+- `cii-cli-<version>-jar-with-dependencies.jar` : JAR exécutable embarquant toutes les dépendances
 
-Run the CLI directly from the assembly jar:
+Lancez le CLI directement depuis le JAR assemblé :
 
 ```bash
 java -jar cii-cli/target/cii-cli-<version>-jar-with-dependencies.jar --help
 ```
 
-Or execute it with Maven without creating the jar explicitly:
+Ou exécutez-le avec Maven sans créer explicitement le JAR :
 
 ```bash
 mvn -pl cii-cli -am exec:java -Dexec.args="--help"
 ```
 
-### Run tests
+### Exécuter les tests
 
 ```bash
 mvn -pl cii-cli test
 ```
 
-## 🌐 Selecting the UNECE schema version
+## 🌐 Sélection de la version de schéma UNECE
 
-Schemas are loaded from `src/main/resources/xsd/<version>/...` and controlled by the `unece.version`
-property (defaults to `D23B`).
+Les schémas sont chargés depuis `src/main/resources/xsd/<version>/...` et pilotés par la propriété
+`unece.version` (par défaut `D23B`).
 
 ```bash
-# Use the default version (D23B)
+# Utiliser la version par défaut (D23B)
 mvn clean install
 
-# Force version D24A
+# Forcer la version D24A
 mvn -Dunece.version=D24A clean install
 
-# Or configure via environment variable
+# Ou configurer via une variable d’environnement
 UNECE_VERSION=D24A mvn clean install
 ```
 
-The same property controls the default schema used by the CLI validation command. You can still override
-it per execution with the `--schema-version` option.
+La même propriété détermine le schéma par défaut utilisé par la commande de validation du CLI. Vous pouvez encore
+le surcharger à chaque exécution avec l’option `--schema-version`.
 
-## 🛠️ CLI reference (`cii-cli`)
+## 🛠️ Référence CLI (`cii-cli`)
 
-### Global options
+### Options globales
 
 | Option | Description |
 |--------|-------------|
-| `-l, --log-level <LEVEL>` | Override the root Logback level (`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) |
-| `-c, --config <FILE>` | Load options from a properties file containing a `log.level` entry |
+| `-l, --log-level <LEVEL>` | Redéfinit le niveau Logback racine (`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) |
+| `-c, --config <FILE>` | Charge les options depuis un fichier properties contenant une entrée `log.level` |
 
-If no options are provided the CLI looks for `cii-cli.properties` in the working directory, then on the
-classpath. A minimal configuration file looks like:
+Si aucune option n’est fournie, le CLI recherche `cii-cli.properties` dans le répertoire courant, puis sur le
+classpath. Un fichier de configuration minimal ressemble à ceci :
 
 ```properties
 # cii-cli.properties
 log.level=DEBUG
 ```
 
-### `parse` command
+### Commande `parse`
 
-Analyse a CII message and render it as a high-level summary or as JSON.
+Analyse un message CII et le restitue sous forme de synthèse ou de JSON.
 
-| Parameter or option | Description | Default |
-|---------------------|-------------|---------|
-| `INPUT` (parameter) | Path to the XML file to analyse | — |
-| `-o, --output <FILE>` | Optional path where the rendered output will be written. If omitted, the summary is printed to STDOUT | — |
-| `--format <FORMAT>` | Output format: `SUMMARY` (human-readable synthesis) or `JSON` (full payload) | `SUMMARY` |
+| Paramètre ou option | Description | Valeur par défaut |
+|---------------------|-------------|-------------------|
+| `INPUT` (paramètre) | Chemin vers le fichier XML à analyser | — |
+| `-o, --output <FILE>` | Chemin optionnel où écrire le rendu. Si omis, la synthèse est affichée sur la sortie standard | — |
+| `--format <FORMAT>` | Format de sortie : `SUMMARY` (synthèse lisible) ou `JSON` (payload complet) | `SUMMARY` |
 
-For ORDER messages, the summary relies on `OrderAnalyzer` and contains key business information such as document
-ID, parties, dates, and line items. Other message types report the detected message class.
+Pour les messages ORDER, la synthèse s’appuie sur `OrderAnalyzer` et contient les informations métier
+essentielles (identifiant du document, parties, dates et lignes). Les autres types de message signalent la
+classe détectée.
 
-### `validate` command
+### Commande `validate`
 
-Validate a CII document against UNECE schemas and business rules.
+Valide un document CII selon les schémas UNECE et les règles métier.
 
-| Parameter or option | Description | Default |
-|---------------------|-------------|---------|
-| `INPUT` (parameter) | Path to the XML file to validate | — |
-| `--schema-version <VERSION>` | Explicit UNECE version (`D23B`, `D24A`, …) | `SchemaVersion.getDefault()` (system property `unece.version`, then `UNECE_VERSION`, otherwise `D23B`) |
-| `--fail-on-warning` | Treat validation warnings as fatal errors (non-zero exit code) | Disabled |
+| Paramètre ou option | Description | Valeur par défaut |
+|---------------------|-------------|-------------------|
+| `INPUT` (paramètre) | Chemin vers le fichier XML à valider | — |
+| `--schema-version <VERSION>` | Version UNECE explicite (`D23B`, `D24A`, …) | `SchemaVersion.getDefault()` (propriété système `unece.version`, puis `UNECE_VERSION`, sinon `D23B`) |
+| `--fail-on-warning` | Considère les avertissements comme des erreurs fatales (code retour non nul) | Désactivé |
 
-The validator prints a concise summary (validity, number of errors, schema bundle used, execution time) and lists
-each individual error and warning.
+Le validateur affiche un résumé concis (validité, nombre d’erreurs, bundle de schémas utilisé, temps d’exécution)
+et liste chaque erreur et avertissement individuellement.
 
-## 🧪 Command-line examples
+## 🧪 Exemples en ligne de commande
 
-Assuming the assembly jar has been built (`mvn -pl cii-cli -am clean package`):
+En supposant que le JAR assemblé a été construit (`mvn -pl cii-cli -am clean package`) :
 
 ```bash
-# Display a summary of the provided ORDER document
+# Afficher une synthèse du document ORDER fourni
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse cii-samples/src/main/resources/samples/order-sample.xml
 
-# Produce a JSON representation of an ORDER message
+# Produire une représentation JSON d’un message ORDER
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse --format JSON --output target/order.json cii-samples/src/main/resources/samples/order-sample.xml
 
-# Validate a document with the default schema
+# Valider un document avec le schéma par défaut
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate cii-samples/src/main/resources/samples/order-sample.xml
 
-# Validate against D24A and fail fast when warnings are present
+# Valider avec D24A et échouer immédiatement si des avertissements sont présents
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate --schema-version D24A --fail-on-warning cii-samples/src/main/resources/samples/order-valid.xml
 
-# Run a parse with verbose logging supplied on the command line
+# Lancer une analyse avec un niveau de log verbeux fourni en ligne de commande
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse --log-level DEBUG cii-samples/src/main/resources/samples/order-sample.xml
 
-# Provide the log level through a configuration file
+# Fournir le niveau de log via un fichier de configuration
 cat <<'PROPS' > cii-cli.properties
 log.level=DEBUG
 PROPS
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate cii-samples/src/main/resources/samples/order-valid.xml
 ```
 
-## 💻 Programmatic usage
+## 💻 Utilisation programmatique
 
-The `cii-reader` and `cii-writer` modules expose JAXB readers and writers for every supported flow. Models
-(`Order`, `DespatchAdvice`, `Invoice`, …) are provided by `cii-model` together with the UNECE schemas.
-Sample XML documents live under `cii-samples/src/main/resources/samples/` and provide a convenient starting point for tests.
+Les modules `cii-reader` et `cii-writer` exposent des lecteurs et écrivains JAXB pour chaque flux supporté. Les
+modèles (`Order`, `DespatchAdvice`, `Invoice`, …) sont fournis par `cii-model` avec les schémas UNECE.
+Des documents XML d’exemple sont disponibles dans `cii-samples/src/main/resources/samples/` et constituent un
+point de départ pratique pour les tests.
 
-### Reading, writing, and validation utilities
+### Utilitaires de lecture, d’écriture et de validation
 
-- **Reading**: use `CIIReaderFactory` to detect the appropriate reader based on an XML file, or instantiate
-  `OrderReader`, `InvoiceReader`, and similar classes directly. Each reader returns a strongly typed business object ready to process.
-- **Writing**: writers (`OrderWriter`, `OrderResponseWriter`, `DesadvWriter`, `InvoiceWriter`) turn your Java objects
-  into schema-compliant XML. Helper classes `OrderGenerator`, `DesadvGenerator`, and `InvoiceGenerator` provide
-  a façade when your domain objects implement `ObjetCommande`, `ObjetDesadv`, or `ObjetInvoice` respectively.
-- **Validation**: `XmlValidator.validerFichierXML(xml, xsd)` checks conformity against an XSD schema and returns
-  a structured report. Combine `XmlValidator` with the `CIIValidator` implementations found in `cii-validator`
-  to apply additional business rules.
+- **Lecture** : utilisez `CIIReaderFactory` pour détecter le lecteur approprié à partir d’un fichier XML, ou
+  instanciez directement `OrderReader`, `InvoiceReader` et classes similaires. Chaque lecteur renvoie un objet
+  métier fortement typé prêt à être traité.
+- **Écriture** : les écrivains (`OrderWriter`, `OrderResponseWriter`, `DesadvWriter`, `InvoiceWriter`) transforment
+  vos objets Java en XML conforme aux schémas. Les classes utilitaires `OrderGenerator`, `DesadvGenerator` et
+  `InvoiceGenerator` fournissent une façade lorsque vos objets métier implémentent respectivement
+  `ObjetCommande`, `ObjetDesadv` ou `ObjetInvoice`.
+- **Validation** : `XmlValidator.validerFichierXML(xml, xsd)` vérifie la conformité vis-à-vis d’un schéma XSD et
+  renvoie un rapport structuré. Combinez `XmlValidator` avec les implémentations de `CIIValidator` présentes dans
+  `cii-validator` pour appliquer des règles métier supplémentaires.
 
-### Read an ORDER from a file
+### Lire un ORDER depuis un fichier
 
 ```java
 import com.cii.messaging.model.order.Order;
@@ -178,10 +182,10 @@ Path orderXml = Path.of("cii-samples/src/main/resources/samples/order-sample.xml
 Order order = new OrderReader().read(orderXml.toFile());
 ```
 
-### Modify and rewrite an ORDER
+### Modifier et réécrire un ORDER
 
-Simple types (ID, text, codes, amounts, quantities, …) expose setters such as `setValue`, `setUnitCode`, and
-`setCurrencyID`. Update the relevant nodes and marshal the object through the dedicated writer.
+Les types simples (ID, texte, codes, montants, quantités, …) exposent des accesseurs comme `setValue`,
+`setUnitCode` et `setCurrencyID`. Mettez à jour les nœuds concernés puis marshaller l’objet via l’écrivain dédié.
 
 ```java
 import com.cii.messaging.model.order.Order;
@@ -219,10 +223,10 @@ requested.setUnitCode("EA");
 new OrderWriter().write(order, Path.of("target/order-generated.xml").toFile());
 ```
 
-### Generate a DESPATCH_ADVICE (DESADV)
+### Générer un DESPATCH_ADVICE (DESADV)
 
-Create a complete shipping notice by instantiating a `DespatchAdvice`, populating the required aggregates
-(context, exchanged document, transaction, and lines), then serialise it with `DesadvWriter`.
+Créez un avis d’expédition complet en instanciant un `DespatchAdvice`, en remplissant les agrégats requis
+(contexte, document échangé, transaction et lignes), puis sérialisez-le avec `DesadvWriter`.
 
 ```java
 import com.cii.messaging.model.despatchadvice.DespatchAdvice;
@@ -246,7 +250,7 @@ IDType docId = new IDType();
 docId.setValue("DES-2024-001");
 doc.setID(docId);
 DocumentCodeType docType = new DocumentCodeType();
-docType.setValue("351"); // DESADV code (UNCL1001)
+docType.setValue("351"); // Code DESADV (UNCL1001)
 doc.setTypeCode(docType);
 DateTimeType issue = new DateTimeType();
 DateTimeType.DateTimeString issueString = new DateTimeType.DateTimeString();
@@ -283,52 +287,55 @@ advice.setSupplyChainTradeTransaction(tx);
 new DesadvWriter().write(advice, Path.of("target/desadv-generated.xml").toFile());
 ```
 
-### Load schemas manually
+### Charger manuellement les schémas
 
 ```java
 Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
-// The loader automatically resolves the version specific suffix
+// Le chargeur résout automatiquement le suffixe spécifique à la version
 ```
 
 ## 🤖 Scripts
 
-- `scripts/build.sh`: full Maven build (tests skipped) and copies the CLI jar into `dist/cii-cli.jar`
-- `scripts/run-cli.sh`: wrapper to launch the CLI from `dist` (run the build script first)
-- `scripts/validate-all.sh`: validates every XML file in a directory through the CLI using `dist/cii-cli.jar`
+- `scripts/build.sh` : construction Maven complète (tests ignorés) et copie du JAR CLI dans `dist/cii-cli.jar`
+- `scripts/run-cli.sh` : wrapper pour lancer le CLI depuis `dist` (exécutez d’abord le script de build)
+- `scripts/validate-all.sh` : valide tous les fichiers XML d’un répertoire via le CLI en utilisant `dist/cii-cli.jar`
 
-## 📑 XSD schemas
+## 📑 Schémas XSD
 
-Official **UN/CEFACT** schemas ship with the `cii-model` module for each supported version (`D23B`, `D24A`, …).
-They live under `cii-model/src/main/resources/xsd/<VERSION>/` and are loaded automatically by `UneceSchemaLoader`.
+Les schémas officiels **UN/CEFACT** sont livrés avec le module `cii-model` pour chaque version supportée (`D23B`,
+`D24A`, …). Ils se trouvent dans `cii-model/src/main/resources/xsd/<VERSION>/` et sont chargés automatiquement par
+`UneceSchemaLoader`.
 
-Each schema guarantees the XML structure for the following flows:
+Chaque schéma garantit la structure XML pour les flux suivants :
 
-- `CrossIndustryOrder.xsd`: orders (**ORDER/ORDERS**)
-- `CrossIndustryOrderResponse.xsd`: order responses (**ORDER_RESPONSE**)
-- `CrossIndustryDespatchAdvice.xsd`: shipping notices (**DESADV**)
-- `CrossIndustryInvoice.xsd`: invoices (**INVOICE**)
+- `CrossIndustryOrder.xsd` : commandes (**ORDER/ORDERS**)
+- `CrossIndustryOrderResponse.xsd` : réponses de commande (**ORDER_RESPONSE**)
+- `CrossIndustryDespatchAdvice.xsd` : avis d’expédition (**DESADV**)
+- `CrossIndustryInvoice.xsd` : factures (**INVOICE**)
 
-Writers rely on these XSDs to produce compliant documents and `XmlValidator` uses them to validate files. To add
-a new version, drop the XSD files under the corresponding folder and set the Maven property `-Dunece.version=<VERSION>`
-during the build. The latest schemas are available from the UNECE website: <https://unece.org/trade/uncefact/mainstandards>.
+Les écrivains s’appuient sur ces XSD pour produire des documents conformes et `XmlValidator` les utilise pour
+valider les fichiers. Pour ajouter une nouvelle version, déposez les fichiers XSD dans le dossier correspondant et
+défissez la propriété Maven `-Dunece.version=<VERSION>` lors de la compilation. Les derniers schémas sont
+disponibles sur le site UNECE : <https://unece.org/trade/uncefact/mainstandards>.
 
-## 🧪 Running tests with Maven
+## 🧪 Exécuter les tests avec Maven
 
-Run the full suite with the standard command:
+Lancez l’ensemble de la suite avec la commande standard :
 
 ```bash
 mvn test
 ```
 
-Useful variants:
+Variantes utiles :
 
-- Run the tests of a specific module: `mvn -pl cii-reader test`
-- Target a single test class: `mvn -Dtest=OrderReaderTest -pl cii-reader test`
-- Execute tests while rebuilding artifacts: `mvn clean verify`
+- Exécuter les tests d’un module spécifique : `mvn -pl cii-reader test`
+- Cibler une seule classe de test : `mvn -Dtest=OrderReaderTest -pl cii-reader test`
+- Exécuter les tests tout en reconstruisant les artefacts : `mvn clean verify`
 
-Every module relies on Surefire. Ensure Java 21 is available in your environment before running the tests.
+Chaque module s’appuie sur Surefire. Assurez-vous que Java 21 est disponible dans votre environnement avant de
+lancer les tests.
 
-## 📚 Useful resources
+## 📚 Ressources utiles
 
 - [UN/CEFACT](https://unece.org/trade/uncefact)
 - [ZUGFeRD](https://www.zugferd.org/)
