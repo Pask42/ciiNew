@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class UneceSchemaLoaderTest {
 
     @Test
-    void shouldLoadInvoiceSchema() throws Exception {
+    void doitChargerSchemaInvoice() throws Exception {
         Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
         assertNotNull(schema);
     }

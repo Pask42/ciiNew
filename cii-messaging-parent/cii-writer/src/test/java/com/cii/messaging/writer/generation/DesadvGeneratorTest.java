@@ -40,7 +40,7 @@ class DesadvGeneratorTest {
     Path tempDir;
 
     @Test
-    void shouldGenerateDesadvXmlAndReturnConfirmationMessage() throws Exception {
+    void doitGenererDesadvXmlEtRetournerMessageConfirmation() throws Exception {
         DespatchAdvice despatchAdvice = buildDespatchAdvice();
         Path outputFile = tempDir.resolve("desadv.xml");
 

@@ -3,15 +3,15 @@
 all: build
 
 build:
-	@echo "Building CII Messaging System..."
+    @echo "Construction du système de messagerie CII..."
 	@mvn clean install
 
 test:
-	@echo "Running tests..."
+    @echo "Exécution des tests..."
 	@mvn test
 
 clean:
-	@echo "Cleaning..."
+    @echo "Nettoyage..."
 	@mvn clean
 	@rm -rf dist/
 
@@ -19,5 +19,5 @@ run-cli:
 	@java -jar dist/cii-cli.jar $(ARGS)
 
 generate-docs:
-	@echo "Generating JavaDoc..."
+    @echo "Génération de la JavaDoc..."
 	@mvn javadoc:aggregate

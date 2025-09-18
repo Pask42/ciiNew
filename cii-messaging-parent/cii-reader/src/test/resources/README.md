@@ -1,5 +1,5 @@
-# Test resources for cii-reader
+# Ressources de test pour cii-reader
 
-This directory is reserved for reader-specific fixtures. Tests should
-prefer loading the canonical XML documents published by the `cii-samples`
-module via the `CiiSampleResource` helper.
+Ce répertoire est réservé aux fixtures spécifiques au reader. Les tests doivent privilégier le
+chargement des documents XML canoniques publiés par le module `cii-samples` via l'utilitaire
+`CiiSampleResource`.

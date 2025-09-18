@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * Generic validator interface for CII messages represented as XML.
+ * Interface générique de validation pour les messages CII représentés en XML.
  */
 public interface CIIValidator {
     ValidationResult validate(File xmlFile);

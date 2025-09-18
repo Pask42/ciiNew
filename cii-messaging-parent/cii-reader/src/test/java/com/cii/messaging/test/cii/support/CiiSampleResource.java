@@ -4,28 +4,28 @@ import java.io.InputStream;
 import java.util.Objects;
 
 /**
- * Lightweight helper exposing access to the XML fixtures published by the
- * {@code cii-samples} module.  Tests can load resources by their simple file
- * name without having to repeat classpath boilerplate.
+ * Petit utilitaire donnant accès aux jeux d'essai XML publiés par le module
+ * {@code cii-samples}. Les tests peuvent charger une ressource à partir de son
+ * nom de fichier sans répéter le code standard de parcours du classpath.
  */
 public final class CiiSampleResource {
 
-    /** Base folder inside {@code cii-samples} where XML examples are stored. */
+    /** Dossier racine dans {@code cii-samples} où sont stockés les exemples XML. */
     public static final String SAMPLE_FOLDER = "samples/";
 
     /**
-     * Opens a resource stream pointing to the requested sample XML file.
+     * Ouvre un flux pointant vers le fichier XML d'exemple demandé.
      *
-     * @param sampleFileName the simple file name (e.g. {@code invoice-sample.xml})
-     * @return a non-null input stream ready to be consumed by the caller
-     * @throws IllegalArgumentException if the resource cannot be located on the classpath
+     * @param sampleFileName nom simple du fichier (ex. {@code invoice-sample.xml})
+     * @return un flux non nul prêt à être consommé par l'appelant
+     * @throws IllegalArgumentException si la ressource est introuvable sur le classpath
      */
     public InputStream open(String sampleFileName) {
-        Objects.requireNonNull(sampleFileName, "sampleFileName must not be null");
+        Objects.requireNonNull(sampleFileName, "sampleFileName ne doit pas être null");
         var resource = SAMPLE_FOLDER + sampleFileName;
         var stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
         if (stream == null) {
-            throw new IllegalArgumentException("Unable to locate sample resource: " + resource);
+            throw new IllegalArgumentException("Impossible de localiser la ressource d'exemple : " + resource);
         }
         return stream;
     }

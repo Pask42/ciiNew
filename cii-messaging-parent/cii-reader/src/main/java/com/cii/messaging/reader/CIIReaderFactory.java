@@ -13,14 +13,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Factory responsible for instantiating the appropriate {@link CIIReader}
- * implementation depending on either the expected {@link MessageType} or the
- * root element of the provided XML content.
+ * Fabrique chargée d'instancier l'implémentation {@link CIIReader}
+ * appropriée en fonction du {@link MessageType} attendu ou de l'élément
+ * racine détecté dans le contenu XML fourni.
  */
 public final class CIIReaderFactory {
 
     private CIIReaderFactory() {
-        // Utility class
+        // classe utilitaire
     }
 
     public static CIIReader<?> createReader(MessageType messageType) {
@@ -46,7 +46,7 @@ public final class CIIReaderFactory {
                 try {
                     reader.close();
                 } catch (XMLStreamException ignored) {
-                    // ignore
+                    // ignoré
                 }
             }
         }
@@ -66,7 +66,7 @@ public final class CIIReaderFactory {
                 try {
                     reader.close();
                 } catch (XMLStreamException ignored) {
-                    // ignore
+                    // ignoré
                 }
             }
         }

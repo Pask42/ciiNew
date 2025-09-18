@@ -16,7 +16,7 @@ public class XSDValidatorXXETest {
             """;
 
     @Test
-    void xsdValidatorRejectsExternalEntities() {
+    void xsdValidatorRejetteEntitesExternes() {
         XSDValidator validator = new XSDValidator();
         ByteArrayInputStream input = new ByteArrayInputStream(XXE.getBytes(StandardCharsets.UTF_8));
         ValidationResult result = validator.validate(input);

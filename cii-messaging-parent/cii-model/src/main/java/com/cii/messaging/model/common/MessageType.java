@@ -5,11 +5,11 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Unified list of supported UN/CEFACT Cross Industry message types.
+ * Liste unifiée des types de messages UN/CEFACT Cross Industry pris en charge.
  * <p>
- * Centralising this enumeration avoids the numerous local duplicates that were
- * previously spread across the reader, writer and validator modules and keeps
- * the root element mapping in a single authoritative location.
+ * Centraliser cette énumération évite les doublons locaux auparavant répartis
+ * entre les modules reader, writer et validator et conserve la correspondance
+ * des éléments racine dans un point unique de référence.
  * </p>
  */
 public enum MessageType {
@@ -25,18 +25,18 @@ public enum MessageType {
     }
 
     /**
-     * Returns the XML root element local name associated with the message type.
+     * Retourne le nom local de l'élément racine XML associé au type de message.
      */
     public String getRootElement() {
         return rootElement;
     }
 
     /**
-     * Resolves a message type based on the provided XML root element.
+     * Résout un type de message à partir de l'élément racine XML fourni.
      *
-     * @param rootElement XML root element local name
-     * @return the matching {@link MessageType}
-     * @throws IllegalArgumentException if the element is not supported
+     * @param rootElement nom local de l'élément racine XML
+     * @return le {@link MessageType} correspondant
+     * @throws IllegalArgumentException si l'élément n'est pas pris en charge
      */
     public static MessageType fromRootElement(String rootElement) {
         Objects.requireNonNull(rootElement, "rootElement");
@@ -48,7 +48,7 @@ public enum MessageType {
     }
 
     /**
-     * Returns a human-readable label.
+     * Retourne un libellé lisible par un humain.
      */
     @Override
     public String toString() {

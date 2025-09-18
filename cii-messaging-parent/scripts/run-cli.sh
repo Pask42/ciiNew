@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 JAR_PATH="$SCRIPT_DIR/../dist/cii-cli.jar"
 
 if [ ! -f "$JAR_PATH" ]; then
-    echo "❌ CLI jar not found. Please run ./scripts/build.sh first"
+    echo "❌ Jar de la CLI introuvable. Exécutez d'abord ./scripts/build.sh"
     exit 1
 fi
 

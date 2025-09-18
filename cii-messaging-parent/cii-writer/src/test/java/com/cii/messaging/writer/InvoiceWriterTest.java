@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InvoiceWriterTest {
 
     @Test
-    void shouldWriteInvoice() throws Exception {
+    void doitEcrireInvoice() throws Exception {
         try (InputStream is = getClass().getResourceAsStream("/invoice-sample.xml")) {
             Invoice invoice = (Invoice) JAXBContext.newInstance(Invoice.class)
                     .createUnmarshaller().unmarshal(is);
@@ -69,7 +69,7 @@ class InvoiceWriterTest {
     }
 
     @Test
-    void shouldSerializeInvoiceWithExpectedXmlStructure() throws Exception {
+    void doitSerializerInvoiceAvecStructureAttendue() throws Exception {
         Invoice invoice = buildInvoice();
 
         CIIWriter<Invoice> writer = new InvoiceWriter();

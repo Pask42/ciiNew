@@ -40,7 +40,7 @@ public class CIIMessagingCLI extends AbstractCommand implements Runnable {
     }
 
     /**
-     * Reads the CLI version from the jar manifest populated by Maven during the build.
+     * Lit la version de la CLI depuis le manifeste jar alimenté par Maven lors du build.
      */
     static class ManifestVersionProvider implements CommandLine.IVersionProvider {
         @Override

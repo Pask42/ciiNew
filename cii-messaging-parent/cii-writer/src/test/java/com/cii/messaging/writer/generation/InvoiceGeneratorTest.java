@@ -62,7 +62,7 @@ class InvoiceGeneratorTest {
     Path tempDir;
 
     @Test
-    void shouldGenerateInvoiceXmlAndReturnConfirmationMessage() throws Exception {
+    void doitGenererInvoiceXmlEtRetournerMessageConfirmation() throws Exception {
         Invoice invoice = buildInvoice();
         Path outputFile = tempDir.resolve("invoice.xml");
 

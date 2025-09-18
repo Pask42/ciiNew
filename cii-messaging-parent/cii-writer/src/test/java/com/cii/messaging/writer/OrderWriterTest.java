@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OrderWriterTest {
 
     @Test
-    void shouldWriteOrder() throws Exception {
+    void doitEcrireOrder() throws Exception {
         try (InputStream is = getClass().getResourceAsStream("/order-sample.xml")) {
             Order order = (Order) JAXBContext.newInstance(Order.class)
                     .createUnmarshaller().unmarshal(is);
@@ -52,7 +52,7 @@ class OrderWriterTest {
     }
 
     @Test
-    void shouldSerializeOrderWithExpectedXmlStructure() throws Exception {
+    void doitSerializerOrderAvecStructureAttendue() throws Exception {
         Order order = buildOrder();
 
         CIIWriter<Order> writer = new OrderWriter();

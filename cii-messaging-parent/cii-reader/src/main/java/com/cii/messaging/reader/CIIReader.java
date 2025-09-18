@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * Generic reader contract for converting XML content into domain message models.
+ * Contrat générique de lecture pour transformer un contenu XML en modèles métier.
  *
- * @param <T> type of the message model produced by this reader
+ * @param <T> type de modèle produit par ce lecteur
  */
 public interface CIIReader<T> {
     T read(File xmlFile) throws CIIReaderException;

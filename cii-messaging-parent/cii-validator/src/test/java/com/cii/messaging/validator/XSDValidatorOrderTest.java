@@ -28,7 +28,7 @@ class XSDValidatorOrderTest {
 
     @Test
     @DisplayName("valide un ORDER conforme au XSD UNECE")
-    void validOrderReturnsValideMessage() throws IOException {
+    void commandeValideRetourneMessageValide() throws IOException {
         XSDValidator validator = new XSDValidator();
         validator.setSchemaVersion(SchemaVersion.D23B);
 
@@ -44,7 +44,7 @@ class XSDValidatorOrderTest {
 
     @Test
     @DisplayName("décrit les erreurs pour un ORDER non conforme")
-    void invalidOrderReturnsExplicitErrors() {
+    void commandeInvalideRetourneErreursExplicites() {
         XSDValidator validator = new XSDValidator();
         validator.setSchemaVersion(SchemaVersion.D23B);
 

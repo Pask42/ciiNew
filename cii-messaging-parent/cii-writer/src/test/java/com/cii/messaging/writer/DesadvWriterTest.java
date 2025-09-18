@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DesadvWriterTest {
 
     @Test
-    void shouldSerializeDespatchAdviceWithExpectedXmlStructure() throws Exception {
+    void doitSerializerDespatchAdviceAvecStructureAttendue() throws Exception {
         DespatchAdvice despatchAdvice = buildDespatchAdvice();
 
         CIIWriter<DespatchAdvice> writer = new DesadvWriter();

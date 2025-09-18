@@ -3,7 +3,7 @@ package com.cii.messaging.reader;
 import com.cii.messaging.model.despatchadvice.DespatchAdvice;
 
 /**
- * JAXB based reader for CrossIndustryDespatchAdvice documents.
+ * Lecteur basé sur JAXB pour les documents CrossIndustryDespatchAdvice.
  */
 public class DesadvReader extends JaxbReader<DespatchAdvice> {
 

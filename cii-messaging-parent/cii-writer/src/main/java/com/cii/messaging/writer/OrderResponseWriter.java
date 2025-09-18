@@ -3,7 +3,7 @@ package com.cii.messaging.writer;
 import com.cii.messaging.model.orderresponse.OrderResponse;
 
 /**
- * JAXB writer for {@link OrderResponse} messages.
+ * Rédacteur JAXB pour les messages {@link OrderResponse}.
  */
 public class OrderResponseWriter extends JaxbWriter<OrderResponse> {
     public OrderResponseWriter() {

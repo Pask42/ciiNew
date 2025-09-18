@@ -7,41 +7,41 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Blueprint for upcoming validation scenarios combining XSD and Schematron
- * rules.  The structure highlights key validation angles (schema compliance,
- * business rules, error reporting) without enforcing them yet.
+ * Plan directeur pour les futurs scénarios de validation combinant XSD et Schematron.
+ * La structure met en avant les axes clés (respect du schéma, règles métier,
+ * restitution des erreurs) sans encore les faire appliquer.
  */
-@DisplayName("CII Validator – compliance checks")
+@DisplayName("CII Validator – vérifications de conformité")
 class CiiValidatorComplianceTest {
 
     @Nested
-    @DisplayName("Schema validation")
+    @DisplayName("Validation de schéma")
     class SchemaValidation {
 
         @Test
-        @Disabled("XSD validation tests to be added later")
+        @Disabled("Tests de validation XSD ajoutés ultérieurement")
         void shouldValidateInvoiceSampleAgainstXsd() {
             var samples = new CiiSampleResource();
-            // Placeholder for XSD validation logic using invoice-sample.xml
+            // Emplacement prévu pour la logique de validation XSD avec invoice-sample.xml
         }
     }
 
     @Nested
-    @DisplayName("Schematron business rules")
+    @DisplayName("Règles métier Schematron")
     class SchematronValidation {
 
         @Test
-        @Disabled("Schematron validation tests to be added later")
+        @Disabled("Tests de validation Schematron ajoutés ultérieurement")
         void shouldValidateOrderSampleAgainstSchematron() {
             var samples = new CiiSampleResource();
-            // Placeholder for Schematron validation logic using order-sample.xml
+            // Emplacement prévu pour la logique de validation Schematron avec order-sample.xml
         }
     }
 
     @Test
-    @Disabled("Error reporting tests to be added later")
-    @DisplayName("Collects validation failures with diagnostic details")
+    @Disabled("Tests de restitution d'erreurs ajoutés ultérieurement")
+    @DisplayName("Collecte les échecs de validation avec détails de diagnostic")
     void shouldExposeReadableValidationErrors() {
-        // Placeholder for asserting structured error reporting from validator
+        // Emplacement prévu pour vérifier la restitution structurée des erreurs du validateur
     }
 }

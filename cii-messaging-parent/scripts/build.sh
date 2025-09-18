@@ -6,24 +6,24 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$(cd "${SCRIPT_DIR}/.." && pwd)
 
 if [ ! -f "${PROJECT_ROOT}/pom.xml" ]; then
-    echo "❌ Unable to locate pom.xml in ${PROJECT_ROOT}. Please run the script from the project repository."
+    echo "❌ Impossible de trouver pom.xml dans ${PROJECT_ROOT}. Veuillez exécuter le script depuis le dépôt du projet."
     exit 1
 fi
 
 cd "${PROJECT_ROOT}"
 
-echo "🏗️ Building CII Messaging System..."
+echo "🏗️ Construction du système de messagerie CII..."
 
 # Vérifier Java 21
 java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d. -f1)
 if [ "${java_version}" -lt "21" ]; then
-    echo "❌ Java 21 or higher is required"
+    echo "❌ Java 21 ou supérieur est requis"
     exit 1
 fi
 
 # Clean et build
 if ! mvn -f "${PROJECT_ROOT}/pom.xml" clean install -DskipTests; then
-    echo "❌ Maven build failed. Aborting."
+    echo "❌ Échec du build Maven. Abandon."
     exit 1
 fi
 
@@ -38,4 +38,4 @@ fi
 
 cp "${CLI_JAR}" dist/cii-cli.jar
 
-echo "✅ Build complete! CLI available at dist/cii-cli.jar"
+echo "✅ Build terminé ! CLI disponible dans dist/cii-cli.jar"

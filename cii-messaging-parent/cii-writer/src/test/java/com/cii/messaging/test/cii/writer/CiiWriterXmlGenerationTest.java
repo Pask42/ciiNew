@@ -7,41 +7,41 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Scaffold for future writer-based assertions.  Tests will ensure the XML
- * marshalling layer recreates the canonical documents published in the
- * {@code cii-samples} module and respects formatting/security rules.
+ * Échafaudage pour de futures assertions côté writer. Les tests vérifieront que
+ * la couche de marshalling XML recrée les documents canoniques publiés dans le
+ * module {@code cii-samples} et respecte les règles de formatage et de sécurité.
  */
-@DisplayName("CII Writer – XML generation contract")
+@DisplayName("CII Writer – contrat de génération XML")
 class CiiWriterXmlGenerationTest {
 
     @Nested
-    @DisplayName("Order rendering")
+    @DisplayName("Rendu ORDER")
     class OrderRendering {
 
         @Test
-        @Disabled("Writer generation tests to be implemented later")
+        @Disabled("Tests de génération du writer implémentés ultérieurement")
         void shouldGenerateOrderXmlMatchingSample() {
             var samples = new CiiSampleResource();
-            // Placeholder for JAXB marshalling assertions against order-sample.xml
+            // Emplacement prévu pour des assertions de marshalling JAXB sur order-sample.xml
         }
     }
 
     @Nested
-    @DisplayName("Invoice rendering")
+    @DisplayName("Rendu INVOICE")
     class InvoiceRendering {
 
         @Test
-        @Disabled("Writer generation tests to be implemented later")
+        @Disabled("Tests de génération du writer implémentés ultérieurement")
         void shouldGenerateInvoiceXmlMatchingSample() {
             var samples = new CiiSampleResource();
-            // Placeholder for JAXB marshalling assertions against invoice-sample.xml
+            // Emplacement prévu pour des assertions de marshalling JAXB sur invoice-sample.xml
         }
     }
 
     @Test
-    @Disabled("Writer configuration tests to be implemented later")
-    @DisplayName("Applies canonical namespaces and encoding")
+    @Disabled("Tests de configuration du writer implémentés ultérieurement")
+    @DisplayName("Applique les espaces de noms et l'encodage canoniques")
     void shouldRespectCanonicalConfiguration() {
-        // Placeholder for verifying namespace prefixes, encoding and formatting settings
+        // Emplacement prévu pour vérifier les préfixes de namespace, l'encodage et le formatage
     }
 }
