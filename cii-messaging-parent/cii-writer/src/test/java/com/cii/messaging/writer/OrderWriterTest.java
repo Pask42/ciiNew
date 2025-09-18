@@ -63,7 +63,7 @@ class OrderWriterTest {
         Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
 
         assertEquals("CrossIndustryOrder", document.getDocumentElement().getLocalName());
-        assertEquals("urn:un:unece:uncefact:data:standard:CrossIndustryOrder:16",
+        assertEquals("urn:un:unece:uncefact:data:standard:CrossIndustryOrder:100",
                 document.getDocumentElement().getNamespaceURI());
 
         XPath xpath = XPathFactory.newInstance().newXPath();
