@@ -1,29 +1,35 @@
 package com.cii.messaging.cli;
 
 import com.cii.messaging.reader.CIIReader;
-import com.cii.messaging.reader.CIIReaderFactory;
 import com.cii.messaging.reader.CIIReaderException;
-import picocli.CommandLine.*;
-
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.concurrent.Callable;
-
+import com.cii.messaging.reader.CIIReaderFactory;
+import com.cii.messaging.reader.analysis.OrderAnalysisResult;
+import com.cii.messaging.reader.analysis.OrderAnalyzer;
+import com.cii.messaging.model.order.Order;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
 
 @Command(name = "parse", description = "Analyser un message CII et afficher son contenu")
 public class ParseCommand extends AbstractCommand implements Callable<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(ParseCommand.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
 
-    @Parameters(index = "0", description = "Fichier XML d'entrée à analyser")
-    private File inputFile;
+    @Parameters(index = "0", paramLabel = "INPUT", description = "Fichier XML d'entrée à analyser")
+    private Path inputFile;
 
-    @Option(names = {"-o", "--output"}, description = "Fichier de sortie (optionnel)")
-    private File outputFile;
+    @Option(names = {"-o", "--output"}, paramLabel = "FILE", description = "Fichier de sortie (optionnel)")
+    private Path outputFile;
 
     @Option(names = {"--format"}, description = "Format de sortie : JSON ou SUMMARY", defaultValue = "SUMMARY")
     private OutputFormat format = OutputFormat.SUMMARY;
@@ -32,35 +38,59 @@ public class ParseCommand extends AbstractCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         configureLogging();
 
-        if (!inputFile.exists() || !inputFile.canRead()) {
-            logger.error("Fichier d'entrée introuvable ou illisible : {}", inputFile);
+        Path resolvedInput = inputFile.toAbsolutePath().normalize();
+        if (!Files.exists(resolvedInput) || !Files.isRegularFile(resolvedInput)) {
+            logger.error("Fichier d'entrée introuvable : {}", resolvedInput);
+            return 1;
+        }
+        if (!Files.isReadable(resolvedInput)) {
+            logger.error("Fichier d'entrée illisible : {}", resolvedInput);
             return 1;
         }
 
         try {
-            CIIReader<?> reader = CIIReaderFactory.createReader(inputFile.toPath());
-            Object message = reader.read(inputFile);
+            CIIReader<?> reader = CIIReaderFactory.createReader(resolvedInput);
+            Object message = reader.read(resolvedInput.toFile());
 
-            String output;
-            if (format == OutputFormat.JSON) {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.findAndRegisterModules();
-                output = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
-            } else {
-                output = "Type de message : " + message.getClass().getSimpleName();
-            }
-
-            if (outputFile != null) {
-                Files.writeString(outputFile.toPath(), output, StandardCharsets.UTF_8);
-                logger.info("Sortie enregistrée dans : {}", outputFile.getAbsolutePath());
-            } else {
-                logger.info("\n{}", output);
-            }
-
+            String output = renderOutput(resolvedInput, message);
+            writeOutput(output);
             return 0;
         } catch (CIIReaderException e) {
             logger.error("Impossible d'analyser le fichier : {}", e.getMessage());
+            logger.debug("Erreur complète", e);
             return 1;
+        } catch (IOException e) {
+            logger.error("Erreur d'entrée/sortie lors du traitement de {} : {}", resolvedInput, e.getMessage());
+            logger.debug("Erreur complète", e);
+            return 1;
+        }
+    }
+
+    private String renderOutput(Path input, Object message) throws IOException, CIIReaderException {
+        return switch (format) {
+            case JSON -> OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(message);
+            case SUMMARY -> buildSummary(input, message);
+        };
+    }
+
+    private String buildSummary(Path input, Object message) throws IOException, CIIReaderException {
+        if (message instanceof Order) {
+            OrderAnalysisResult result = OrderAnalyzer.analyserOrder(input.toString());
+            return result.toPrettyString();
+        }
+        return "Type de message : " + message.getClass().getSimpleName();
+    }
+
+    private void writeOutput(String output) throws IOException {
+        if (outputFile != null) {
+            Path target = outputFile.toAbsolutePath().normalize();
+            if (target.getParent() != null) {
+                Files.createDirectories(target.getParent());
+            }
+            Files.writeString(target, output, StandardCharsets.UTF_8);
+            logger.info("Sortie enregistrée dans : {}", target);
+        } else {
+            logger.info("\n{}", output);
         }
     }
 }

@@ -16,7 +16,21 @@
     <name>CII CLI</name>
     <description>Command Line Interface for CII messaging</description>
 
+    <properties>
+        <picocli.version>4.7.7</picocli.version>
+        <assertj.version>3.27.4</assertj.version>
+        <exec.mainClass>com.cii.messaging.cli.CIIMessagingCLI</exec.mainClass>
+        <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>com.cii.messaging</groupId>
+            <artifactId>cii-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.cii.messaging</groupId>
             <artifactId>cii-reader</artifactId>
@@ -28,14 +42,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.cii.messaging</groupId>
-            <artifactId>cii-writer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.7.7</version>
+            <version>${picocli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -65,7 +74,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.27.4</version>
+            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -75,12 +84,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
+                <version>${maven-assembly-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.cii.messaging.cli.CIIMessagingCLI</mainClass>
+                            <mainClass>${exec.mainClass}</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
+                        <manifestEntries>
+                            <CII-UNECE-Version>${unece.version}</CII-UNECE-Version>
+                        </manifestEntries>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -95,6 +109,31 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${exec.mainClass}</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <CII-UNECE-Version>${unece.version}</CII-UNECE-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <configuration>
+                    <mainClass>${exec.mainClass}</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
