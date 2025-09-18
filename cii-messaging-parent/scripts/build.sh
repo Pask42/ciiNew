@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Script de build complet
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -14,7 +15,10 @@ if [ "$java_version" -lt "21" ]; then
 fi
 
 # Clean et build
-mvn clean install -DskipTests
+if ! mvn clean install -DskipTests; then
+    echo "❌ Maven build failed. Aborting."
+    exit 1
+fi
 
 # Créer le répertoire de distribution
 mkdir -p dist
