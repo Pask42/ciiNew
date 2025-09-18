@@ -190,7 +190,7 @@ public class XSDValidator implements CIIValidator {
         public void warning(SAXParseException e) {
             ValidationWarning warning = ValidationWarning.builder()
                     .message(e.getMessage())
-                    .location("Line " + e.getLineNumber() + ", Column " + e.getColumnNumber())
+                    .location("Ligne " + e.getLineNumber() + ", Colonne " + e.getColumnNumber())
                     .build();
             warnings.add(warning);
         }

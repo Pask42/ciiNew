@@ -3,7 +3,7 @@ package com.cii.messaging.writer;
 import com.cii.messaging.model.common.MessageType;
 
 /**
- * Factory providing writer implementations based on {@link MessageType}.
+ * Fabrique fournissant les implémentations de writer selon le {@link MessageType}.
  */
 public class CIIWriterFactory {
 

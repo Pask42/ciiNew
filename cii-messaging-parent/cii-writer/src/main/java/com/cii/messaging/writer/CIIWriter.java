@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.OutputStream;
 
 /**
- * Generic writer able to marshal CII message models using JAXB.
+ * Rédacteur générique capable de sérialiser des modèles CII en XML via JAXB.
  *
- * @param <T> message model type
+ * @param <T> type de modèle manipulé
  */
 public interface CIIWriter<T> {
     void write(T message, File outputFile) throws CIIWriterException;

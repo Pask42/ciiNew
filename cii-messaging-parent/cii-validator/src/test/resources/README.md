@@ -1,5 +1,5 @@
-# Test resources for cii-validator
+# Ressources de test pour cii-validator
 
-Validator-focused fixtures (e.g. invalid payloads or Schematron stubs)
-can be staged here. Default XML examples should be accessed from the
-`cii-samples` module through the `CiiSampleResource` helper.
+Les jeux d'essai orientés validation (par exemple charges XML invalides ou brouillons Schematron)
+peuvent être placés ici. Les exemples XML par défaut doivent être chargés depuis le module
+`cii-samples` via l'utilitaire `CiiSampleResource`.

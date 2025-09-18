@@ -21,14 +21,14 @@ class ValidateCommandTest {
     Path tempDir;
 
     @Test
-    void invalidSampleReturnsError() throws Exception {
+    void echantillonInvalideRetourneErreur() throws Exception {
         Path sample = Path.of(getClass().getResource("/order-sample.xml").toURI());
         int exitCode = new CommandLine(new ValidateCommand()).execute(sample.toString());
         assertThat(exitCode).isNotZero();
     }
 
     @Test
-    void validSampleSucceedsWithExplicitVersion() throws Exception {
+    void echantillonValideReussitAvecVersionExplicite() throws Exception {
         Path sample = copyToTemp("order-valid.xml");
         int exitCode = new CommandLine(new ValidateCommand()).execute(
                 sample.toString(),
@@ -38,13 +38,13 @@ class ValidateCommandTest {
     }
 
     @Test
-    void failOnWarningOptionPropagates() {
+    void optionEchecSurAvertissementPropagee() {
         ValidateCommand command = new ValidateCommand();
         setFailOnWarning(command, true);
 
         ValidationResult result = ValidationResult.builder()
                 .valid(true)
-                .warnings(List.of(ValidationWarning.builder().message("warning").build()))
+                .warnings(List.of(ValidationWarning.builder().message("avertissement").build()))
                 .build();
 
         assertThat(command.determineExitCode(result)).isEqualTo(1);
@@ -56,7 +56,7 @@ class ValidateCommandTest {
             field.setAccessible(true);
             field.set(command, value);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalStateException("Unable to configure failOnWarning flag for tests", e);
+            throw new IllegalStateException("Impossible de configurer le drapeau failOnWarning pour les tests", e);
         }
     }
 
@@ -64,7 +64,7 @@ class ValidateCommandTest {
         Path target = tempDir.resolve(resource);
         try (InputStream inputStream = getClass().getResourceAsStream("/" + resource)) {
             if (inputStream == null) {
-                throw new IllegalStateException("Resource not found: " + resource);
+                throw new IllegalStateException("Ressource introuvable : " + resource);
             }
             Files.copy(inputStream, target);
         }

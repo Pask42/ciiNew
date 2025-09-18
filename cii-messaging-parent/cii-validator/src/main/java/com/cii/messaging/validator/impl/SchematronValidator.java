@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Validates XML documents against EN 16931 Schematron rules.
+ * Valide les documents XML au regard des règles Schematron EN 16931.
  */
 public class SchematronValidator implements CIIValidator {
     private static final Logger logger = LoggerFactory.getLogger(SchematronValidator.class);

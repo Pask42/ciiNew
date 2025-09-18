@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 /**
- * Base class for CLI commands providing logging configuration support.
+ * Classe de base des commandes CLI fournissant la configuration du logging.
  */
 public abstract class AbstractCommand {
 
@@ -28,7 +28,7 @@ public abstract class AbstractCommand {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractCommand.class);
 
     /**
-     * Configures the root logger based on CLI options or configuration file.
+     * Configure le logger racine en fonction des options CLI ou d'un fichier de configuration.
      */
     protected void configureLogging() {
         resolveLogLevel()
@@ -71,7 +71,7 @@ public abstract class AbstractCommand {
                 return Optional.of(properties);
             }
         } catch (IOException e) {
-            LOGGER.warn("Unable to read default configuration from classpath", e);
+            LOGGER.warn("Impossible de lire la configuration par défaut depuis le classpath", e);
         }
 
         return Optional.empty();
@@ -79,11 +79,11 @@ public abstract class AbstractCommand {
 
     private Optional<Properties> loadFromPath(Path path, Properties properties) {
         if (!Files.exists(path)) {
-            LOGGER.warn("Configuration file {} does not exist", path);
+            LOGGER.warn("Le fichier de configuration {} n'existe pas", path);
             return Optional.empty();
         }
         if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
-            LOGGER.warn("Configuration file {} is not readable", path);
+            LOGGER.warn("Le fichier de configuration {} n'est pas lisible", path);
             return Optional.empty();
         }
 
@@ -91,7 +91,7 @@ public abstract class AbstractCommand {
             properties.load(fis);
             return Optional.of(properties);
         } catch (IOException e) {
-            LOGGER.warn("Unable to read configuration file {}", path, e);
+            LOGGER.warn("Impossible de lire le fichier de configuration {}", path, e);
             return Optional.empty();
         }
     }
@@ -99,7 +99,7 @@ public abstract class AbstractCommand {
     private Level convertToLevel(String configuredLevel) {
         Level level = Level.toLevel(configuredLevel, null);
         if (level == null) {
-            LOGGER.warn("Unknown log level '{}' provided. Falling back to INFO.", configuredLevel);
+            LOGGER.warn("Niveau de log '{}' inconnu. Utilisation de INFO par défaut.", configuredLevel);
             return Level.INFO;
         }
         return level;

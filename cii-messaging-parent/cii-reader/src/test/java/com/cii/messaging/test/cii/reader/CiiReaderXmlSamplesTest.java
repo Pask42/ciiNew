@@ -17,15 +17,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Skeleton test suite prepared for future reader-oriented unit tests.  The
- * structure mirrors the main {@code cii-reader} responsibilities (parsing
- * multiple Cross Industry message types and handling defensive XML parsing).
+ * Squelette de suite de tests préparé pour de futurs tests unitaires orientés reader.
+ * La structure reflète les responsabilités principales de {@code cii-reader}
+ * (analyse de plusieurs types de messages Cross Industry et sécurisation du parsing XML).
  */
-@DisplayName("CII Reader – XML processing contract")
+@DisplayName("CII Reader – contrat de traitement XML")
 class CiiReaderXmlSamplesTest {
 
     @Nested
-    @DisplayName("Order samples")
+    @DisplayName("Échantillons ORDER")
     class OrderSamples {
 
         @Test
@@ -65,7 +65,7 @@ class CiiReaderXmlSamplesTest {
             assertNotNull(buyer, "Les informations d'acheteur doivent être présentes");
             var buyerName = buyer.getName();
             assertNotNull(buyerName, "Le nom de l'acheteur doit être renseigné");
-            assertEquals("Buyer Company SAS", buyerName.getValue(), "Le nom de l'acheteur doit correspondre à l'exemple");
+            assertEquals("Entreprise Acheteur SAS", buyerName.getValue(), "Le nom de l'acheteur doit correspondre à l'exemple");
 
             var lineItems = tradeTransaction.getIncludedSupplyChainTradeLineItem();
             assertNotNull(lineItems, "Les lignes de commande doivent être présentes");
@@ -76,34 +76,34 @@ class CiiReaderXmlSamplesTest {
             assertEquals("1", firstLine.getAssociatedDocumentLineDocument().getLineID().getValue(), "L'identifiant de la première ligne doit correspondre");
             assertNotNull(firstLine.getSpecifiedTradeProduct(), "La première ligne doit référencer un produit");
             assertFalse(firstLine.getSpecifiedTradeProduct().getName().isEmpty(), "Le produit de la première ligne doit être nommé");
-            assertEquals("Industrial Widget Type A", firstLine.getSpecifiedTradeProduct().getName().get(0).getValue(), "Le produit de la première ligne doit correspondre");
+            assertEquals("Module industriel type A", firstLine.getSpecifiedTradeProduct().getName().get(0).getValue(), "Le produit de la première ligne doit correspondre");
 
             var secondLine = lineItems.get(1);
             assertNotNull(secondLine.getAssociatedDocumentLineDocument(), "La seconde ligne doit avoir une référence de document");
             assertEquals("2", secondLine.getAssociatedDocumentLineDocument().getLineID().getValue(), "L'identifiant de la seconde ligne doit correspondre");
             assertNotNull(secondLine.getSpecifiedTradeProduct(), "La seconde ligne doit référencer un produit");
             assertFalse(secondLine.getSpecifiedTradeProduct().getName().isEmpty(), "Le produit de la seconde ligne doit être nommé");
-            assertEquals("Industrial Widget Type B", secondLine.getSpecifiedTradeProduct().getName().get(0).getValue(), "Le produit de la seconde ligne doit correspondre");
+            assertEquals("Module industriel type B", secondLine.getSpecifiedTradeProduct().getName().get(0).getValue(), "Le produit de la seconde ligne doit correspondre");
 
         }
     }
 
     @Nested
-    @DisplayName("Invoice samples")
+    @DisplayName("Échantillons INVOICE")
     class InvoiceSamples {
 
         @Test
-        @Disabled("Reader implementation tests to be provided in a future iteration")
+        @Disabled("Tests d'implémentation du reader fournis dans une itération ultérieure")
         void shouldParseInvoiceSample() {
             var samples = new CiiSampleResource();
-            // Placeholder for future parsing assertion using samples.open("invoice-sample.xml")
+            // Emplacement prévu pour une future assertion de parsing avec samples.open("invoice-sample.xml")
         }
     }
 
     @Test
-    @Disabled("Security hardening tests to be provided in a future iteration")
-    @DisplayName("Rejects XML entities and dangerous constructs")
+    @Disabled("Tests de durcissement sécurité fournis dans une itération ultérieure")
+    @DisplayName("Rejette les entités XML et constructions dangereuses")
     void shouldProtectAgainstXxePayloads() {
-        // Placeholder for future XXE protection check leveraging secure parser configuration
+        // Emplacement prévu pour un contrôle futur de protection XXE via une configuration de parseur sécurisée
     }
 }

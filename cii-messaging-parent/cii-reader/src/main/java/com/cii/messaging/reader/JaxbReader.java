@@ -9,9 +9,9 @@ import java.io.InputStream;
 import java.io.StringReader;
 
 /**
- * Generic JAXB-based implementation of {@link CIIReader}.
+ * Implémentation générique de {@link CIIReader} fondée sur JAXB.
  *
- * @param <T> message model type
+ * @param <T> type de modèle manipulé
  */
 public abstract class JaxbReader<T> implements CIIReader<T> {
 

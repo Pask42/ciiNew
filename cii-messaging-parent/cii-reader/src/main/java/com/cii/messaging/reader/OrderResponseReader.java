@@ -3,7 +3,7 @@ package com.cii.messaging.reader;
 import com.cii.messaging.model.orderresponse.OrderResponse;
 
 /**
- * JAXB based reader for CrossIndustryOrderResponse documents.
+ * Lecteur basé sur JAXB pour les documents CrossIndustryOrderResponse.
  */
 public class OrderResponseReader extends JaxbReader<OrderResponse> {
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Chains multiple {@link CIIValidator} implementations and aggregates their results.
+ * Enchaîne plusieurs implémentations de {@link CIIValidator} et agrège leurs résultats.
  */
 public class CompositeValidator implements CIIValidator {
     private final List<CIIValidator> validators = new ArrayList<>();

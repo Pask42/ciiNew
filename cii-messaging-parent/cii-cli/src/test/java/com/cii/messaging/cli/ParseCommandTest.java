@@ -15,7 +15,7 @@ class ParseCommandTest {
     Path tempDir;
 
     @Test
-    void parsesSampleOrderToSummaryFile() throws Exception {
+    void analyseCommandeExempleVersFichierSynthese() throws Exception {
         Path sample = Path.of(getClass().getResource("/order-sample.xml").toURI());
         Path output = tempDir.resolve("summary.txt");
 
@@ -32,7 +32,7 @@ class ParseCommandTest {
     }
 
     @Test
-    void writesJsonWhenRequested() throws Exception {
+    void ecritJsonSurDemande() throws Exception {
         Path sample = Path.of(getClass().getResource("/order-sample.xml").toURI());
         Path output = tempDir.resolve("order.json");
 
@@ -48,7 +48,7 @@ class ParseCommandTest {
     }
 
     @Test
-    void missingFileReturnsError() {
+    void fichierManquantRetourneErreur() {
         Path missing = tempDir.resolve("missing.xml");
         int exitCode = new CommandLine(new ParseCommand()).execute(missing.toString());
         assertThat(exitCode).isNotZero();

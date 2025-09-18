@@ -19,7 +19,7 @@
             <ram:BuyerReference>BUY-REF-2024-001</ram:BuyerReference>
             <ram:SellerTradeParty>
                 <ram:ID>DE123456789</ram:ID>
-                <ram:Name>Seller Company GmbH</ram:Name>
+                <ram:Name>Société Fournisseur GmbH</ram:Name>
                 <ram:PostalTradeAddress>
                     <ram:PostcodeCode>10115</ram:PostcodeCode>
                     <ram:LineOne>Hauptstraße 123</ram:LineOne>
@@ -29,7 +29,7 @@
             </ram:SellerTradeParty>
             <ram:BuyerTradeParty>
                 <ram:ID>FR987654321</ram:ID>
-                <ram:Name>Buyer Company SAS</ram:Name>
+                <ram:Name>Entreprise Acheteur SAS</ram:Name>
                 <ram:PostalTradeAddress>
                     <ram:PostcodeCode>75001</ram:PostcodeCode>
                     <ram:LineOne>Rue de la Paix 456</ram:LineOne>
@@ -41,7 +41,7 @@
         <ram:ApplicableHeaderTradeDelivery>
             <ram:ShipToTradeParty>
                 <ram:ID>FR987654321</ram:ID>
-                <ram:Name>Buyer Warehouse</ram:Name>
+                <ram:Name>Entrepôt de l'Acheteur</ram:Name>
                 <ram:PostalTradeAddress>
                     <ram:PostcodeCode>69001</ram:PostcodeCode>
                     <ram:LineOne>Zone Industrielle 789</ram:LineOne>
@@ -58,7 +58,7 @@
         <ram:ApplicableHeaderTradeSettlement>
             <ram:OrderCurrencyCode>EUR</ram:OrderCurrencyCode>
             <ram:SpecifiedTradeSettlementPaymentTerms>
-                <ram:Description>30 days net</ram:Description>
+                <ram:Description>Paiement à 30 jours nets</ram:Description>
             </ram:SpecifiedTradeSettlementPaymentTerms>
         </ram:ApplicableHeaderTradeSettlement>
         <ram:IncludedSupplyChainTradeLineItem>
@@ -67,7 +67,7 @@
             </ram:AssociatedDocumentLineDocument>
             <ram:SpecifiedTradeProduct>
                 <ram:GlobalID schemeID="GTIN">4012345678901</ram:GlobalID>
-                <ram:Name>Industrial Widget Type A</ram:Name>
+                <ram:Name>Module industriel type A</ram:Name>
             </ram:SpecifiedTradeProduct>
             <ram:SpecifiedLineTradeAgreement>
                 <ram:NetPriceProductTradePrice>
@@ -89,7 +89,7 @@
             </ram:AssociatedDocumentLineDocument>
             <ram:SpecifiedTradeProduct>
                 <ram:GlobalID schemeID="GTIN">4012345678902</ram:GlobalID>
-                <ram:Name>Industrial Widget Type B</ram:Name>
+                <ram:Name>Module industriel type B</ram:Name>
             </ram:SpecifiedTradeProduct>
             <ram:SpecifiedLineTradeAgreement>
                 <ram:NetPriceProductTradePrice>

@@ -5,9 +5,9 @@ import com.cii.messaging.unece.orderresponse.CrossIndustryOrderResponseType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
- * Dedicated model for order responses based on UNECE CrossIndustryOrderResponseType.
+ * Modèle dédié aux réponses de commande basé sur UNECE CrossIndustryOrderResponseType.
  */
 @XmlRootElement(name = "CrossIndustryOrderResponse", namespace = "urn:un:unece:uncefact:data:standard:CrossIndustryOrderResponse:100")
 public class OrderResponse extends CrossIndustryOrderResponseType {
-    // Additional domain-specific helpers or validations can be added here later.
+    // Des assistants métiers ou validations complémentaires pourront être ajoutés ici ultérieurement.
 }

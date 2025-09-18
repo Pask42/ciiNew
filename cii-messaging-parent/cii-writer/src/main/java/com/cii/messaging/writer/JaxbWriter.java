@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 
 /**
- * Generic JAXB-based implementation of {@link CIIWriter}.
+ * Implémentation générique de {@link CIIWriter} reposant sur JAXB.
  */
 public class JaxbWriter<T> implements CIIWriter<T> {
     private final JAXBContext context;
@@ -20,7 +20,7 @@ public class JaxbWriter<T> implements CIIWriter<T> {
         try {
             this.context = JAXBContext.newInstance(type);
         } catch (JAXBException e) {
-            throw new IllegalStateException("Unable to create JAXBContext", e);
+            throw new IllegalStateException("Impossible de créer le JAXBContext", e);
         }
     }
 
@@ -29,7 +29,7 @@ public class JaxbWriter<T> implements CIIWriter<T> {
         try (OutputStream os = new java.io.FileOutputStream(outputFile)) {
             write(message, os);
         } catch (Exception e) {
-            throw new CIIWriterException("Failed to write message", e);
+            throw new CIIWriterException("Échec de l'écriture du message", e);
         }
     }
 
@@ -41,7 +41,7 @@ public class JaxbWriter<T> implements CIIWriter<T> {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
             marshaller.marshal(message, outputStream);
         } catch (JAXBException e) {
-            throw new CIIWriterException("Failed to write message", e);
+            throw new CIIWriterException("Échec de l'écriture du message", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class JaxbWriter<T> implements CIIWriter<T> {
             marshaller.marshal(message, sw);
             return sw.toString();
         } catch (JAXBException e) {
-            throw new CIIWriterException("Failed to write message", e);
+            throw new CIIWriterException("Échec de l'écriture du message", e);
         }
     }
 

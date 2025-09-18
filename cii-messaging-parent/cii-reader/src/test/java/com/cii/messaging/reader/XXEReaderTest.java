@@ -25,19 +25,19 @@ class XXEReaderTest {
     }
 
     @Test
-    void factoryRejectsExternalEntities() {
+    void fabriqueRejetteEntitesExternes() {
         CIIReaderException ex = assertThrows(CIIReaderException.class, () -> CIIReaderFactory.createReader(XXE));
         Throwable cause = ex.getCause();
         assertTrue(cause instanceof SAXParseException || cause instanceof XMLStreamException,
-                "Unexpected cause type: " + (cause == null ? "null" : cause.getClass().getName()));
+                "Type de cause inattendu : " + (cause == null ? "null" : cause.getClass().getName()));
     }
 
     @Test
-    void factoryRejectsExternalEntitiesFromFile() throws Exception {
+    void fabriqueRejetteEntitesExternesDepuisFichier() throws Exception {
         File file = createTempXml();
         CIIReaderException ex = assertThrows(CIIReaderException.class, () -> CIIReaderFactory.createReader(file.toPath()));
         Throwable cause = ex.getCause();
         assertTrue(cause instanceof SAXParseException || cause instanceof XMLStreamException,
-                "Unexpected cause type: " + (cause == null ? "null" : cause.getClass().getName()));
+                "Type de cause inattendu : " + (cause == null ? "null" : cause.getClass().getName()));
     }
 }

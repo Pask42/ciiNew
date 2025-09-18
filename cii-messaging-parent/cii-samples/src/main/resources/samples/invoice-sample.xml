@@ -16,7 +16,7 @@
             </ram:AssociatedDocumentLineDocument>
             <ram:SpecifiedTradeProduct>
                 <ram:GlobalID schemeID="GTIN">4012345678901</ram:GlobalID>
-                <ram:Name>Industrial Widget Type A</ram:Name>
+                <ram:Name>Module industriel type A</ram:Name>
             </ram:SpecifiedTradeProduct>
             <ram:SpecifiedLineTradeAgreement>
                 <ram:NetPriceProductTradePrice>
@@ -41,14 +41,14 @@
             <ram:BuyerReference>BUY-REF-2024-001</ram:BuyerReference>
             <ram:SellerTradeParty>
                 <ram:ID>DE123456789</ram:ID>
-                <ram:Name>Seller Company GmbH</ram:Name>
+                <ram:Name>Société Fournisseur GmbH</ram:Name>
                 <ram:DefinedTradeContact>
-                    <ram:PersonName>John Doe</ram:PersonName>
+                    <ram:PersonName>Jean Dupont</ram:PersonName>
                     <ram:TelephoneUniversalCommunication>
                         <ram:CompleteNumber>+49 30 12345678</ram:CompleteNumber>
                     </ram:TelephoneUniversalCommunication>
                     <ram:EmailURIUniversalCommunication>
-                        <ram:URIID>info@seller-company.de</ram:URIID>
+                        <ram:URIID>contact@societe-fournisseur.de</ram:URIID>
                     </ram:EmailURIUniversalCommunication>
                 </ram:DefinedTradeContact>
                 <ram:PostalTradeAddress>
@@ -63,7 +63,7 @@
             </ram:SellerTradeParty>
             <ram:BuyerTradeParty>
                 <ram:ID>FR987654321</ram:ID>
-                <ram:Name>Buyer Company SAS</ram:Name>
+                <ram:Name>Entreprise Acheteur SAS</ram:Name>
                 <ram:PostalTradeAddress>
                     <ram:PostcodeCode>75001</ram:PostcodeCode>
                     <ram:LineOne>Rue de la Paix 456</ram:LineOne>
@@ -82,7 +82,7 @@
         <ram:ApplicableHeaderTradeSettlement>
             <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
             <ram:SpecifiedTradeSettlementPaymentTerms>
-                <ram:Description>30 days net</ram:Description>
+                <ram:Description>Paiement à 30 jours nets</ram:Description>
                 <ram:DueDateDateTime>
                     <udt:DateTimeString format="102">20240303</udt:DateTimeString>
                 </ram:DueDateDateTime>

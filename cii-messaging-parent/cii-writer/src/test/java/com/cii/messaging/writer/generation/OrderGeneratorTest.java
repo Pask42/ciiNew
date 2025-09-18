@@ -44,7 +44,7 @@ class OrderGeneratorTest {
     Path tempDir;
 
     @Test
-    void shouldGenerateOrdersXmlAndReturnConfirmationMessage() throws Exception {
+    void doitGenererOrdersXmlEtRetournerMessageConfirmation() throws Exception {
         Order order = buildOrder();
         Path outputFile = tempDir.resolve("orders.xml");
 

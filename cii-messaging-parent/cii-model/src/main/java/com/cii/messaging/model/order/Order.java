@@ -5,9 +5,9 @@ import com.cii.messaging.unece.order.CrossIndustryOrderType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
- * Dedicated model for orders based on UNECE CrossIndustryOrderType.
+ * Modèle dédié aux commandes basé sur UNECE CrossIndustryOrderType.
  */
 @XmlRootElement(name = "CrossIndustryOrder", namespace = "urn:un:unece:uncefact:data:standard:CrossIndustryOrder:100")
 public class Order extends CrossIndustryOrderType {
-    // Additional domain-specific helpers or validations can be added here later.
+    // Des assistants métiers ou validations complémentaires pourront être ajoutés ici ultérieurement.
 }

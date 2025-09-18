@@ -73,7 +73,7 @@ class XSDValidatorMessagesTest {
 
         @Test
         @DisplayName("valide un ORDERS conforme au XSD UNECE")
-        void validOrdersReturnsValideMessage() throws IOException {
+        void ordersValideRetourneMessageValide() throws IOException {
             ValidationResult result = validateResource("order-valid.xml");
 
             assertTrue(result.isValid(), () -> formatResult(result));
@@ -82,7 +82,7 @@ class XSDValidatorMessagesTest {
 
         @Test
         @DisplayName("décrit les erreurs pour un ORDERS non conforme")
-        void invalidOrdersReturnsExplicitErrors() {
+        void ordersInvalideRetourneErreursExplicites() {
             ValidationResult result = validateContent(INVALID_ORDERS);
 
             assertFalse(result.isValid());
@@ -101,7 +101,7 @@ class XSDValidatorMessagesTest {
 
         @Test
         @DisplayName("valide un DESADV conforme au XSD UNECE")
-        void validDesadvReturnsValideMessage() throws IOException {
+        void desadvValideRetourneMessageValide() throws IOException {
             ValidationResult result = validateResource("desadv-valid.xml");
 
             assertTrue(result.isValid(), () -> formatResult(result));
@@ -110,7 +110,7 @@ class XSDValidatorMessagesTest {
 
         @Test
         @DisplayName("décrit les erreurs pour un DESADV non conforme")
-        void invalidDesadvReturnsExplicitErrors() {
+        void desadvInvalideRetourneErreursExplicites() {
             ValidationResult result = validateContent(INVALID_DESADV);
 
             assertFalse(result.isValid());
@@ -129,7 +129,7 @@ class XSDValidatorMessagesTest {
 
         @Test
         @DisplayName("valide une INVOICE conforme au XSD UNECE")
-        void validInvoiceReturnsValideMessage() throws IOException {
+        void invoiceValideRetourneMessageValide() throws IOException {
             ValidationResult result = validateResource("invoice-valid.xml");
 
             assertTrue(result.isValid(), () -> formatResult(result));
@@ -138,7 +138,7 @@ class XSDValidatorMessagesTest {
 
         @Test
         @DisplayName("décrit les erreurs pour une INVOICE non conforme")
-        void invalidInvoiceReturnsExplicitErrors() {
+        void invoiceInvalideRetourneErreursExplicites() {
             ValidationResult result = validateContent(INVALID_INVOICE);
 
             assertFalse(result.isValid());

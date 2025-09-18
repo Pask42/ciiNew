@@ -15,25 +15,25 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 /**
- * Utility class to load UNECE XSD schemas according to the configured version.
+ * Classe utilitaire chargée de charger les schémas XSD UNECE selon la version configurée.
  */
 public final class UneceSchemaLoader {
 
     private UneceSchemaLoader() {
-        // Utility class
+        // classe utilitaire
     }
 
     /**
-     * Loads an XSD schema from the classpath for the current UNECE version.
+     * Charge un schéma XSD depuis le classpath pour la version UNECE courante.
      * <p>
-     * The loader automatically appends the "_100pVERSION" suffix to the provided
-     * XSD name and searches under <code>/xsd/VERSION/</code>.
+     * Le chargeur ajoute automatiquement le suffixe « _100pVERSION » au nom
+     * fourni et recherche sous <code>/xsd/VERSION/</code>.
      * </p>
      *
-     * @param xsdName base XSD file name (e.g. "CrossIndustryInvoice.xsd")
-     * @return loaded {@link Schema}
-     * @throws IOException   if the resource cannot be found
-     * @throws SAXException  if the XSD cannot be parsed
+     * @param xsdName nom de base du fichier XSD (ex. « CrossIndustryInvoice.xsd »)
+     * @return le {@link Schema} chargé
+     * @throws IOException  si la ressource est introuvable
+     * @throws SAXException si le XSD ne peut pas être analysé
      */
     public static Schema loadSchema(String xsdName) throws IOException, SAXException {
         return loadSchema(xsdName, SchemaVersion.getDefault());

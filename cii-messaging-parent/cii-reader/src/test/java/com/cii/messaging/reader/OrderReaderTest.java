@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderReaderTest {
 
     @Test
-    void readsOrderSample() throws Exception {
+    void litEchantillonOrder() throws Exception {
         OrderReader reader = new OrderReader();
         URL resource = getClass().getResource("/order-sample.xml");
         assertNotNull(resource);

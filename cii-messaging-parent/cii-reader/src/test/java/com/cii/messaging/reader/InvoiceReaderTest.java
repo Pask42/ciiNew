@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InvoiceReaderTest {
 
     @Test
-    void readsInvoiceSample() throws Exception {
+    void litEchantillonInvoice() throws Exception {
         InvoiceReader reader = new InvoiceReader();
         URL resource = getClass().getResource("/invoice-sample.xml");
         assertNotNull(resource);
