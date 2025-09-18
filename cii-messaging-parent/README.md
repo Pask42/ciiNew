@@ -1,80 +1,173 @@
 # CII Messaging System
 
-Système Java 21 modulaire pour la lecture, l'écriture et la validation de messages **UN/CEFACT Cross Industry**.
-Il couvre les flux ORDER, ORDER_RESPONSE, DESPATCH_ADVICE (DESADV) et INVOICE et reste compatible avec ZUGFeRD, XRechnung et Factur-X.
+Modular Java 21 toolkit for reading, writing, and validating **UN/CEFACT Cross Industry** messages.
+It covers ORDER, ORDER_RESPONSE (ORDERSP), DESPATCH_ADVICE (DESADV), and INVOICE flows while remaining
+compatible with ZUGFeRD, XRechnung, and Factur-X profiles.
 
 ## 📦 Modules
 
-| Module | Rôle principal |
-|--------|----------------|
-| `cii-model` | Modèles de données (POJO) et schémas XSD embarqués |
-| `cii-reader` | Parsing XML → objets Java |
-| `cii-writer` | Génération Java → XML |
-| `cii-validator` | Validation XSD et règles métiers |
-| `cii-cli` | Interface en ligne de commande |
-| `cii-samples` | Fichiers XML d'exemple |
+| Module | Primary responsibility |
+|--------|------------------------|
+| `cii-model` | Data models (POJOs) and embedded UNECE XSD schemas |
+| `cii-reader` | Parsing XML to strongly typed Java objects |
+| `cii-writer` | Generating Java objects to XML |
+| `cii-validator` | XSD validation and business rules |
+| `cii-cli` | Command-line tooling |
+| `cii-samples` | Sample XML payloads |
 
-## ✅ Prérequis
+## ✅ Technical prerequisites
 
-- Java 21+
-- Maven 3.6+
+- Java 21 or newer
+- Maven 3.6 or newer
+- For CLI execution ensure `$JAVA_HOME` is set and the `java` executable is available on your `PATH`
 
-## 🔨 Compilation
+## 🔨 Build and test
 
 ```bash
-# Cloner le projet
-git clone <url-du-repo>/cii-messaging-parent.git
+# Clone the project
+git clone <repository-url>/cii-messaging-parent.git
 cd cii-messaging-parent
 
-# Construire tous les modules et lancer les tests
+# Build every module and run the full test suite
 mvn clean install
 ```
 
-### Choix de la version UN/CEFACT
-
-Les schémas XSD sont chargés depuis `src/main/resources/xsd/<version>/...`.
-La version est déterminée par le paramètre `unece.version` (par défaut `D23B`).
-
-Exemples :
+### Build the CLI module only
 
 ```bash
-# Utiliser la version par défaut (D23B)
+mvn -pl cii-cli -am clean package
+```
+
+The CLI build produces two artifacts under `cii-cli/target/`:
+
+- `cii-cli-<version>.jar`: thin jar that relies on Maven dependency resolution
+- `cii-cli-<version>-jar-with-dependencies.jar`: executable jar bundled with every dependency
+
+Run the CLI directly from the assembly jar:
+
+```bash
+java -jar cii-cli/target/cii-cli-<version>-jar-with-dependencies.jar --help
+```
+
+Or execute it with Maven without creating the jar explicitly:
+
+```bash
+mvn -pl cii-cli -am exec:java -Dexec.args="--help"
+```
+
+### Run tests
+
+```bash
+mvn -pl cii-cli test
+```
+
+## 🌐 Selecting the UNECE schema version
+
+Schemas are loaded from `src/main/resources/xsd/<version>/...` and controlled by the `unece.version`
+property (defaults to `D23B`).
+
+```bash
+# Use the default version (D23B)
 mvn clean install
 
-# Forcer la version D24A
+# Force version D24A
 mvn -Dunece.version=D24A clean install
 
-# Ou via variable d'environnement
+# Or configure via environment variable
 UNECE_VERSION=D24A mvn clean install
 ```
 
-Pour ajouter une nouvelle version (ex. `D24A`), déposez simplement les XSD dans
-`cii-model/src/main/resources/xsd/D24A/uncefact/data/standard/` puis construisez avec
-`-Dunece.version=D24A`.
-Les XSD officiels sont disponibles sur [le site de l'UNECE](https://unece.org/trade/uncefact/xml-schemas).
+The same property controls the default schema used by the CLI validation command. You can still override
+it per execution with the `--schema-version` option.
 
-### Utilisation programmatique
+## 🛠️ CLI reference (`cii-cli`)
 
-Les modules `cii-reader` et `cii-writer` exposent des *readers* / *writers* JAXB pour chaque
-flux. Les modèles (`Order`, `DespatchAdvice`, `Invoice`, …) proviennent de `cii-model` et sont
-alimentés par les schémas UN/CEFACT embarqués. Les fichiers d'exemple se trouvent dans
-`cii-samples/src/main/resources/samples/` et constituent une excellente base pour vos tests.
+### Global options
 
-#### Fonctions de lecture, d'écriture et de validation
+| Option | Description |
+|--------|-------------|
+| `-l, --log-level <LEVEL>` | Override the root Logback level (`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) |
+| `-c, --config <FILE>` | Load options from a properties file containing a `log.level` entry |
 
-- **Lecture** : utilisez `CIIReaderFactory` pour obtenir dynamiquement le reader approprié à un
-  fichier XML ou instanciez directement `OrderReader`, `InvoiceReader`, etc. Chaque reader retourne
-  un objet métier fortement typé (`Order`, `Invoice`, `DespatchAdvice`, …) prêt à être manipulé.
-- **Écriture** : les writers (`OrderWriter`, `OrderResponseWriter`, `DesadvWriter`, `InvoiceWriter`)
-  convertissent vos objets Java vers un XML conforme. Les utilitaires `OrderGenerator`,
-  `DesadvGenerator` et `InvoiceGenerator` offrent une façade pratique autour des writers lorsque vos
-  objets métier implémentent respectivement `ObjetCommande`, `ObjetDesadv` ou `ObjetInvoice`.
-- **Validation** : `XmlValidator.validerFichierXML(xml, xsd)` assure la conformité d'un document
-  vis-à-vis d'un schéma XSD et produit un message synthétique listant les erreurs détectées.
-  Pour des validations multi-règles (XSD + règles métier), combinez `XmlValidator` avec les
-  implémentations de `CIIValidator` fournies par le module `cii-validator`.
+If no options are provided the CLI looks for `cii-cli.properties` in the working directory, then on the
+classpath. A minimal configuration file looks like:
 
-#### Lire un ORDER depuis un fichier
+```properties
+# cii-cli.properties
+log.level=DEBUG
+```
+
+### `parse` command
+
+Analyse a CII message and render it as a high-level summary or as JSON.
+
+| Parameter or option | Description | Default |
+|---------------------|-------------|---------|
+| `INPUT` (parameter) | Path to the XML file to analyse | — |
+| `-o, --output <FILE>` | Optional path where the rendered output will be written. If omitted, the summary is printed to STDOUT | — |
+| `--format <FORMAT>` | Output format: `SUMMARY` (human-readable synthesis) or `JSON` (full payload) | `SUMMARY` |
+
+For ORDER messages, the summary relies on `OrderAnalyzer` and contains key business information such as document
+ID, parties, dates, and line items. Other message types report the detected message class.
+
+### `validate` command
+
+Validate a CII document against UNECE schemas and business rules.
+
+| Parameter or option | Description | Default |
+|---------------------|-------------|---------|
+| `INPUT` (parameter) | Path to the XML file to validate | — |
+| `--schema-version <VERSION>` | Explicit UNECE version (`D23B`, `D24A`, …) | `SchemaVersion.getDefault()` (system property `unece.version`, then `UNECE_VERSION`, otherwise `D23B`) |
+| `--fail-on-warning` | Treat validation warnings as fatal errors (non-zero exit code) | Disabled |
+
+The validator prints a concise summary (validity, number of errors, schema bundle used, execution time) and lists
+each individual error and warning.
+
+## 🧪 Command-line examples
+
+Assuming the assembly jar has been built (`mvn -pl cii-cli -am clean package`):
+
+```bash
+# Display a summary of the provided ORDER document
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse cii-samples/src/main/resources/samples/order-sample.xml
+
+# Produce a JSON representation of an ORDER message
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse --format JSON --output target/order.json cii-samples/src/main/resources/samples/order-sample.xml
+
+# Validate a document with the default schema
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate cii-samples/src/main/resources/samples/order-sample.xml
+
+# Validate against D24A and fail fast when warnings are present
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate --schema-version D24A --fail-on-warning cii-samples/src/main/resources/samples/order-valid.xml
+
+# Run a parse with verbose logging supplied on the command line
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse --log-level DEBUG cii-samples/src/main/resources/samples/order-sample.xml
+
+# Provide the log level through a configuration file
+cat <<'PROPS' > cii-cli.properties
+log.level=DEBUG
+PROPS
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate cii-samples/src/main/resources/samples/order-valid.xml
+```
+
+## 💻 Programmatic usage
+
+The `cii-reader` and `cii-writer` modules expose JAXB readers and writers for every supported flow. Models
+(`Order`, `DespatchAdvice`, `Invoice`, …) are provided by `cii-model` together with the UNECE schemas.
+Sample XML documents live under `cii-samples/src/main/resources/samples/` and provide a convenient starting point for tests.
+
+### Reading, writing, and validation utilities
+
+- **Reading**: use `CIIReaderFactory` to detect the appropriate reader based on an XML file, or instantiate
+  `OrderReader`, `InvoiceReader`, and similar classes directly. Each reader returns a strongly typed business object ready to process.
+- **Writing**: writers (`OrderWriter`, `OrderResponseWriter`, `DesadvWriter`, `InvoiceWriter`) turn your Java objects
+  into schema-compliant XML. Helper classes `OrderGenerator`, `DesadvGenerator`, and `InvoiceGenerator` provide
+  a façade when your domain objects implement `ObjetCommande`, `ObjetDesadv`, or `ObjetInvoice` respectively.
+- **Validation**: `XmlValidator.validerFichierXML(xml, xsd)` checks conformity against an XSD schema and returns
+  a structured report. Combine `XmlValidator` with the `CIIValidator` implementations found in `cii-validator`
+  to apply additional business rules.
+
+### Read an ORDER from a file
 
 ```java
 import com.cii.messaging.model.order.Order;
@@ -85,11 +178,10 @@ Path orderXml = Path.of("cii-samples/src/main/resources/samples/order-sample.xml
 Order order = new OrderReader().read(orderXml.toFile());
 ```
 
-#### Modifier et réécrire un ORDER
+### Modify and rewrite an ORDER
 
-Les types simples (ID, texte, code, montant, quantité…) proposent des accesseurs `setValue`,
-`setUnitCode`, `setCurrencyID`, etc. Il suffit de mettre à jour les nœuds métiers puis de
-marshaller via le writer dédié.
+Simple types (ID, text, codes, amounts, quantities, …) expose setters such as `setValue`, `setUnitCode`, and
+`setCurrencyID`. Update the relevant nodes and marshal the object through the dedicated writer.
 
 ```java
 import com.cii.messaging.model.order.Order;
@@ -112,7 +204,7 @@ order.getExchangedDocument().getIssueDateTime().getDateTimeString().setFormat("1
 HeaderTradeAgreementType agreement = order.getSupplyChainTradeTransaction()
         .getApplicableHeaderTradeAgreement();
 agreement.getBuyerReference().setValue("BUY-REF-2024-002");
-agreement.getSellerTradeParty().getName().setValue("Seller Company GmbH (mise à jour)");
+agreement.getSellerTradeParty().getName().setValue("Seller Company GmbH (updated)");
 
 SupplyChainTradeLineItemType firstLine = order.getSupplyChainTradeTransaction()
         .getIncludedSupplyChainTradeLineItem().get(0);
@@ -127,11 +219,10 @@ requested.setUnitCode("EA");
 new OrderWriter().write(order, Path.of("target/order-generated.xml").toFile());
 ```
 
-#### Générer un avis d'expédition (DESADV)
+### Generate a DESPATCH_ADVICE (DESADV)
 
-Pour créer un message d'expédition complet, instanciez un `DespatchAdvice`, remplissez les
-agrégats requis (contexte, document échangé, transaction et lignes) puis sérialisez avec
-`DesadvWriter`.
+Create a complete shipping notice by instantiating a `DespatchAdvice`, populating the required aggregates
+(context, exchanged document, transaction, and lines), then serialise it with `DesadvWriter`.
 
 ```java
 import com.cii.messaging.model.despatchadvice.DespatchAdvice;
@@ -155,7 +246,7 @@ IDType docId = new IDType();
 docId.setValue("DES-2024-001");
 doc.setID(docId);
 DocumentCodeType docType = new DocumentCodeType();
-docType.setValue("351"); // Code DESADV (UNCL1001)
+docType.setValue("351"); // DESADV code (UNCL1001)
 doc.setTypeCode(docType);
 DateTimeType issue = new DateTimeType();
 DateTimeType.DateTimeString issueString = new DateTimeType.DateTimeString();
@@ -179,12 +270,12 @@ productName.setValue("Palette A");
 product.getName().add(productName);
 line.setSpecifiedTradeProduct(product);
 
-LineTradeDeliveryType lineDelivery = new LineTradeDeliveryType();
+LineTradeDeliveryType delivery = new LineTradeDeliveryType();
 QuantityType qty = new QuantityType();
 qty.setUnitCode("EA");
 qty.setValue(new BigDecimal("10"));
-lineDelivery.setRequestedQuantity(qty);
-line.setSpecifiedLineTradeDelivery(lineDelivery);
+delivery.setRequestedQuantity(qty);
+line.setSpecifiedLineTradeDelivery(delivery);
 
 tx.getIncludedSupplyChainTradeLineItem().add(line);
 advice.setSupplyChainTradeTransaction(tx);
@@ -192,292 +283,61 @@ advice.setSupplyChainTradeTransaction(tx);
 new DesadvWriter().write(advice, Path.of("target/desadv-generated.xml").toFile());
 ```
 
-#### Mettre à jour une facture (INVOICE)
-
-Vous pouvez appliquer la même logique aux factures : charger le modèle depuis le fichier,
-modifier les montants ou libellés puis écrire la sortie XML.
-
-```java
-import com.cii.messaging.model.invoice.Invoice;
-import com.cii.messaging.reader.InvoiceReader;
-import com.cii.messaging.writer.InvoiceWriter;
-import com.cii.messaging.unece.invoice.AmountType;
-import com.cii.messaging.unece.invoice.SupplyChainTradeLineItemType;
-import java.math.BigDecimal;
-import java.nio.file.Path;
-
-Invoice invoice = new InvoiceReader()
-        .read(Path.of("cii-samples/src/main/resources/samples/invoice-sample.xml").toFile());
-
-invoice.getExchangedDocument().getID().setValue("INV-2024-002");
-
-AmountType due = invoice.getSupplyChainTradeTransaction()
-        .getApplicableHeaderTradeSettlement()
-        .getSpecifiedTradeSettlementHeaderMonetarySummation()
-        .getDuePayableAmount();
-due.setValue(new BigDecimal("19000.00"));
-due.setCurrencyID("EUR");
-
-SupplyChainTradeLineItemType invoiceLine = invoice.getSupplyChainTradeTransaction()
-        .getIncludedSupplyChainTradeLineItem().get(0);
-invoiceLine.getSpecifiedTradeProduct().getName().get(0)
-        .setValue("Industrial Widget Type A (version facturée)");
-
-new InvoiceWriter().write(invoice, Path.of("target/invoice-generated.xml").toFile());
-```
-
-### Chargement manuel des schémas
+### Load schemas manually
 
 ```java
 Schema schema = UneceSchemaLoader.loadSchema("CrossIndustryInvoice.xsd");
-// Le chargeur résout automatiquement le suffixe spécifique à la version
-```
-
-## 🚀 Déploiement
-
-### Utilisation de la CLI
-
-```bash
-java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar --help
-```
-
-### Utilisation comme bibliothèque Maven
-
-```xml
-<dependency>
-  <groupId>com.cii.messaging</groupId>
-  <artifactId>cii-validator</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-</dependency>
+// The loader automatically resolves the version specific suffix
 ```
 
 ## 🤖 Scripts
 
-### `scripts/build.sh`
-Build Maven complet (tests ignorés) et copie du JAR de la CLI dans `dist/cii-cli.jar`.
+- `scripts/build.sh`: full Maven build (tests skipped) and copies the CLI jar into `dist/cii-cli.jar`
+- `scripts/run-cli.sh`: wrapper to launch the CLI from `dist` (run the build script first)
+- `scripts/validate-all.sh`: validates every XML file in a directory through the CLI using `dist/cii-cli.jar`
 
-```bash
-./scripts/build.sh
-```
+## 📑 XSD schemas
 
-### `scripts/run-cli.sh`
-Wrapper pour lancer la CLI depuis `dist`. À utiliser après le build.
+Official **UN/CEFACT** schemas ship with the `cii-model` module for each supported version (`D23B`, `D24A`, …).
+They live under `cii-model/src/main/resources/xsd/<VERSION>/` and are loaded automatically by `UneceSchemaLoader`.
 
-```bash
-./scripts/run-cli.sh --help
-```
+Each schema guarantees the XML structure for the following flows:
 
-### `scripts/validate-all.sh`
-Valide tous les fichiers XML d'un répertoire via la CLI. Dépend de `dist/cii-cli.jar` généré par le build.
+- `CrossIndustryOrder.xsd`: orders (**ORDER/ORDERS**)
+- `CrossIndustryOrderResponse.xsd`: order responses (**ORDER_RESPONSE**)
+- `CrossIndustryDespatchAdvice.xsd`: shipping notices (**DESADV**)
+- `CrossIndustryInvoice.xsd`: invoices (**INVOICE**)
 
-```bash
-./scripts/validate-all.sh cii-samples/src/main/resources/samples
-```
+Writers rely on these XSDs to produce compliant documents and `XmlValidator` uses them to validate files. To add
+a new version, drop the XSD files under the corresponding folder and set the Maven property `-Dunece.version=<VERSION>`
+during the build. The latest schemas are available from the UNECE website: <https://unece.org/trade/uncefact/mainstandards>.
 
-## 📝 Exemples d'utilisation
+## 🧪 Running tests with Maven
 
-### Lecture d'un message via la CLI
-
-```bash
-mvn -pl cii-cli -am package
-java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse \
-  cii-samples/src/main/resources/samples/order-sample.xml
-
-java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar parse \
-  cii-samples/src/main/resources/samples/invoice-sample.xml --format JSON
-```
-
-### Validation rapide via la CLI
-
-```bash
-java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate \
-  cii-samples/src/main/resources/samples/order-sample.xml
-
-java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar validate \
-  cii-samples/src/main/resources/samples/invoice-sample.xml
-```
-
-### Commandes Java prêtes à l'emploi
-
-Compilez au préalable les modules nécessaires (une seule fois) :
-
-```bash
-mvn -pl cii-reader,cii-writer,cii-cli -am package
-```
-
-#### Lire un ORDER
-
-```bash
-java -cp cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.cii.messaging.cli.CIIMessagingCLI parse \
-  cii-samples/src/main/resources/samples/order-sample.xml
-```
-
-#### Générer un ORDERS
-
-```bash
-java --source 21 --class-path "cii-reader/target/classes:cii-writer/target/classes:cii-model/target/classes" - <<'EOF' \
-  cii-samples/src/main/resources/samples/order-sample.xml \
-  target/orders-from-cli.xml
-import com.cii.messaging.reader.OrderReader;
-import com.cii.messaging.writer.generation.ObjetCommande;
-import com.cii.messaging.writer.generation.OrderGenerator;
-import java.nio.file.Path;
-
-public class GenerateOrdersCli {
-    public static void main(String[] args) throws Exception {
-        ObjetCommande commande = () -> new OrderReader().read(Path.of(args[0]).toFile());
-        System.out.println(OrderGenerator.genererOrders(commande, args[1]));
-    }
-}
-EOF
-```
-
-#### Générer un DESADV
-
-```bash
-java --source 21 --class-path "cii-writer/target/classes:cii-model/target/classes" - <<'EOF' \
-  target/desadv-from-cli.xml
-import com.cii.messaging.model.despatchadvice.DespatchAdvice;
-import com.cii.messaging.unece.despatchadvice.*;
-import com.cii.messaging.writer.generation.DesadvGenerator;
-import com.cii.messaging.writer.generation.ObjetDesadv;
-import java.math.BigDecimal;
-
-public class GenerateDesadvCli {
-    public static void main(String[] args) throws Exception {
-        ObjetDesadv desadv = () -> {
-            DespatchAdvice advice = new DespatchAdvice();
-
-            ExchangedDocumentContextType ctx = new ExchangedDocumentContextType();
-            DocumentContextParameterType guideline = new DocumentContextParameterType();
-            IDType guidelineId = new IDType();
-            guidelineId.setValue("urn:factur-x:despatchadvice:1p0");
-            guideline.setID(guidelineId);
-            ctx.getGuidelineSpecifiedDocumentContextParameter().add(guideline);
-            advice.setExchangedDocumentContext(ctx);
-
-            ExchangedDocumentType doc = new ExchangedDocumentType();
-            IDType docId = new IDType();
-            docId.setValue("DES-2024-CLI");
-            doc.setID(docId);
-            DocumentCodeType docType = new DocumentCodeType();
-            docType.setValue("351");
-            doc.setTypeCode(docType);
-            DateTimeType issue = new DateTimeType();
-            DateTimeType.DateTimeString issueString = new DateTimeType.DateTimeString();
-            issueString.setFormat("102");
-            issueString.setValue("20240215120000");
-            issue.setDateTimeString(issueString);
-            doc.setIssueDateTime(issue);
-            advice.setExchangedDocument(doc);
-
-            SupplyChainTradeTransactionType tx = new SupplyChainTradeTransactionType();
-            SupplyChainTradeLineItemType line = new SupplyChainTradeLineItemType();
-            DocumentLineDocumentType lineDoc = new DocumentLineDocumentType();
-            IDType lineId = new IDType();
-            lineId.setValue("1");
-            lineDoc.setLineID(lineId);
-            line.setAssociatedDocumentLineDocument(lineDoc);
-
-            TradeProductType product = new TradeProductType();
-            TextType productName = new TextType();
-            productName.setValue("Palette A");
-            product.getName().add(productName);
-            line.setSpecifiedTradeProduct(product);
-
-            LineTradeDeliveryType delivery = new LineTradeDeliveryType();
-            QuantityType qty = new QuantityType();
-            qty.setUnitCode("EA");
-            qty.setValue(new BigDecimal("10"));
-            delivery.setRequestedQuantity(qty);
-            line.setSpecifiedLineTradeDelivery(delivery);
-
-            tx.getIncludedSupplyChainTradeLineItem().add(line);
-            advice.setSupplyChainTradeTransaction(tx);
-
-            return advice;
-        };
-
-        System.out.println(DesadvGenerator.genererDesadv(desadv, args[0]));
-    }
-}
-EOF
-```
-
-#### Générer une INVOICE
-
-```bash
-java --source 21 --class-path "cii-reader/target/classes:cii-writer/target/classes:cii-model/target/classes" - <<'EOF' \
-  cii-samples/src/main/resources/samples/invoice-sample.xml \
-  target/invoice-from-cli.xml
-import com.cii.messaging.reader.InvoiceReader;
-import com.cii.messaging.writer.generation.InvoiceGenerator;
-import com.cii.messaging.writer.generation.ObjetInvoice;
-import java.nio.file.Path;
-
-public class GenerateInvoiceCli {
-    public static void main(String[] args) throws Exception {
-        ObjetInvoice invoice = () -> new InvoiceReader().read(Path.of(args[0]).toFile());
-        System.out.println(InvoiceGenerator.genererInvoice(invoice, args[1]));
-    }
-}
-EOF
-```
-
-#### Valider un fichier XML
-
-```bash
-java -cp cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.cii.messaging.cli.CIIMessagingCLI validate target/orders-from-cli.xml
-```
-
-## 📑 Schémas XSD
-
-Les schémas officiels **UN/CEFACT** sont embarqués dans le module `cii-model` pour chaque version
-prise en charge (`D23B`, `D24A`, …). Ils se trouvent sous `cii-model/src/main/resources/xsd/<VERSION>/`
-et sont chargés automatiquement par `UneceSchemaLoader`.
-
-Chaque schéma garantit la structure XML des flux suivants :
-
-- `CrossIndustryOrder.xsd` : commandes **ORDER/ORDERS** ;
-- `CrossIndustryOrderResponse.xsd` : réponses de commande **ORDER_RESPONSE** ;
-- `CrossIndustryDespatchAdvice.xsd` : avis d'expédition **DESADV** ;
-- `CrossIndustryInvoice.xsd` : factures **INVOICE**.
-
-Les writers s'appuient sur ces XSD pour générer des documents conformes et `XmlValidator`
-les utilise pour contrôler vos fichiers. Si vous ajoutez une nouvelle version, déposez les XSD dans
-le dossier correspondant puis indiquez la propriété Maven `-Dunece.version=<VERSION>` lors de la
-construction. Les schémas les plus récents sont disponibles sur le site de l'UNECE :
-<https://unece.org/trade/uncefact/mainstandards>.
-
-## 🧪 Tests unitaires avec Maven
-
-Exécutez l'ensemble de la suite via la commande standard :
+Run the full suite with the standard command:
 
 ```bash
 mvn test
 ```
 
-Quelques variantes utiles :
+Useful variants:
 
-- Lancer les tests d'un module précis : `mvn -pl cii-reader test` ;
-- Cibler une classe de test : `mvn -Dtest=OrderReaderTest -pl cii-reader test` ;
-- Exécuter les tests tout en reconstruisant les artefacts : `mvn clean verify`.
+- Run the tests of a specific module: `mvn -pl cii-reader test`
+- Target a single test class: `mvn -Dtest=OrderReaderTest -pl cii-reader test`
+- Execute tests while rebuilding artifacts: `mvn clean verify`
 
-Tous les modules s'appuient sur **Surefire**. Veillez à avoir Java 21 dans votre environnement avant
-de lancer les tests.
+Every module relies on Surefire. Ensure Java 21 is available in your environment before running the tests.
 
-## 📚 Ressources utiles
+## 📚 Useful resources
 
 - [UN/CEFACT](https://unece.org/trade/uncefact)
 - [ZUGFeRD](https://www.zugferd.org/)
-- [EN 16931](https://www.en16931.eu/)
+- [EN 16931](https://www.en16931.eu/)
 
-## 🤝 Contribution
+## 🤝 Contributing
 
-Les contributions sont les bienvenues ! Forkez le dépôt et ouvrez une Pull Request.
+Contributions are welcome. Fork the repository and open a pull request.
 
-## 📄 Licence
+## 📄 License
 
-Projet distribué sous licence MIT. Voir le fichier `LICENSE`.
+Distributed under the MIT License. See the `LICENSE` file for details.
