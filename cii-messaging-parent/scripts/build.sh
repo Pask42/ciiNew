@@ -1,6 +1,9 @@
 #!/bin/bash
 # Script de build complet
 
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR/.." || exit 1
+
 echo "🏗️ Building CII Messaging System..."
 
 # Vérifier Java 21
