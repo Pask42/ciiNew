@@ -1,16 +1,20 @@
 package com.cii.messaging.cli;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
 
 @Command(
     name = "cii-cli",
     mixinStandardHelpOptions = true,
-    version = "CII CLI 1.0.0",
-    description = "Outil en ligne de commande pour traiter les messages CII",
+    versionProvider = CIIMessagingCLI.ManifestVersionProvider.class,
+    description = {
+            "Outil en ligne de commande pour traiter les messages CII",
+            "Parse et valide les documents ORDER, ORDERSP, DESADV et INVOICE"
+    },
     subcommands = {
         ParseCommand.class,
         ValidateCommand.class
@@ -33,5 +37,19 @@ public class CIIMessagingCLI extends AbstractCommand implements Runnable {
         configureLogging();
         logger.info("Aucune commande spécifiée. Affichage de l'aide.");
         spec.commandLine().usage(System.out);
+    }
+
+    /**
+     * Reads the CLI version from the jar manifest populated by Maven during the build.
+     */
+    static class ManifestVersionProvider implements CommandLine.IVersionProvider {
+        @Override
+        public String[] getVersion() {
+            String implementationVersion = Optional
+                    .ofNullable(CIIMessagingCLI.class.getPackage())
+                    .map(Package::getImplementationVersion)
+                    .orElse("(development)");
+            return new String[]{"CII CLI " + implementationVersion};
+        }
     }
 }
