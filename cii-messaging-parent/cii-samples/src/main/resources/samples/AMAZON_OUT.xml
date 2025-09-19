@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
-<rsm:CrossIndustryOrder xmlns:esa="esalink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryOrder:100" xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:128" xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:128" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:128">
+<rsm:CrossIndustryOrder xmlns:esa="esalink"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryOrder:100"
+	xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
+	xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+	xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+	<rsm:ExchangedDocumentContext/>
 	<rsm:ExchangedDocument>
 		<ram:ID>T0BBX7TP</ram:ID>
 		<ram:TypeCode>220</ram:TypeCode>
