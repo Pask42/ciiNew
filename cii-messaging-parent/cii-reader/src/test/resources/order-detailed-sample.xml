@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryOrder xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryOrder:100"
+                        xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+                        xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+    <rsm:ExchangedDocument>
+        <ram:ID>ORD-DET-001</ram:ID>
+        <ram:IssueDateTime>
+            <udt:DateTimeString format="102">20240315091500</udt:DateTimeString>
+        </ram:IssueDateTime>
+    </rsm:ExchangedDocument>
+    <rsm:SupplyChainTradeTransaction>
+        <ram:ApplicableHeaderTradeAgreement>
+            <ram:BuyerReference>DET-REF-001</ram:BuyerReference>
+            <ram:SellerTradeParty>
+                <ram:GlobalID schemeID="0088">5401234500008</ram:GlobalID>
+                <ram:Name>Fournisseur Démonstration SA</ram:Name>
+            </ram:SellerTradeParty>
+            <ram:BuyerTradeParty>
+                <ram:GlobalID schemeID="0088">3300012300002</ram:GlobalID>
+                <ram:Name>Acheteur Détaillé SAS</ram:Name>
+            </ram:BuyerTradeParty>
+            <ram:BuyerRequisitionerTradeParty>
+                <ram:GlobalID schemeID="0088">3300012399999</ram:GlobalID>
+                <ram:Name>Client Commandeur</ram:Name>
+            </ram:BuyerRequisitionerTradeParty>
+        </ram:ApplicableHeaderTradeAgreement>
+        <ram:ApplicableHeaderTradeSettlement>
+            <ram:OrderCurrencyCode>EUR</ram:OrderCurrencyCode>
+            <ram:PayerTradeParty>
+                <ram:GlobalID schemeID="0088">3300012300019</ram:GlobalID>
+                <ram:Name>Société Payeur</ram:Name>
+            </ram:PayerTradeParty>
+            <ram:ApplicableTradeTax>
+                <ram:TypeCode>VAT</ram:TypeCode>
+                <ram:CategoryCode>S</ram:CategoryCode>
+                <ram:RateApplicablePercent>20.00</ram:RateApplicablePercent>
+                <ram:BasisAmount currencyID="EUR">1000.00</ram:BasisAmount>
+                <ram:CalculatedAmount currencyID="EUR">200.00</ram:CalculatedAmount>
+            </ram:ApplicableTradeTax>
+            <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+                <ram:TaxBasisTotalAmount currencyID="EUR">1000.00</ram:TaxBasisTotalAmount>
+                <ram:TaxTotalAmount currencyID="EUR">200.00</ram:TaxTotalAmount>
+                <ram:GrandTotalAmount currencyID="EUR">1200.00</ram:GrandTotalAmount>
+            </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+        </ram:ApplicableHeaderTradeSettlement>
+        <ram:IncludedSupplyChainTradeLineItem>
+            <ram:AssociatedDocumentLineDocument>
+                <ram:LineID>1</ram:LineID>
+            </ram:AssociatedDocumentLineDocument>
+            <ram:SpecifiedTradeProduct>
+                <ram:GlobalID schemeID="GTIN">4012345678905</ram:GlobalID>
+                <ram:Name>Produit de démonstration</ram:Name>
+            </ram:SpecifiedTradeProduct>
+            <ram:SpecifiedLineTradeAgreement>
+                <ram:NetPriceProductTradePrice>
+                    <ram:ChargeAmount currencyID="EUR">100.00</ram:ChargeAmount>
+                </ram:NetPriceProductTradePrice>
+                <ram:GrossPriceProductTradePrice>
+                    <ram:ChargeAmount currencyID="EUR">120.00</ram:ChargeAmount>
+                </ram:GrossPriceProductTradePrice>
+            </ram:SpecifiedLineTradeAgreement>
+            <ram:SpecifiedLineTradeDelivery>
+                <ram:RequestedQuantity unitCode="EA">10</ram:RequestedQuantity>
+            </ram:SpecifiedLineTradeDelivery>
+            <ram:SpecifiedLineTradeSettlement>
+                <ram:ApplicableTradeTax>
+                    <ram:TypeCode>VAT</ram:TypeCode>
+                    <ram:CategoryCode>S</ram:CategoryCode>
+                    <ram:RateApplicablePercent>20.00</ram:RateApplicablePercent>
+                    <ram:BasisAmount currencyID="EUR">1000.00</ram:BasisAmount>
+                    <ram:CalculatedAmount currencyID="EUR">200.00</ram:CalculatedAmount>
+                </ram:ApplicableTradeTax>
+                <ram:SpecifiedTradeSettlementLineMonetarySummation>
+                    <ram:NetLineTotalAmount currencyID="EUR">1000.00</ram:NetLineTotalAmount>
+                    <ram:TaxTotalAmount currencyID="EUR">200.00</ram:TaxTotalAmount>
+                    <ram:GrandTotalAmount currencyID="EUR">1200.00</ram:GrandTotalAmount>
+                </ram:SpecifiedTradeSettlementLineMonetarySummation>
+            </ram:SpecifiedLineTradeSettlement>
+        </ram:IncludedSupplyChainTradeLineItem>
+    </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryOrder>
