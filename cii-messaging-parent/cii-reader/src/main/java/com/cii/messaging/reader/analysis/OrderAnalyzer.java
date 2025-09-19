@@ -8,6 +8,7 @@ import com.cii.messaging.unece.order.CurrencyCodeType;
 import com.cii.messaging.unece.order.DateTimeType;
 import com.cii.messaging.unece.order.DocumentLineDocumentType;
 import com.cii.messaging.unece.order.HeaderTradeAgreementType;
+import com.cii.messaging.unece.order.HeaderTradeDeliveryType;
 import com.cii.messaging.unece.order.HeaderTradeSettlementType;
 import com.cii.messaging.unece.order.IDType;
 import com.cii.messaging.unece.order.LineTradeAgreementType;
@@ -36,9 +37,12 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Utilitaire qui lit un fichier CrossIndustryOrder et en propose un résumé exploitable.
@@ -79,8 +83,10 @@ public final class OrderAnalyzer {
         String buyerReference = null;
         OrderAnalysisResult.PartySummary orderingCustomer = null;
         OrderAnalysisResult.PartySummary buyer = null;
+        OrderAnalysisResult.PartySummary invoicee = null;
         OrderAnalysisResult.PartySummary payer = null;
         OrderAnalysisResult.PartySummary seller = null;
+        OrderAnalysisResult.PartySummary shipTo = null;
         OrderAnalysisResult.MonetaryAmount orderNetTotal = null;
         OrderAnalysisResult.MonetaryAmount orderTaxTotal = null;
         OrderAnalysisResult.MonetaryAmount orderGrossTotal = null;
@@ -110,10 +116,25 @@ public final class OrderAnalyzer {
                 }
             }
 
+            HeaderTradeDeliveryType delivery = transaction.getApplicableHeaderTradeDelivery();
+            if (delivery != null) {
+                shipTo = mapParty(delivery.getShipToTradeParty());
+                if (shipTo == null) {
+                    shipTo = mapParty(delivery.getUltimateShipToTradeParty());
+                }
+            }
+
             HeaderTradeSettlementType settlement = transaction.getApplicableHeaderTradeSettlement();
             if (settlement != null) {
                 currency = safeCurrency(settlement.getOrderCurrencyCode());
+                invoicee = mapParty(settlement.getInvoiceeTradeParty());
                 payer = mapParty(settlement.getPayerTradeParty());
+                if (payer == null) {
+                    payer = invoicee;
+                }
+                if (invoicee == null) {
+                    invoicee = payer;
+                }
 
                 TradeSettlementHeaderMonetarySummationType summary = settlement.getSpecifiedTradeSettlementHeaderMonetarySummation();
                 if (summary != null) {
@@ -148,11 +169,41 @@ public final class OrderAnalyzer {
 
         int lineCount = lines.size();
 
+        if (orderNetTotal == null) {
+            orderNetTotal = sumLineAmounts(lines, OrderAnalysisResult.OrderLineSummary::getLineNetAmount, currency);
+        }
+        if (orderTaxTotal == null) {
+            orderTaxTotal = sumLineAmounts(lines, OrderAnalysisResult.OrderLineSummary::getLineTaxAmount, currency);
+        }
+        if (orderTaxes.isEmpty()) {
+            orderTaxes = new ArrayList<>(aggregateTaxesFromLines(lines, currency));
+        }
+        if (orderTaxTotal == null && !orderTaxes.isEmpty()) {
+            orderTaxTotal = sumTaxAmounts(orderTaxes, currency);
+        }
+        if (orderGrossTotal == null) {
+            orderGrossTotal = sumLineAmounts(lines, OrderAnalysisResult.OrderLineSummary::getLineGrossAmount, currency);
+        }
+
         if (orderGrossTotal == null && orderNetTotal != null && orderTaxTotal != null
                 && isCurrencyCompatible(orderNetTotal.getCurrency(), orderTaxTotal.getCurrency())) {
             orderGrossTotal = new OrderAnalysisResult.MonetaryAmount(
                     orderNetTotal.getAmount().add(orderTaxTotal.getAmount()),
                     chooseCurrency(orderNetTotal.getCurrency(), orderTaxTotal.getCurrency(), currency));
+        }
+
+        if (orderNetTotal == null && orderGrossTotal != null && orderTaxTotal != null
+                && isCurrencyCompatible(orderGrossTotal.getCurrency(), orderTaxTotal.getCurrency())) {
+            orderNetTotal = new OrderAnalysisResult.MonetaryAmount(
+                    orderGrossTotal.getAmount().subtract(orderTaxTotal.getAmount()),
+                    chooseCurrency(orderGrossTotal.getCurrency(), orderTaxTotal.getCurrency(), currency));
+        }
+
+        if (orderTaxTotal == null && orderGrossTotal != null && orderNetTotal != null
+                && isCurrencyCompatible(orderGrossTotal.getCurrency(), orderNetTotal.getCurrency())) {
+            orderTaxTotal = new OrderAnalysisResult.MonetaryAmount(
+                    orderGrossTotal.getAmount().subtract(orderNetTotal.getAmount()),
+                    chooseCurrency(orderGrossTotal.getCurrency(), orderNetTotal.getCurrency(), currency));
         }
 
         if (currency == null) {
@@ -168,8 +219,10 @@ public final class OrderAnalyzer {
                 buyerReference,
                 orderingCustomer,
                 buyer,
+                invoicee,
                 payer,
                 seller,
+                shipTo,
                 currency,
                 lineCount,
                 orderNetTotal,
@@ -397,6 +450,43 @@ public final class OrderAnalyzer {
         return Collections.unmodifiableList(results);
     }
 
+    private static List<OrderAnalysisResult.TaxSummary> aggregateTaxesFromLines(
+            List<OrderAnalysisResult.OrderLineSummary> lines,
+            String defaultCurrency) {
+        if (lines == null || lines.isEmpty()) {
+            return List.of();
+        }
+        Map<TaxKey, TaxAccumulator> aggregated = new LinkedHashMap<>();
+        for (OrderAnalysisResult.OrderLineSummary line : lines) {
+            if (line == null) {
+                continue;
+            }
+            for (OrderAnalysisResult.TaxSummary tax : line.getTaxes()) {
+                if (tax == null) {
+                    continue;
+                }
+                TaxKey key = new TaxKey(
+                        tax.getTypeCode(),
+                        tax.getCategoryCode(),
+                        normalizeRate(tax.getRatePercent()),
+                        tax.getExemptionReason());
+                TaxAccumulator accumulator = aggregated.computeIfAbsent(key, unused -> new TaxAccumulator(key, defaultCurrency));
+                accumulator.add(tax);
+            }
+        }
+        if (aggregated.isEmpty()) {
+            return List.of();
+        }
+        List<OrderAnalysisResult.TaxSummary> summaries = new ArrayList<>();
+        for (TaxAccumulator accumulator : aggregated.values()) {
+            OrderAnalysisResult.TaxSummary summary = accumulator.toSummary();
+            if (summary != null) {
+                summaries.add(summary);
+            }
+        }
+        return summaries.isEmpty() ? List.of() : Collections.unmodifiableList(summaries);
+    }
+
     private static OrderAnalysisResult.MonetaryAmount sumTaxAmounts(List<OrderAnalysisResult.TaxSummary> taxes, String defaultCurrency) {
         OrderAnalysisResult.MonetaryAmount total = null;
         for (OrderAnalysisResult.TaxSummary tax : taxes) {
@@ -409,6 +499,35 @@ public final class OrderAnalyzer {
             }
             if (total == null) {
                 total = new OrderAnalysisResult.MonetaryAmount(amount.getAmount(), chooseCurrency(amount.getCurrency(), defaultCurrency));
+            } else if (isCurrencyCompatible(total.getCurrency(), amount.getCurrency())) {
+                total = new OrderAnalysisResult.MonetaryAmount(
+                        total.getAmount().add(amount.getAmount()),
+                        chooseCurrency(total.getCurrency(), amount.getCurrency(), defaultCurrency));
+            }
+        }
+        return total;
+    }
+
+    private static OrderAnalysisResult.MonetaryAmount sumLineAmounts(
+            List<OrderAnalysisResult.OrderLineSummary> lines,
+            Function<OrderAnalysisResult.OrderLineSummary, OrderAnalysisResult.MonetaryAmount> extractor,
+            String defaultCurrency) {
+        if (lines == null || lines.isEmpty() || extractor == null) {
+            return null;
+        }
+        OrderAnalysisResult.MonetaryAmount total = null;
+        for (OrderAnalysisResult.OrderLineSummary line : lines) {
+            if (line == null) {
+                continue;
+            }
+            OrderAnalysisResult.MonetaryAmount amount = extractor.apply(line);
+            if (amount == null || amount.getAmount() == null) {
+                continue;
+            }
+            if (total == null) {
+                total = new OrderAnalysisResult.MonetaryAmount(
+                        amount.getAmount(),
+                        chooseCurrency(amount.getCurrency(), defaultCurrency));
             } else if (isCurrencyCompatible(total.getCurrency(), amount.getCurrency())) {
                 total = new OrderAnalysisResult.MonetaryAmount(
                         total.getAmount().add(amount.getAmount()),
@@ -450,6 +569,10 @@ public final class OrderAnalyzer {
         }
         String resolvedCurrency = chooseCurrency(currency, defaultCurrency);
         return new OrderAnalysisResult.MonetaryAmount(value, resolvedCurrency);
+    }
+
+    private static BigDecimal normalizeRate(BigDecimal rate) {
+        return rate != null ? rate.stripTrailingZeros() : null;
     }
 
     private static String safeValue(TextType textType) {
@@ -522,5 +645,75 @@ public final class OrderAnalyzer {
             }
         }
         return null;
+    }
+
+    private record TaxKey(String typeCode, String categoryCode, BigDecimal rate, String exemptionReason) {
+    }
+
+    private static final class TaxAccumulator {
+        private final TaxKey key;
+        private final String defaultCurrency;
+        private BigDecimal baseTotal;
+        private String baseCurrency;
+        private BigDecimal taxTotal;
+        private String taxCurrency;
+
+        private TaxAccumulator(TaxKey key, String defaultCurrency) {
+            this.key = key;
+            this.defaultCurrency = defaultCurrency;
+        }
+
+        private void add(OrderAnalysisResult.TaxSummary tax) {
+            accumulateBase(tax.getBaseAmount());
+            accumulateTax(tax.getTaxAmount());
+        }
+
+        private void accumulateBase(OrderAnalysisResult.MonetaryAmount amount) {
+            if (amount == null || amount.getAmount() == null) {
+                return;
+            }
+            if (baseTotal == null) {
+                baseTotal = amount.getAmount();
+                baseCurrency = chooseCurrency(amount.getCurrency(), defaultCurrency);
+            } else if (isCurrencyCompatible(baseCurrency, amount.getCurrency())) {
+                baseTotal = baseTotal.add(amount.getAmount());
+                baseCurrency = chooseCurrency(baseCurrency, amount.getCurrency(), defaultCurrency);
+            }
+        }
+
+        private void accumulateTax(OrderAnalysisResult.MonetaryAmount amount) {
+            if (amount == null || amount.getAmount() == null) {
+                return;
+            }
+            if (taxTotal == null) {
+                taxTotal = amount.getAmount();
+                taxCurrency = chooseCurrency(amount.getCurrency(), defaultCurrency);
+            } else if (isCurrencyCompatible(taxCurrency, amount.getCurrency())) {
+                taxTotal = taxTotal.add(amount.getAmount());
+                taxCurrency = chooseCurrency(taxCurrency, amount.getCurrency(), defaultCurrency);
+            }
+        }
+
+        private OrderAnalysisResult.TaxSummary toSummary() {
+            OrderAnalysisResult.MonetaryAmount base = baseTotal != null
+                    ? new OrderAnalysisResult.MonetaryAmount(baseTotal, baseCurrency)
+                    : null;
+            OrderAnalysisResult.MonetaryAmount tax = taxTotal != null
+                    ? new OrderAnalysisResult.MonetaryAmount(taxTotal, taxCurrency)
+                    : null;
+            if (base == null && tax == null && key.rate() == null
+                    && (key.typeCode() == null || key.typeCode().isBlank())
+                    && (key.categoryCode() == null || key.categoryCode().isBlank())
+                    && (key.exemptionReason() == null || key.exemptionReason().isBlank())) {
+                return null;
+            }
+            return new OrderAnalysisResult.TaxSummary(
+                    key.typeCode(),
+                    key.categoryCode(),
+                    key.rate(),
+                    base,
+                    tax,
+                    key.exemptionReason());
+        }
     }
 }

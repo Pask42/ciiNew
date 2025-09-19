@@ -24,12 +24,18 @@
                 <ram:Name>Client Commandeur</ram:Name>
             </ram:BuyerRequisitionerTradeParty>
         </ram:ApplicableHeaderTradeAgreement>
+        <ram:ApplicableHeaderTradeDelivery>
+            <ram:ShipToTradeParty>
+                <ram:GlobalID schemeID="0088">3300012390005</ram:GlobalID>
+                <ram:Name>Plateforme Logistique Client</ram:Name>
+            </ram:ShipToTradeParty>
+        </ram:ApplicableHeaderTradeDelivery>
         <ram:ApplicableHeaderTradeSettlement>
             <ram:OrderCurrencyCode>EUR</ram:OrderCurrencyCode>
-            <ram:PayerTradeParty>
+            <ram:InvoiceeTradeParty>
                 <ram:GlobalID schemeID="0088">3300012300019</ram:GlobalID>
-                <ram:Name>Société Payeur</ram:Name>
-            </ram:PayerTradeParty>
+                <ram:Name>Société Facturée</ram:Name>
+            </ram:InvoiceeTradeParty>
             <ram:ApplicableTradeTax>
                 <ram:TypeCode>VAT</ram:TypeCode>
                 <ram:CategoryCode>S</ram:CategoryCode>

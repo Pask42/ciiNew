@@ -17,8 +17,10 @@ public final class OrderAnalysisResult {
     private final String buyerReference;
     private final PartySummary orderingCustomer;
     private final PartySummary buyer;
+    private final PartySummary invoicee;
     private final PartySummary payer;
     private final PartySummary seller;
+    private final PartySummary shipTo;
     private final String currency;
     private final int lineCount;
     private final MonetaryAmount orderNetTotal;
@@ -33,8 +35,10 @@ public final class OrderAnalysisResult {
             String buyerReference,
             PartySummary orderingCustomer,
             PartySummary buyer,
+            PartySummary invoicee,
             PartySummary payer,
             PartySummary seller,
+            PartySummary shipTo,
             String currency,
             int lineCount,
             MonetaryAmount orderNetTotal,
@@ -47,8 +51,10 @@ public final class OrderAnalysisResult {
         this.buyerReference = buyerReference;
         this.orderingCustomer = orderingCustomer;
         this.buyer = buyer;
+        this.invoicee = invoicee;
         this.payer = payer;
         this.seller = seller;
+        this.shipTo = shipTo;
         this.currency = currency;
         this.lineCount = lineCount;
         this.orderNetTotal = orderNetTotal;
@@ -78,6 +84,10 @@ public final class OrderAnalysisResult {
     public PartySummary getBuyer() {
         return buyer;
     }
+  
+    public PartySummary getInvoicee() {
+        return invoicee;
+    }
 
     public PartySummary getPayer() {
         return payer;
@@ -85,6 +95,10 @@ public final class OrderAnalysisResult {
 
     public PartySummary getSeller() {
         return seller;
+    }
+
+    public PartySummary getShipTo() {
+        return shipTo;
     }
 
     public String getBuyerName() {
@@ -146,8 +160,12 @@ public final class OrderAnalysisResult {
         }
         appendParty(sb, "Client commandeur", orderingCustomer);
         appendParty(sb, "Acheteur", buyer);
-        appendParty(sb, "Payeur", payer);
+        appendParty(sb, "Facturé (invoicee)", invoicee);
+        if (!isSameParty(invoicee, payer)) {
+            appendParty(sb, "Payeur", payer);
+        }
         appendParty(sb, "Fournisseur", seller);
+        appendParty(sb, "Lieu de livraison", shipTo);
 
         if (currency != null && !currency.isBlank()) {
             sb.append("  Devise : ").append(currency).append('\n');
@@ -234,6 +252,18 @@ public final class OrderAnalysisResult {
             }
         }
         sb.append('\n');
+    }
+
+    private static boolean isSameParty(PartySummary left, PartySummary right) {
+        if (left == right) {
+            return true;
+        }
+        if (left == null || right == null) {
+            return false;
+        }
+        return Objects.equals(left.getName(), right.getName())
+                && Objects.equals(left.getIdentifier(), right.getIdentifier())
+                && Objects.equals(left.getGlobalIdentifier(), right.getGlobalIdentifier());
     }
 
     private static void appendLabeledAmount(StringBuilder sb, String indent, String label, MonetaryAmount amount) {
@@ -529,6 +559,25 @@ public final class OrderAnalysisResult {
             return (name == null || name.isBlank())
                     && (identifier == null || identifier.isBlank())
                     && (globalIdentifier == null || globalIdentifier.isBlank());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof PartySummary)) {
+                return false;
+            }
+            PartySummary that = (PartySummary) o;
+            return Objects.equals(name, that.name)
+                    && Objects.equals(identifier, that.identifier)
+                    && Objects.equals(globalIdentifier, that.globalIdentifier);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, identifier, globalIdentifier);
         }
     }
 }
