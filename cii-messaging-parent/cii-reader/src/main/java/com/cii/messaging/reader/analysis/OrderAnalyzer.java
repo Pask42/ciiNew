@@ -139,19 +139,19 @@ public final class OrderAnalyzer {
                 TradeSettlementHeaderMonetarySummationType summary = settlement.getSpecifiedTradeSettlementHeaderMonetarySummation();
                 if (summary != null) {
                     if (orderNetTotal == null) {
-                        orderNetTotal = toMonetaryAmount(firstAmount(summary.getTaxBasisTotalAmount()), currency);
+                        orderNetTotal = firstNonNullAmount(currency,
+                                summary.getNetLineTotalAmount(),
+                                summary.getLineTotalAmount(),
+                                summary.getTaxBasisTotalAmount());
                     }
                     if (orderTaxTotal == null) {
-                        orderTaxTotal = toMonetaryAmount(firstAmount(summary.getTaxTotalAmount()), currency);
+                        orderTaxTotal = firstNonNullAmount(currency, summary.getTaxTotalAmount());
                     }
                     if (orderGrossTotal == null) {
-                        orderGrossTotal = toMonetaryAmount(firstAmount(summary.getGrandTotalAmount()), currency);
-                    }
-                    if (orderGrossTotal == null) {
-                        orderGrossTotal = toMonetaryAmount(firstAmount(summary.getIncludingTaxesLineTotalAmount()), currency);
-                    }
-                    if (orderGrossTotal == null) {
-                        orderGrossTotal = toMonetaryAmount(firstAmount(summary.getDuePayableAmount()), currency);
+                        orderGrossTotal = firstNonNullAmount(currency,
+                                summary.getGrandTotalAmount(),
+                                summary.getIncludingTaxesLineTotalAmount(),
+                                summary.getDuePayableAmount());
                     }
                 }
 
@@ -204,6 +204,13 @@ public final class OrderAnalyzer {
             orderTaxTotal = new OrderAnalysisResult.MonetaryAmount(
                     orderGrossTotal.getAmount().subtract(orderNetTotal.getAmount()),
                     chooseCurrency(orderGrossTotal.getCurrency(), orderNetTotal.getCurrency(), currency));
+        }
+
+        if (orderGrossTotal == null && orderNetTotal != null && orderNetTotal.getAmount() != null
+                && !hasSignificantTax(orderTaxTotal, orderTaxes, lines)) {
+            orderGrossTotal = new OrderAnalysisResult.MonetaryAmount(
+                    orderNetTotal.getAmount(),
+                    chooseCurrency(orderNetTotal.getCurrency(), currency));
         }
 
         if (currency == null) {
@@ -341,6 +348,20 @@ public final class OrderAnalyzer {
             return null;
         }
         return amounts.get(0);
+    }
+
+    @SafeVarargs
+    private static OrderAnalysisResult.MonetaryAmount firstNonNullAmount(String defaultCurrency, List<AmountType>... amountLists) {
+        if (amountLists == null) {
+            return null;
+        }
+        for (List<AmountType> amounts : amountLists) {
+            OrderAnalysisResult.MonetaryAmount monetaryAmount = toMonetaryAmount(firstAmount(amounts), defaultCurrency);
+            if (monetaryAmount != null) {
+                return monetaryAmount;
+            }
+        }
+        return null;
     }
 
     private static String firstTextValue(List<TextType> texts) {
@@ -542,6 +563,41 @@ public final class OrderAnalyzer {
             return true;
         }
         return left.equals(right);
+    }
+
+    private static boolean hasSignificantTax(
+            OrderAnalysisResult.MonetaryAmount orderTaxTotal,
+            List<OrderAnalysisResult.TaxSummary> orderTaxes,
+            List<OrderAnalysisResult.OrderLineSummary> lines) {
+        if (orderTaxTotal != null && orderTaxTotal.getAmount() != null
+                && orderTaxTotal.getAmount().compareTo(BigDecimal.ZERO) != 0) {
+            return true;
+        }
+        if (orderTaxes != null) {
+            for (OrderAnalysisResult.TaxSummary tax : orderTaxes) {
+                if (tax == null) {
+                    continue;
+                }
+                OrderAnalysisResult.MonetaryAmount taxAmount = tax.getTaxAmount();
+                if (taxAmount != null && taxAmount.getAmount() != null
+                        && taxAmount.getAmount().compareTo(BigDecimal.ZERO) != 0) {
+                    return true;
+                }
+            }
+        }
+        if (lines != null) {
+            for (OrderAnalysisResult.OrderLineSummary line : lines) {
+                if (line == null) {
+                    continue;
+                }
+                OrderAnalysisResult.MonetaryAmount taxAmount = line.getLineTaxAmount();
+                if (taxAmount != null && taxAmount.getAmount() != null
+                        && taxAmount.getAmount().compareTo(BigDecimal.ZERO) != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static String chooseCurrency(String... currencies) {

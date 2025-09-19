@@ -9,6 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OrderAnalyzerTest {
@@ -94,6 +95,19 @@ class OrderAnalyzerTest {
         assertEquals(0, new BigDecimal("10").compareTo(second.getRatePercent()));
         assertMonetary(second.getBaseAmount(), "EUR", new BigDecimal("150.00"));
         assertMonetary(second.getTaxAmount(), "EUR", new BigDecimal("15.00"));
+    }
+
+    @Test
+    void shouldFallbackToLineTotalWhenTaxBasisZero() throws Exception {
+        Path samplePath = resourcePath("/order-header-line-total-only.xml");
+
+        OrderAnalysisResult result = OrderAnalyzer.analyserOrder(samplePath.toString());
+
+        assertNotNull(result);
+        assertMonetary(result.getOrderNetTotal(), "EUR", new BigDecimal("297.53"));
+        assertNull(result.getOrderTaxTotal(), "Le total TVA doit être absent lorsqu'aucune taxe n'est fournie");
+        assertMonetary(result.getOrderGrossTotal(), "EUR", new BigDecimal("297.53"));
+        assertTrue(result.getOrderTaxes().isEmpty());
     }
 
     private static void assertParty(OrderAnalysisResult.PartySummary party, String expectedName, String expectedGln) {
