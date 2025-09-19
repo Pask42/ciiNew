@@ -84,7 +84,7 @@ public final class OrderAnalysisResult {
     public PartySummary getBuyer() {
         return buyer;
     }
-
+  
     public PartySummary getInvoicee() {
         return invoicee;
     }
