@@ -186,10 +186,12 @@ public final class OrderResponseGenerator {
 
             DocumentCodeType typeCode = new DocumentCodeType();
             typeCode.setValue(options.getDocumentTypeCode());
+            typeCode.setListAgencyID("6");
             document.setTypeCode(typeCode);
 
             DocumentStatusCodeType statusCode = new DocumentStatusCodeType();
             statusCode.setValue(options.getAcknowledgementCode());
+            statusCode.setListAgencyID("6");
             document.setStatusCode(statusCode);
 
             DateTimeType dateTime = new DateTimeType();
