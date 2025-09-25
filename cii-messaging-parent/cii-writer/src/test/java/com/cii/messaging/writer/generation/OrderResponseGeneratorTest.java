@@ -55,6 +55,8 @@ class OrderResponseGeneratorTest {
         assertEquals("RSP-DOC-001", response.getExchangedDocument().getID().getValue());
         assertEquals(DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE,
                 response.getExchangedDocument().getStatusCode().getValue());
+        assertEquals("6", response.getExchangedDocument().getStatusCode().getListAgencyID());
+        assertEquals("6", response.getExchangedDocument().getTypeCode().getListAgencyID());
         assertEquals("20240305120000",
                 response.getExchangedDocument().getIssueDateTime().getDateTimeString().getValue());
         assertEquals(1, response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().size());
