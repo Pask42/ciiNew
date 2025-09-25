@@ -140,6 +140,13 @@ Génère automatiquement un ORDER_RESPONSE (ORDERSP) à partir d’un ORDER exis
 La commande lit le message ORDER, reconstruit les entêtes (parties, montants, lignes) et produit un ORDER_RESPONSE
 cohérent avec les quantités demandées.
 
+```bash
+# Générer une réponse acceptée pour order-sample.xml et l’écrire dans target/order-response.xml
+java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
+  respond --ack-code AP --response-id-prefix ORDRSP- \
+  --output target/order-response.xml cii-samples/src/main/resources/samples/order-sample.xml
+```
+
 ## 🧪 Exemples en ligne de commande
 
 En supposant que le JAR assemblé a été construit (`mvn -pl cii-cli -am clean package`) :
