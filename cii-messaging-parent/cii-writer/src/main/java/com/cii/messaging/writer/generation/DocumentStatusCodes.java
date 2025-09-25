@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public final class DocumentStatusCodes {
 
     /** Code indiquant une acceptation de la commande sans modification (valeur par défaut). */
-    public static final String DEFAULT_ACKNOWLEDGEMENT_CODE = "29";
+    public static final String DEFAULT_ACKNOWLEDGEMENT_CODE = "1";
 
     private static final String DOCUMENT_STATUS_RESOURCE =
             "/xsd/D23B/CrossIndustryOrderResponse_100pD23B_urn_un_unece_uncefact_codelist_standard_"
