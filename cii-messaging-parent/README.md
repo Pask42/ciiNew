@@ -124,6 +124,22 @@ Valide un document CII selon les schémas UNECE et les règles métier.
 Le validateur affiche un résumé concis (validité, nombre d’erreurs, bundle de schémas utilisé, temps d’exécution)
 et liste chaque erreur et avertissement individuellement.
 
+### Commande `respond`
+
+Génère automatiquement un ORDER_RESPONSE (ORDERSP) à partir d’un ORDER existant.
+
+| Paramètre ou option | Description | Valeur par défaut |
+|---------------------|-------------|-------------------|
+| `INPUT` (paramètre) | Fichier ORDER XML source | — |
+| `-o, --output <FILE>` | Fichier ORDER_RESPONSE à produire | `<INPUT>-ordersp.xml` dans le même dossier |
+| `--response-id <ID>` | Identifiant explicite du document ORDER_RESPONSE | Préfixe + ID de l’ORDER |
+| `--response-id-prefix <PREFIX>` | Préfixe utilisé pour générer l’ID si aucun n’est fourni | `ORDRSP-` |
+| `--ack-code <CODE>` | Code d’accusé de réception (AP=Accepté, RE=Rejeté, …) | `AP` |
+| `--issue-date <yyyyMMddHHmmss>` | Date d’émission forcée | Date courante |
+
+La commande lit le message ORDER, reconstruit les entêtes (parties, montants, lignes) et produit un ORDER_RESPONSE
+cohérent avec les quantités demandées.
+
 ## 🧪 Exemples en ligne de commande
 
 En supposant que le JAR assemblé a été construit (`mvn -pl cii-cli -am clean package`) :
