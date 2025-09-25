@@ -17,7 +17,8 @@ import java.util.Optional;
     },
     subcommands = {
         ParseCommand.class,
-        ValidateCommand.class
+        ValidateCommand.class,
+        RespondCommand.class
     }
 )
 public class CIIMessagingCLI extends AbstractCommand implements Runnable {
