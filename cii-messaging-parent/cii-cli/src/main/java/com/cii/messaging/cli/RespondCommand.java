@@ -4,6 +4,7 @@ import com.cii.messaging.model.order.Order;
 import com.cii.messaging.reader.OrderReader;
 import com.cii.messaging.reader.CIIReaderException;
 import com.cii.messaging.writer.CIIWriterException;
+import com.cii.messaging.writer.generation.DocumentStatusCodes;
 import com.cii.messaging.writer.generation.OrderResponseGenerationOptions;
 import com.cii.messaging.writer.generation.OrderResponseGenerator;
 import org.slf4j.Logger;
@@ -38,8 +39,10 @@ public class RespondCommand extends AbstractCommand implements Callable<Integer>
     @Option(names = "--response-id", description = "Identifiant explicite du ORDER_RESPONSE généré")
     private String responseId;
 
-    @Option(names = "--ack-code", description = "Code d'accusé de réception (ex: AP, RE)", defaultValue = "AP")
-    private String acknowledgementCode = "AP";
+    @Option(names = "--ack-code",
+            description = "Code d'accusé de réception UNECE (ex: 29=Accepté, 42=Rejeté)",
+            defaultValue = DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE)
+    private String acknowledgementCode = DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE;
 
     @Option(names = "--issue-date", description = "Date d'émission au format yyyyMMddHHmmss")
     private String issueDate;
@@ -75,6 +78,10 @@ public class RespondCommand extends AbstractCommand implements Callable<Integer>
             return 1;
         } catch (DateTimeParseException e) {
             logger.error("Format de date invalide pour --issue-date (attendu yyyyMMddHHmmss) : {}", e.getParsedString());
+            return 1;
+        } catch (IllegalArgumentException e) {
+            logger.error("Paramétrage invalide : {}", e.getMessage());
+            logger.debug("Erreur complète", e);
             return 1;
         } catch (IOException | CIIWriterException e) {
             logger.error("Erreur lors de la génération du ORDER_RESPONSE : {}", e.getMessage());

@@ -47,13 +47,14 @@ class OrderResponseGeneratorTest {
         OrderResponseGenerationOptions options = OrderResponseGenerationOptions.builder()
                 .withResponseIdPrefix("RSP-")
                 .withIssueDateTime(LocalDateTime.of(2024, 3, 5, 12, 0))
-                .withAcknowledgementCode("AP")
+                .withAcknowledgementCode(DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE)
                 .build();
 
         OrderResponse response = OrderResponseGenerator.genererDepuisOrder(order, options);
 
         assertEquals("RSP-DOC-001", response.getExchangedDocument().getID().getValue());
-        assertEquals("AP", response.getExchangedDocument().getStatusCode().getValue());
+        assertEquals(DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE,
+                response.getExchangedDocument().getStatusCode().getValue());
         assertEquals("20240305120000",
                 response.getExchangedDocument().getIssueDateTime().getDateTimeString().getValue());
         assertEquals(1, response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().size());

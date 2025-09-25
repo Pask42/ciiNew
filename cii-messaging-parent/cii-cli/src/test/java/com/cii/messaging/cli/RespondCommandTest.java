@@ -27,7 +27,7 @@ class RespondCommandTest {
         int exitCode = new CommandLine(new RespondCommand()).execute(
                 input.toString(),
                 "--output", output.toString(),
-                "--ack-code", "RE",
+                "--ack-code", "42",
                 "--issue-date", "20240305120000"
         );
 
@@ -36,7 +36,7 @@ class RespondCommandTest {
 
         OrderResponse response = lireOrderResponse(output);
         assertThat(response.getExchangedDocument().getID().getValue()).isEqualTo("ORDRSP-ORD-2024-001");
-        assertThat(response.getExchangedDocument().getStatusCode().getValue()).isEqualTo("RE");
+        assertThat(response.getExchangedDocument().getStatusCode().getValue()).isEqualTo("42");
         assertThat(response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem()).hasSize(2);
         assertThat(response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0)
                 .getSpecifiedLineTradeDelivery().getAgreedQuantity().getValue()).isEqualByComparingTo("100");
