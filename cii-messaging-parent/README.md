@@ -147,76 +147,132 @@ java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
   --output target/order-response.xml cii-samples/src/main/resources/samples/order-sample.xml
 ```
 
-### Codes d'accusé de réception UNECE (élément 1225)
+### Codes d'accusé de réception UNECE
 
-L’option `--ack-code` exploite les codes **UN/CEFACT Message function** (`1225`). Pour une lecture plus rapide,
+L’option `--ack-code` exploite les codes **UN/CEFACT Message function** . Pour une lecture plus rapide,
 les valeurs sont regroupées par thématique et présentées sous forme de listes courtes. Chaque entrée indique le
 code numérique, l’intitulé officiel en français et des conseils d’usage pour un ORDER_RESPONSE (`ORDRSP`).
 
-#### ✅ Acceptation, confirmation et autorisation
-- **6 – Confirmation** : accusé de réception formel exigé par un contrat ou une procédure interne.
-- **11 – Réponse** : message de réponse standard détaillant les éléments acceptés ou refusés.
-- **29 – Accepté sans modification** : acceptation totale, valeur par défaut de la commande `respond`.
-- **32 – Approbation** : autorisation explicite de poursuivre la transaction (mise en production, livraison, etc.).
-- **34 – Accepté avec modification** : acceptation assortie d’ajustements décrits dans le document.
-- **42 – Confirmation par moyen spécifique** : confirmation écrite d’une décision prise via un autre canal pour assurer la traçabilité.
-- **44 – Accepté sans réserve** : variante soulignant l’absence totale de réserves.
-- **45 – Accepté avec réserve** : acceptation conditionnelle, les réserves doivent être précisées.
-- **47 – Définitif** : confirme qu’un éventuel message provisoire est remplacé par cette version finale.
-- **51 – Autorisation** : donne le feu vert officiel après contrôle interne ou validation managériale.
+# 📑 Codes de statut et disponibilité des documents (UNECE / CIOP-CIOR)
 
-#### 🔄 Modifications et ajustements
-- **2 – Ajout** : ajoute des lignes ou des informations sans invalider le reste de la commande initiale.
-- **3 – Suppression** : retire des lignes ; précise ce qui ne doit plus être préparé ni facturé.
-- **4 – Modification** : signale des changements à appliquer (quantités, dates, conditions).
-- **5 – Remplacement** : remplace intégralement un ORDER précédent par une nouvelle version.
-- **16 – Proposition** : suggère des alternatives (quantités, produits, délais) à valider par l’acheteur.
-- **19 – Changement initié par le vendeur** : précise que la modification vient du fournisseur.
-- **20 – Remplacement de l’en-tête** : seules les informations d’en-tête sont mises à jour.
-- **21 – Remplacement du détail** : met à jour lignes et totaux tout en conservant l’en-tête initial.
-- **28 – Accepté avec modification de l’en-tête** : acceptation avec ajustements globaux.
-- **30 – Accepté avec modification du détail** : acceptation incluant des modifications ligne par ligne.
-- **33 – Modification de l’en-tête** : changement limité aux données d’en-tête.
-- **36 – Modification du détail** : ajustements ciblés sur les lignes de commande.
+## ✅ Acceptation & Validation
+- **1 – Accepté**  
+  Le document spécifié est accepté.  
+- **3 – Accepté sous condition**  
+  Le document spécifié est accepté sous certaines conditions.  
+- **10 – Document valide**  
+  Le document est actuellement valide.  
+- **44 – Accepté avec avertissements**  
+  Le document est accepté mais a généré des avertissements.  
+- **49 – Accepté sous conditions**  
+  Le document est accepté avec conditions et poursuivi sauf contestation.  
 
-#### 🛑 Refus, annulations et retraits
-- **1 – Annulation** : annule totalement un ORDER déjà accepté ou en cours de traitement.
-- **17 – Annulé, nouvelle émission à suivre** : annule le message actuel en annonçant un futur ORDER_RESPONSE.
-- **27 – Non accepté** : refus complet du contenu de l’ORDER avec justification attendue.
-- **37 – Annulation d’un débit** : annule un débit communiqué via EDI (correction de facturation anticipée).
-- **38 – Annulation d’un crédit** : révoque un crédit précédemment annoncé.
-- **39 – Inversion d’une annulation** : réactive une transaction annulée par erreur.
-- **40 – Demande de suppression** : demande la suppression de la transaction dans les systèmes du partenaire.
-- **41 – Ordre de clôture** : met fin à une série de livraisons ou à la relation sur la commande.
-- **48 – Accepté mais contenu rejeté** : reçu mais impossible à exécuter (restriction légale, produit interdit).
-- **50 – Retrait** : retire une approbation précédemment accordée.
+---
 
-#### 🔁 Transmission, statut et suivi
-- **7 – Doublon** : signale qu’un ORDER identique a déjà été reçu.
-- **8 – Statut** : fournit uniquement une information d’état sans modifier la commande.
-- **9 – Original** : première émission d’une réponse pour distinguer les envois ultérieurs.
-- **12 – Reçu mais non traité** : le message est en attente de traitement ; pas d’action immédiate.
-- **13 – Demande** : requête d’information ou de confirmation supplémentaire.
-- **14 – Préavis** : avertissement d’un changement imminent (retard, modification majeure).
-- **15 – Relance** : rappel suite à l’absence d’action après un message précédent.
-- **18 – Nouvelle émission** : réémission d’un message pour corriger un problème technique sans changer le fond.
-- **22 – Transmission finale** : dernier message de la série, aucun ORDER_RESPONSE supplémentaire n’est prévu.
-- **23 – Transaction en attente** : commande gelée, expéditions suspendues jusqu’à nouvel ordre.
-- **24 – Instruction de livraison** : précisions logistiques court terme (adresse, créneau, consignes).
-- **25 – Prévision** : projections moyen/long terme pour planifier les ressources.
-- **26 – Instructions et prévisions** : combine codes 24 et 25 dans un seul message.
-- **31 – Copie** : réémission pour information sans déclencher d’action.
-- **35 – Retransmission identique** : renvoi technique du même contenu (perte réseau, signature échouée).
-- **43 – Transmission supplémentaire** : doublon volontaire envoyé pour intégration automatique.
-- **46 – Provisoire** : réponse temporaire en attente de validation interne.
-- **49 – Litige résolu** : confirme la résolution d’un différend et permet de reprendre le cycle.
+## ❌ Rejet & Invalidité
+- **8 – Rejeté**  
+  Le document spécifié est rejeté.  
+- **11 – Document non disponible**  
+  Le document spécifié n’est pas disponible.  
+- **16 – Document non joint**  
+  Le document n’est pas ou ne peut pas être joint.  
+- **35 – Document incomplet**  
+  Le document est incomplet.  
+- **42 – En erreur**  
+  Le document est erroné.  
+- **50 – Rejeté, pas de traitement ultérieur**  
+  Le document est rejeté, une clarification est nécessaire.  
+- **41 – Validité révoquée**  
+  La validité du document a été révoquée.  
+- **40 – Validité suspendue**  
+  La validité du document est suspendue.  
 
-#### ⚠️ Gestion des anomalies
-- **10 – Référence introuvable** : l’identifiant de commande ne correspond à aucune transaction connue.
+---
 
-> 💡 **Astuce** : documentez systématiquement les motifs dans les sections commentaires ou les lignes
-> concernées afin de faciliter l’intégration côté partenaire, en particulier pour les codes de refus ou de
-> modification.
+## 📦 Transmission & Acheminement
+- **2 – Accompagne les marchandises**  
+  Le document accompagne physiquement les biens.  
+- **4 – Arrivera par message EDI séparé**  
+  Le document/message sera transmis via un autre message EDI.  
+- **6 – Arrivera par moyens manuels**  
+  Le document/message ne sera pas envoyé par EDI.  
+- **7 – À établir et envoyer**  
+  Demande de génération et transmission du document/message.  
+- **9 – À imprimer**  
+  Le document doit être imprimé.  
+- **17 – Avec les marchandises**  
+  Le document n’est pas joint à la déclaration en douane mais aux biens.  
+- **18 – Joint, à retourner après visa**  
+  Le document est joint mais devra être restitué après validation douane.  
+- **19 – Document demandé**  
+  Une demande a été déposée pour ce document.  
+- **20 – Reçu pour expédition**  
+  Document valide à partir de la réception de la cargaison.  
+- **21 – Embarqué à bord**  
+  Document valide à partir du chargement sur le navire.  
+- **30 – Inclus dans la première transmission**  
+  Documents joints à la première transmission.  
+- **31 – Inclus dans la seconde transmission**  
+  Documents joints à la seconde transmission.  
+- **32 – Non requis (dispense accordée)**  
+  Document non nécessaire, dispense émise.  
+- **33 – Déjà en possession du destinataire**  
+  Document déjà disponible auprès du destinataire du message.  
+- **34 – Conservé par l’expéditeur**  
+  Document détenu par l’expéditeur ou son représentant.  
+- **36 – Déjà soumis**  
+  Document déjà transmis.  
+- **37 – Document complet**  
+  Le document est complet.  
+- **51 – Arrivera par voie électronique**  
+  Le document/message sera transmis électroniquement.  
+
+---
+
+## 🏛️ Douanes & Réglementation
+- **12 – Document épuisé par la déclaration (joint)**  
+  Déclaration en douane ayant consommé le document, lequel est joint.  
+- **13 – Document non épuisé (joint)**  
+  Déclaration douane n’a pas épuisé le document, déjà déposé en douane.  
+- **14 – Document épuisé (préalablement déposé)**  
+  Document consommé, non joint mais déjà en douane.  
+- **15 – Document non épuisé (préalablement déposé)**  
+  Document encore valide pour futures déclarations, déjà en douane.  
+
+---
+
+## ⚙️ Statut du traitement
+- **22 – Statut 0**  
+  Message au statut 0.  
+- **23 – Statut 1**  
+  Message au statut 1.  
+- **24 – Statut 2**  
+  Message au statut 2.  
+- **25 – Message en cours de développement**  
+  Message encore en élaboration.  
+- **26 – Non freté**  
+  Document ne contient pas les frais de transport.  
+- **27 – Freté**  
+  Document inclut les frais de transport.  
+- **28 – Archivé**  
+  Document/message archivé.  
+- **29 – Provisoire**  
+  Document/message sans statut officiel.  
+- **38 – Finalisé**  
+  Document terminé et officialisé.  
+- **39 – En attente**  
+  Document/message suspendu jusqu’à nouvel ordre.  
+- **43 – Reçu**  
+  Document reçu.  
+- **45 – En cours de traitement**  
+  Document en cours de traitement.  
+- **46 – En attente de réponse (sous requête)**  
+  Document bloqué dans l’attente d’une réponse.  
+- **47 – Payé**  
+  Document réglé.  
+- **48 – Accusé de réception**  
+  Document reconnu et soumis pour traitement.  
+
 
 ## 🧪 Exemples en ligne de commande
 
