@@ -134,7 +134,7 @@ Génère automatiquement un ORDER_RESPONSE (ORDERSP) à partir d’un ORDER exis
 | `-o, --output <FILE>` | Fichier ORDER_RESPONSE à produire | `<INPUT>-ordersp.xml` dans le même dossier |
 | `--response-id <ID>` | Identifiant explicite du document ORDER_RESPONSE | Préfixe + ID de l’ORDER |
 | `--response-id-prefix <PREFIX>` | Préfixe utilisé pour générer l’ID si aucun n’est fourni | `ORDRSP-` |
-| `--ack-code <CODE>` | Code d’accusé de réception (AP=Accepté, RE=Rejeté, …) | `AP` |
+| `--ack-code <CODE>` | Code d’accusé de réception UNECE (1–51, ex. `29`=Accepté, `42`=Rejeté) | `29` |
 | `--issue-date <yyyyMMddHHmmss>` | Date d’émission forcée | Date courante |
 
 La commande lit le message ORDER, reconstruit les entêtes (parties, montants, lignes) et produit un ORDER_RESPONSE
