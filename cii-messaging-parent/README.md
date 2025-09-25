@@ -223,10 +223,133 @@ requested.setUnitCode("EA");
 new OrderWriter().write(order, Path.of("target/order-generated.xml").toFile());
 ```
 
+### Générer manuellement des fichiers ORDERS, ORDER_RESPONSE, DESADV et INVOICE
+
+Les utilitaires du module `cii-writer` vous permettent de produire un XML complet à partir de vos objets métier sans
+avoir à manipuler directement les API JAXB :
+
+```java
+import com.cii.messaging.writer.CIIWriterException;
+import com.cii.messaging.writer.generation.DesadvGenerator;
+import com.cii.messaging.writer.generation.InvoiceGenerator;
+import com.cii.messaging.writer.generation.ObjetCommande;
+import com.cii.messaging.writer.generation.ObjetDesadv;
+import com.cii.messaging.writer.generation.ObjetInvoice;
+import com.cii.messaging.writer.generation.OrderGenerator;
+
+ObjetCommande commande = () -> orderInstanceConstruiteAvecVosDonnées();
+String ordreGenere = OrderGenerator.genererOrders(commande, "target/orders-from-domain.xml");
+
+ObjetDesadv avis = () -> desadvInstanceConstruiteAvecVosDonnées();
+String desadvGenere = DesadvGenerator.genererDesadv(avis, "target/desadv-from-domain.xml");
+
+ObjetInvoice facture = () -> invoiceInstanceConstruiteAvecVosDonnées();
+String factureGeneree = InvoiceGenerator.genererInvoice(facture, "target/invoice-from-domain.xml");
+```
+
+Chaque générateur crée les dossiers parents manquants et renvoie un message de confirmation. Pour ORDER_RESPONSE
+(`ORDERSP`), instanciez directement `OrderResponseWriter` en construisant l’objet `OrderResponse` correspondant.
+
+### Générer un ORDER_RESPONSE (ORDERSP)
+
+```java
+import com.cii.messaging.model.orderresponse.OrderResponse;
+import com.cii.messaging.writer.OrderResponseWriter;
+import com.cii.messaging.unece.orderresponse.*;
+import java.math.BigDecimal;
+import java.nio.file.Path;
+
+OrderResponse response = new OrderResponse();
+
+ExchangedDocumentContextType ctx = new ExchangedDocumentContextType();
+DocumentContextParameterType guideline = new DocumentContextParameterType();
+IDType guidelineId = new IDType();
+guidelineId.setValue("urn:factur-x:orderresponse:1p0");
+guideline.setID(guidelineId);
+ctx.getGuidelineSpecifiedDocumentContextParameter().add(guideline);
+response.setExchangedDocumentContext(ctx);
+
+ExchangedDocumentType doc = new ExchangedDocumentType();
+IDType docId = new IDType();
+docId.setValue("ORDRSP-2024-001");
+doc.setID(docId);
+DocumentCodeType docType = new DocumentCodeType();
+docType.setValue("231"); // Code UNCL1001 pour une réponse de commande
+doc.setTypeCode(docType);
+DateTimeType issue = new DateTimeType();
+DateTimeType.DateTimeString issueString = new DateTimeType.DateTimeString();
+issueString.setFormat("102");
+issueString.setValue("20240216100000");
+issue.setDateTimeString(issueString);
+doc.setIssueDateTime(issue);
+response.setExchangedDocument(doc);
+
+SupplyChainTradeTransactionType transaction = new SupplyChainTradeTransactionType();
+
+HeaderTradeAgreementType agreement = new HeaderTradeAgreementType();
+TradePartyType seller = new TradePartyType();
+TextType sellerName = new TextType();
+sellerName.setValue("Seller Company GmbH");
+seller.setName(sellerName);
+agreement.setSellerTradeParty(seller);
+
+TradePartyType buyer = new TradePartyType();
+TextType buyerName = new TextType();
+buyerName.setValue("Buyer Corp");
+buyer.setName(buyerName);
+agreement.setBuyerTradeParty(buyer);
+transaction.setApplicableHeaderTradeAgreement(agreement);
+
+HeaderTradeDeliveryType delivery = new HeaderTradeDeliveryType();
+TradePartyType shipTo = new TradePartyType();
+TextType shipToName = new TextType();
+shipToName.setValue("Buyer Warehouse");
+shipTo.setName(shipToName);
+delivery.setShipToTradeParty(shipTo);
+transaction.setApplicableHeaderTradeDelivery(delivery);
+
+HeaderTradeSettlementType settlement = new HeaderTradeSettlementType();
+TradeSettlementHeaderMonetarySummationType settlementSum = new TradeSettlementHeaderMonetarySummationType();
+AmountType grandTotal = new AmountType();
+grandTotal.setCurrencyID("EUR");
+grandTotal.setValue(new BigDecimal("150.00"));
+settlementSum.getGrandTotalAmount().add(grandTotal);
+settlement.setSpecifiedTradeSettlementHeaderMonetarySummation(settlementSum);
+transaction.setApplicableHeaderTradeSettlement(settlement);
+
+SupplyChainTradeLineItemType line = new SupplyChainTradeLineItemType();
+DocumentLineDocumentType lineDoc = new DocumentLineDocumentType();
+IDType lineId = new IDType();
+lineId.setValue("1");
+lineDoc.setLineID(lineId);
+line.setAssociatedDocumentLineDocument(lineDoc);
+
+TradeProductType product = new TradeProductType();
+TextType productName = new TextType();
+productName.setValue("Article confirmé");
+product.getName().add(productName);
+line.setSpecifiedTradeProduct(product);
+
+LineTradeDeliveryType lineDelivery = new LineTradeDeliveryType();
+QuantityType agreed = new QuantityType();
+agreed.setUnitCode("EA");
+agreed.setValue(new BigDecimal("10"));
+lineDelivery.setAgreedQuantity(agreed);
+line.setSpecifiedLineTradeDelivery(lineDelivery);
+
+transaction.getIncludedSupplyChainTradeLineItem().add(line);
+response.setSupplyChainTradeTransaction(transaction);
+
+new OrderResponseWriter().write(response, Path.of("target/ordersp-generated.xml").toFile());
+```
+
 ### Générer un DESPATCH_ADVICE (DESADV)
 
 Créez un avis d’expédition complet en instanciant un `DespatchAdvice`, en remplissant les agrégats requis
 (contexte, document échangé, transaction et lignes), puis sérialisez-le avec `DesadvWriter`.
+
+Vous pouvez également vous appuyer sur `DesadvGenerator.genererDesadv(() -> desadv, "...")` pour partir directement de
+vos objets métier.
 
 ```java
 import com.cii.messaging.model.despatchadvice.DespatchAdvice;
@@ -286,6 +409,124 @@ advice.setSupplyChainTradeTransaction(tx);
 
 new DesadvWriter().write(advice, Path.of("target/desadv-generated.xml").toFile());
 ```
+
+### Générer une INVOICE
+
+```java
+import com.cii.messaging.model.invoice.Invoice;
+import com.cii.messaging.writer.InvoiceWriter;
+import com.cii.messaging.unece.invoice.*;
+import java.math.BigDecimal;
+import java.nio.file.Path;
+
+Invoice invoice = new Invoice();
+
+ExchangedDocumentContextType ctx = new ExchangedDocumentContextType();
+DocumentContextParameterType guideline = new DocumentContextParameterType();
+IDType guidelineId = new IDType();
+guidelineId.setValue("urn:factur-x:invoice:1p0");
+guideline.setID(guidelineId);
+ctx.getGuidelineSpecifiedDocumentContextParameter().add(guideline);
+invoice.setExchangedDocumentContext(ctx);
+
+ExchangedDocumentType doc = new ExchangedDocumentType();
+IDType docId = new IDType();
+docId.setValue("INV-2024-001");
+doc.setID(docId);
+DocumentCodeType docType = new DocumentCodeType();
+docType.setValue("380"); // Code UNCL1001 pour une facture commerciale
+doc.setTypeCode(docType);
+DateTimeType issue = new DateTimeType();
+DateTimeType.DateTimeString issueString = new DateTimeType.DateTimeString();
+issueString.setFormat("102");
+issueString.setValue("20240216123000");
+issue.setDateTimeString(issueString);
+doc.setIssueDateTime(issue);
+invoice.setExchangedDocument(doc);
+
+SupplyChainTradeTransactionType transaction = new SupplyChainTradeTransactionType();
+
+HeaderTradeAgreementType agreement = new HeaderTradeAgreementType();
+TradePartyType seller = new TradePartyType();
+TextType sellerName = new TextType();
+sellerName.setValue("Seller Company GmbH");
+seller.setName(sellerName);
+agreement.setSellerTradeParty(seller);
+
+TradePartyType buyer = new TradePartyType();
+TextType buyerName = new TextType();
+buyerName.setValue("Buyer Corp");
+buyer.setName(buyerName);
+agreement.setBuyerTradeParty(buyer);
+transaction.setApplicableHeaderTradeAgreement(agreement);
+
+HeaderTradeDeliveryType delivery = new HeaderTradeDeliveryType();
+TradePartyType shipTo = new TradePartyType();
+TextType shipToName = new TextType();
+shipToName.setValue("Buyer Warehouse");
+shipTo.setName(shipToName);
+delivery.setShipToTradeParty(shipTo);
+transaction.setApplicableHeaderTradeDelivery(delivery);
+
+HeaderTradeSettlementType settlement = new HeaderTradeSettlementType();
+TradeSettlementHeaderMonetarySummationType settlementSum = new TradeSettlementHeaderMonetarySummationType();
+AmountType lineTotal = new AmountType();
+lineTotal.setCurrencyID("EUR");
+lineTotal.setValue(new BigDecimal("500.00"));
+settlementSum.getLineTotalAmount().add(lineTotal);
+AmountType grandTotal = new AmountType();
+grandTotal.setCurrencyID("EUR");
+grandTotal.setValue(new BigDecimal("500.00"));
+settlementSum.getGrandTotalAmount().add(grandTotal);
+settlement.setSpecifiedTradeSettlementHeaderMonetarySummation(settlementSum);
+transaction.setApplicableHeaderTradeSettlement(settlement);
+
+SupplyChainTradeLineItemType line = new SupplyChainTradeLineItemType();
+DocumentLineDocumentType lineDoc = new DocumentLineDocumentType();
+IDType lineId = new IDType();
+lineId.setValue("1");
+lineDoc.setLineID(lineId);
+line.setAssociatedDocumentLineDocument(lineDoc);
+
+TradeProductType product = new TradeProductType();
+TextType productName = new TextType();
+productName.setValue("Widget A");
+product.getName().add(productName);
+line.setSpecifiedTradeProduct(product);
+
+LineTradeAgreementType lineAgreement = new LineTradeAgreementType();
+TradePriceType price = new TradePriceType();
+AmountType unitPrice = new AmountType();
+unitPrice.setCurrencyID("EUR");
+unitPrice.setValue(new BigDecimal("50.00"));
+price.getChargeAmount().add(unitPrice);
+lineAgreement.setNetPriceProductTradePrice(price);
+line.setSpecifiedLineTradeAgreement(lineAgreement);
+
+LineTradeDeliveryType lineDelivery = new LineTradeDeliveryType();
+QuantityType billedQuantity = new QuantityType();
+billedQuantity.setUnitCode("EA");
+billedQuantity.setValue(new BigDecimal("10"));
+lineDelivery.setRequestedQuantity(billedQuantity);
+line.setSpecifiedLineTradeDelivery(lineDelivery);
+
+LineTradeSettlementType lineSettlement = new LineTradeSettlementType();
+TradeSettlementLineMonetarySummationType lineSum = new TradeSettlementLineMonetarySummationType();
+AmountType lineAmount = new AmountType();
+lineAmount.setCurrencyID("EUR");
+lineAmount.setValue(new BigDecimal("500.00"));
+lineSum.getLineTotalAmount().add(lineAmount);
+lineSettlement.setSpecifiedTradeSettlementLineMonetarySummation(lineSum);
+line.setSpecifiedLineTradeSettlement(lineSettlement);
+
+transaction.getIncludedSupplyChainTradeLineItem().add(line);
+invoice.setSupplyChainTradeTransaction(transaction);
+
+new InvoiceWriter().write(invoice, Path.of("target/invoice-generated.xml").toFile());
+```
+
+Comme pour les autres flux, `InvoiceGenerator.genererInvoice(() -> invoice, "...")` peut produire le fichier final à
+partir d’un objet métier existant.
 
 ### Charger manuellement les schémas
 
