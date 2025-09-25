@@ -149,64 +149,74 @@ java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
 
 ### Codes d'accusé de réception UNECE (élément 1225)
 
-L’option `--ack-code` s’appuie sur la liste officielle **UN/CEFACT Message function code** (élément de données `1225`).
-Chaque valeur décrit l’état ou l’action attendue suite à un message ORDER. Le tableau ci-dessous propose une
-traduction française des libellés officiels ainsi qu’un rappel du contexte d’utilisation recommandé pour un
-ORDER_RESPONSE (`ORDRSP`).
+L’option `--ack-code` exploite les codes **UN/CEFACT Message function** (`1225`). Pour une lecture plus rapide,
+les valeurs sont regroupées par thématique et présentées sous forme de listes courtes. Chaque entrée indique le
+code numérique, l’intitulé officiel en français et des conseils d’usage pour un ORDER_RESPONSE (`ORDRSP`).
 
-| Code | Intitulé officiel (FR) | Détails et utilisation recommandée |
-|------|------------------------|------------------------------------|
-| 1 | Annulation | À utiliser pour annuler totalement un ORDER déjà accepté ou en cours de traitement ; l’ORDRSP confirme que la transaction initiale est révoquée et qu’aucune livraison ne doit être exécutée. |
-| 2 | Ajout | Sert à ajouter des lignes ou informations complémentaires à un ORDER existant sans invalider le reste de la commande ; l’acheteur doit intégrer les nouveaux éléments. |
-| 3 | Suppression | Indique la suppression de lignes précédemment commandées ; la réponse précise quelles lignes ne doivent plus être préparées ni facturées. |
-| 4 | Modification | Informe que certaines données doivent être modifiées (quantités, dates, conditions) ; détailler explicitement les champs concernés dans le message. |
-| 5 | Remplacement | Remplace intégralement un ORDER antérieur par une nouvelle version ; l’ancien message est considéré comme obsolète. |
-| 6 | Confirmation | Confirme formellement les détails reçus ; utiliser lorsque le contrat ou l’accord fournisseur impose un accusé de réception explicite. |
-| 7 | Doublon | Signale que l’ORDER reçu fait doublon ; aucune action logistique ne doit être engagée sur ce message répété. |
-| 8 | Statut | Retourne uniquement une information d’état (progression, blocage, etc.) sans impact direct sur le contenu du document initial. |
-| 9 | Original | Première émission d’une réponse concernant la transaction ; utile lorsqu’un flux impose de distinguer l’émission initiale de messages ultérieurs. |
-| 10 | Référence introuvable | Indique que l’identifiant de commande ne correspond à aucune transaction connue ; vérifier la cohérence des numéros ou le périmètre d’échange. |
-| 11 | Réponse | Message standard de réponse ; préciser les éléments acceptés ou refusés dans le détail du document. |
-| 12 | Reçu mais non traité | Confirme la réception du message mais indique qu’il reste en file d’attente ; l’acheteur doit attendre une réponse finale avant d’agir. |
-| 13 | Demande | Utilisé lorsqu’un ORDER_RESPONSE sert de requête d’information ou de confirmation supplémentaire envers le partenaire. |
-| 14 | Préavis | Donne un préavis avant un message définitif (par exemple pour avertir d’un retard ou d’un changement majeur imminent). |
-| 15 | Relance | Sert de rappel lorsqu’aucune action n’a été constatée après un ORDER ou un message précédent. |
-| 16 | Proposition | Fournit une proposition de réponse ou d’alternative (quantités, produits, délais) qui reste à valider par l’acheteur. |
-| 17 | Annulé – nouvelle émission à suivre | Signale l’annulation de la transaction actuelle tout en annonçant l’envoi d’un nouvel ORDER_RESPONSE. |
-| 18 | Nouvelle émission | Réémission d’un message antérieur pour corriger des anomalies techniques sans changement de fond. |
-| 19 | Changement initié par le vendeur | Mentionne que la modification provient du vendeur (fournisseur) et non de la demande initiale du client. |
-| 20 | Remplacement de l’en-tête uniquement | Seule la section en-tête (parties, références globales) est remplacée ; les lignes restent valides. |
-| 21 | Remplacement des lignes et du résumé | Met à jour uniquement le détail des lignes et les totaux ; l’en-tête initial reste inchangé. |
-| 22 | Transmission finale | Dernier message d’une série (par exemple fin de négociation) ; aucun autre ORDER_RESPONSE ne suivra. |
-| 23 | Transaction en attente | Indique que la commande est gelée ; les expéditions sont suspendues en attendant une levée de blocage. |
-| 24 | Instruction de livraison | Communication d’instructions logistiques à court terme (adresse, créneau) pour exécuter la commande. |
-| 25 | Prévision | Transmet une vision long terme (plan de livraison prévisionnel) afin de permettre au partenaire d’ajuster sa planification. |
-| 26 | Instructions et prévisions | Combine un message court terme (code 24) et long terme (code 25) dans une même réponse. |
-| 27 | Non accepté | Refus complet du contenu de l’ORDER ; justifier les motifs (produit indisponible, conditions refusées, etc.). |
-| 28 | Accepté avec modification de l’en-tête | Acceptation assortie d’ajustements globaux (références, parties, conditions commerciales). |
-| 29 | Accepté sans modification | Acceptation totale et conforme ; c’est la valeur par défaut utilisée par la commande `respond`. |
-| 30 | Accepté avec modification du détail | Acceptation avec modifications ligne par ligne (quantité partielle, substitution de produit). |
-| 31 | Copie | Réémission d’une copie pour information ; ne doit pas déclencher d’actions supplémentaires. |
-| 32 | Approbation | Autorise formellement la poursuite de la transaction (par exemple lancement de production). |
-| 33 | Modification de l’en-tête | Informe d’un changement limité à la section en-tête sans toucher aux lignes. |
-| 34 | Accepté avec modification | Variante générique signalant une acceptation accompagnée d’ajustements décrits dans le document. |
-| 35 | Retransmission identique | Renvoi du même contenu pour cause technique (perte de message, échec de signature). |
-| 36 | Modification du détail | Ajustements ciblant uniquement les lignes de commande (prix, quantités, délais par article). |
-| 37 | Annulation d’un débit | Annule un débit financier précédemment communiqué via EDI ; utile pour corriger une facturation anticipée. |
-| 38 | Annulation d’un crédit | Révoque un crédit précédemment émis ; informer les équipes comptables correspondantes. |
-| 39 | Inversion d’une annulation | Rétablit un message annulé par erreur ; revient à réactiver la transaction initiale. |
-| 40 | Demande de suppression | Requête explicite pour supprimer la transaction dans les systèmes du partenaire (par exemple suppression d’un ORDER erroné). |
-| 41 | Ordre de clôture | Dernier appel ou clôture d’une série de livraisons planifiées ; signale qu’aucune autre livraison ne sera demandée. |
-| 42 | Confirmation par moyen spécifique | Confirme par écrit une décision prise via un autre canal (téléphone, réunion) afin d’assurer la traçabilité. |
-| 43 | Transmission supplémentaire | Version EDI d’un message déjà transmis par un autre canal (courriel, portail) pour intégration automatique. |
-| 44 | Accepté sans réserve | Acceptation ferme et sans condition ; équivalent du code 29 mais insistante sur l’absence totale de réserve. |
-| 45 | Accepté avec réserve | Acceptation conditionnelle ; préciser les réserves dans les sections commentaires ou lignes. |
-| 46 | Provisoire | Réponse temporaire en attente de validation interne ; à remplacer par un message définitif (code 47) une fois confirmé. |
-| 47 | Définitif | Confirme que le contenu est final et remplace un éventuel message provisoire (code 46). |
-| 48 | Accepté mais contenu rejeté | Accusé de réception indiquant que le document est bien reçu mais ne peut être exécuté (restriction réglementaire, produit interdit, etc.). |
-| 49 | Litige résolu | Informe que le différend signalé précédemment est résolu ; permet de relancer le cycle de commande/livraison. |
-| 50 | Retrait | Retire une approbation accordée auparavant ; annule l’autorisation d’exécuter l’ORDER. |
-| 51 | Autorisation | Autorise explicitement le traitement d’un ou plusieurs messages ou transactions ; généralement utilisé après un contrôle interne. |
+#### ✅ Acceptation, confirmation et autorisation
+- **6 – Confirmation** : accusé de réception formel exigé par un contrat ou une procédure interne.
+- **11 – Réponse** : message de réponse standard détaillant les éléments acceptés ou refusés.
+- **29 – Accepté sans modification** : acceptation totale, valeur par défaut de la commande `respond`.
+- **32 – Approbation** : autorisation explicite de poursuivre la transaction (mise en production, livraison, etc.).
+- **34 – Accepté avec modification** : acceptation assortie d’ajustements décrits dans le document.
+- **42 – Confirmation par moyen spécifique** : confirmation écrite d’une décision prise via un autre canal pour assurer la traçabilité.
+- **44 – Accepté sans réserve** : variante soulignant l’absence totale de réserves.
+- **45 – Accepté avec réserve** : acceptation conditionnelle, les réserves doivent être précisées.
+- **47 – Définitif** : confirme qu’un éventuel message provisoire est remplacé par cette version finale.
+- **51 – Autorisation** : donne le feu vert officiel après contrôle interne ou validation managériale.
+
+#### 🔄 Modifications et ajustements
+- **2 – Ajout** : ajoute des lignes ou des informations sans invalider le reste de la commande initiale.
+- **3 – Suppression** : retire des lignes ; précise ce qui ne doit plus être préparé ni facturé.
+- **4 – Modification** : signale des changements à appliquer (quantités, dates, conditions).
+- **5 – Remplacement** : remplace intégralement un ORDER précédent par une nouvelle version.
+- **16 – Proposition** : suggère des alternatives (quantités, produits, délais) à valider par l’acheteur.
+- **19 – Changement initié par le vendeur** : précise que la modification vient du fournisseur.
+- **20 – Remplacement de l’en-tête** : seules les informations d’en-tête sont mises à jour.
+- **21 – Remplacement du détail** : met à jour lignes et totaux tout en conservant l’en-tête initial.
+- **28 – Accepté avec modification de l’en-tête** : acceptation avec ajustements globaux.
+- **30 – Accepté avec modification du détail** : acceptation incluant des modifications ligne par ligne.
+- **33 – Modification de l’en-tête** : changement limité aux données d’en-tête.
+- **36 – Modification du détail** : ajustements ciblés sur les lignes de commande.
+
+#### 🛑 Refus, annulations et retraits
+- **1 – Annulation** : annule totalement un ORDER déjà accepté ou en cours de traitement.
+- **17 – Annulé, nouvelle émission à suivre** : annule le message actuel en annonçant un futur ORDER_RESPONSE.
+- **27 – Non accepté** : refus complet du contenu de l’ORDER avec justification attendue.
+- **37 – Annulation d’un débit** : annule un débit communiqué via EDI (correction de facturation anticipée).
+- **38 – Annulation d’un crédit** : révoque un crédit précédemment annoncé.
+- **39 – Inversion d’une annulation** : réactive une transaction annulée par erreur.
+- **40 – Demande de suppression** : demande la suppression de la transaction dans les systèmes du partenaire.
+- **41 – Ordre de clôture** : met fin à une série de livraisons ou à la relation sur la commande.
+- **48 – Accepté mais contenu rejeté** : reçu mais impossible à exécuter (restriction légale, produit interdit).
+- **50 – Retrait** : retire une approbation précédemment accordée.
+
+#### 🔁 Transmission, statut et suivi
+- **7 – Doublon** : signale qu’un ORDER identique a déjà été reçu.
+- **8 – Statut** : fournit uniquement une information d’état sans modifier la commande.
+- **9 – Original** : première émission d’une réponse pour distinguer les envois ultérieurs.
+- **12 – Reçu mais non traité** : le message est en attente de traitement ; pas d’action immédiate.
+- **13 – Demande** : requête d’information ou de confirmation supplémentaire.
+- **14 – Préavis** : avertissement d’un changement imminent (retard, modification majeure).
+- **15 – Relance** : rappel suite à l’absence d’action après un message précédent.
+- **18 – Nouvelle émission** : réémission d’un message pour corriger un problème technique sans changer le fond.
+- **22 – Transmission finale** : dernier message de la série, aucun ORDER_RESPONSE supplémentaire n’est prévu.
+- **23 – Transaction en attente** : commande gelée, expéditions suspendues jusqu’à nouvel ordre.
+- **24 – Instruction de livraison** : précisions logistiques court terme (adresse, créneau, consignes).
+- **25 – Prévision** : projections moyen/long terme pour planifier les ressources.
+- **26 – Instructions et prévisions** : combine codes 24 et 25 dans un seul message.
+- **31 – Copie** : réémission pour information sans déclencher d’action.
+- **35 – Retransmission identique** : renvoi technique du même contenu (perte réseau, signature échouée).
+- **43 – Transmission supplémentaire** : doublon volontaire envoyé pour intégration automatique.
+- **46 – Provisoire** : réponse temporaire en attente de validation interne.
+- **49 – Litige résolu** : confirme la résolution d’un différend et permet de reprendre le cycle.
+
+#### ⚠️ Gestion des anomalies
+- **10 – Référence introuvable** : l’identifiant de commande ne correspond à aucune transaction connue.
+
+> 💡 **Astuce** : documentez systématiquement les motifs dans les sections commentaires ou les lignes
+> concernées afin de faciliter l’intégration côté partenaire, en particulier pour les codes de refus ou de
+> modification.
 
 ## 🧪 Exemples en ligne de commande
 
