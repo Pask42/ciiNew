@@ -13,7 +13,9 @@ import com.cii.messaging.unece.order.HeaderTradeDeliveryType;
 import com.cii.messaging.unece.order.HeaderTradeSettlementType;
 import com.cii.messaging.unece.order.IDType;
 import com.cii.messaging.unece.order.ISO3AlphaCurrencyCodeContentType;
+import com.cii.messaging.unece.order.LineTradeAgreementType;
 import com.cii.messaging.unece.order.LineTradeDeliveryType;
+import com.cii.messaging.unece.order.LineTradeSettlementType;
 import com.cii.messaging.unece.order.QuantityType;
 import com.cii.messaging.unece.order.SupplyChainTradeLineItemType;
 import com.cii.messaging.unece.order.SupplyChainTradeTransactionType;
@@ -21,12 +23,17 @@ import com.cii.messaging.unece.order.TextType;
 import com.cii.messaging.unece.order.TradePartyType;
 import com.cii.messaging.unece.order.TradeProductType;
 import com.cii.messaging.unece.order.TradeSettlementHeaderMonetarySummationType;
+import com.cii.messaging.unece.order.TradeSettlementLineMonetarySummationType;
+import com.cii.messaging.unece.order.TradePriceType;
+import com.cii.messaging.reader.CIIReaderException;
+import com.cii.messaging.reader.OrderReader;
 import com.cii.messaging.writer.CIIWriterException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,8 +67,15 @@ class OrderResponseGeneratorTest {
         assertEquals("20240305120000",
                 response.getExchangedDocument().getIssueDateTime().getDateTimeString().getValue());
         assertEquals(1, response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().size());
-        assertEquals(new BigDecimal("5"), response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0)
-                .getSpecifiedLineTradeDelivery().getAgreedQuantity().getValue());
+        com.cii.messaging.unece.orderresponse.SupplyChainTradeLineItemType lineItem =
+                response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0);
+        assertEquals(new BigDecimal("5"), lineItem.getSpecifiedLineTradeDelivery().getAgreedQuantity().getValue());
+        assertEquals(new BigDecimal("50.00"), lineItem.getSpecifiedLineTradeAgreement()
+                .getNetPriceProductTradePrice().getChargeAmount().get(0).getValue());
+        assertEquals("EUR", lineItem.getSpecifiedLineTradeAgreement().getNetPriceProductTradePrice()
+                .getChargeAmount().get(0).getCurrencyID());
+        assertEquals(new BigDecimal("250.00"), lineItem.getSpecifiedLineTradeSettlement()
+                .getSpecifiedTradeSettlementLineMonetarySummation().getLineTotalAmount().get(0).getValue());
         assertEquals("DOC-001", response.getSupplyChainTradeTransaction().getApplicableHeaderTradeAgreement()
                 .getSellerOrderReferencedDocument().getIssuerAssignedID().getValue());
         assertEquals(1, response.getSupplyChainTradeTransaction().getApplicableHeaderTradeSettlement()
@@ -82,6 +96,24 @@ class OrderResponseGeneratorTest {
         assertTrue(message.contains(output.toAbsolutePath().toString()));
         String content = Files.readString(output, StandardCharsets.UTF_8);
         assertTrue(content.contains("CrossIndustryOrderResponse"));
+    }
+
+    @Test
+    void conserveLesPrixEtTotauxDepuisUnEchantillon() throws Exception {
+        Order order = lireEchantillonOrder("/samples/AMAZON_OUT.xml");
+
+        OrderResponse response = OrderResponseGenerator.genererDepuisOrder(order,
+                OrderResponseGenerationOptions.builder()
+                        .withIssueDateTime(LocalDateTime.of(2024, 3, 5, 12, 0))
+                        .build());
+
+        com.cii.messaging.unece.orderresponse.SupplyChainTradeLineItemType firstLine =
+                response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0);
+
+        assertEquals(new BigDecimal("20.78"), firstLine.getSpecifiedLineTradeAgreement()
+                .getNetPriceProductTradePrice().getChargeAmount().get(0).getValue());
+        assertEquals(new BigDecimal("103.9"), firstLine.getSpecifiedLineTradeSettlement()
+                .getSpecifiedTradeSettlementLineMonetarySummation().getLineTotalAmount().get(0).getValue());
     }
 
     private static Order buildOrder() {
@@ -161,9 +193,21 @@ class OrderResponseGeneratorTest {
         product.getName().add(text("Produit"));
         line.setSpecifiedTradeProduct(product);
 
+        LineTradeAgreementType agreement = new LineTradeAgreementType();
+        TradePriceType price = new TradePriceType();
+        price.getChargeAmount().add(amount("50.00", "EUR"));
+        agreement.setNetPriceProductTradePrice(price);
+        line.setSpecifiedLineTradeAgreement(agreement);
+
         LineTradeDeliveryType delivery = new LineTradeDeliveryType();
         delivery.setRequestedQuantity(quantity("5", "EA"));
         line.setSpecifiedLineTradeDelivery(delivery);
+
+        LineTradeSettlementType settlement = new LineTradeSettlementType();
+        TradeSettlementLineMonetarySummationType lineSummation = new TradeSettlementLineMonetarySummationType();
+        lineSummation.getLineTotalAmount().add(amount("250.00", "EUR"));
+        settlement.setSpecifiedTradeSettlementLineMonetarySummation(lineSummation);
+        line.setSpecifiedLineTradeSettlement(settlement);
         return line;
     }
 
@@ -191,5 +235,11 @@ class OrderResponseGeneratorTest {
         quantity.setValue(new BigDecimal(value));
         quantity.setUnitCode(unit);
         return quantity;
+    }
+
+    private Order lireEchantillonOrder(String resource)
+            throws IOException, URISyntaxException, CIIReaderException {
+        Path source = Path.of(getClass().getResource(resource).toURI());
+        return new OrderReader().read(source.toFile());
     }
 }

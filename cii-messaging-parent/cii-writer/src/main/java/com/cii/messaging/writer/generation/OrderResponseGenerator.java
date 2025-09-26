@@ -34,6 +34,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -289,7 +292,9 @@ public final class OrderResponseGenerator {
             SupplyChainTradeLineItemType line = new SupplyChainTradeLineItemType();
             line.setAssociatedDocumentLineDocument(copyLineDocument(sourceLine.getAssociatedDocumentLineDocument()));
             line.setSpecifiedTradeProduct(copyTradeProduct(sourceLine.getSpecifiedTradeProduct()));
+            line.setSpecifiedLineTradeAgreement(copyLineAgreement(sourceLine.getSpecifiedLineTradeAgreement()));
             line.setSpecifiedLineTradeDelivery(copyLineDelivery(sourceLine.getSpecifiedLineTradeDelivery()));
+            line.setSpecifiedLineTradeSettlement(copyLineSettlement(sourceLine.getSpecifiedLineTradeSettlement()));
             return line;
         }
 
@@ -605,6 +610,200 @@ public final class OrderResponseGenerator {
             }
             indicator.setIndicator(sourceIndicator.isIndicator());
             return indicator;
+        }
+
+        private com.cii.messaging.unece.orderresponse.LineTradeAgreementType copyLineAgreement(
+                com.cii.messaging.unece.order.LineTradeAgreementType sourceAgreement) {
+            return convertStructure(sourceAgreement,
+                    com.cii.messaging.unece.orderresponse.LineTradeAgreementType.class);
+        }
+
+        private com.cii.messaging.unece.orderresponse.LineTradeSettlementType copyLineSettlement(
+                com.cii.messaging.unece.order.LineTradeSettlementType sourceSettlement) {
+            return convertStructure(sourceSettlement,
+                    com.cii.messaging.unece.orderresponse.LineTradeSettlementType.class);
+        }
+
+        private <S, T> T convertStructure(S source, Class<T> targetType) {
+            if (source == null) {
+                return null;
+            }
+            Object converted = convertValue(source, targetType);
+            return targetType.cast(converted);
+        }
+
+        private void copyOrderBean(Object source, Object target) {
+            Class<?> sourceClass = source.getClass();
+            Class<?> targetClass = target.getClass();
+            for (Method getter : sourceClass.getMethods()) {
+                if (!isGetter(getter)) {
+                    continue;
+                }
+                try {
+                    Object value = getter.invoke(source);
+                    if (value == null) {
+                        continue;
+                    }
+                    if (List.class.isAssignableFrom(getter.getReturnType())) {
+                        @SuppressWarnings("unchecked")
+                        List<Object> sourceList = (List<Object>) value;
+                        Method targetGetter = targetClass.getMethod(getter.getName());
+                        @SuppressWarnings("unchecked")
+                        List<Object> targetList = (List<Object>) targetGetter.invoke(target);
+                        if (targetList == null) {
+                            Method setter = findSetter(targetClass, getter.getName().startsWith("is")
+                                    ? "set" + getter.getName().substring(2)
+                                    : "set" + getter.getName().substring(3));
+                            if (setter == null) {
+                                throw new IllegalStateException(
+                                        "Impossible d'initialiser la collection " + getter.getName()
+                                                + " sur " + targetClass.getName());
+                            }
+                            targetList = new ArrayList<>();
+                            setter.invoke(target, targetList);
+                        } else {
+                            targetList.clear();
+                        }
+                        for (Object element : sourceList) {
+                            Object convertedElement = convertListItem(element);
+                            if (convertedElement != null) {
+                                targetList.add(convertedElement);
+                            }
+                        }
+                    } else {
+                        String setterName = getter.getName().startsWith("is")
+                                ? "set" + getter.getName().substring(2)
+                                : "set" + getter.getName().substring(3);
+                        Method setter = findSetter(targetClass, setterName);
+                        if (setter == null) {
+                            continue;
+                        }
+                        Class<?> parameterType = setter.getParameterTypes()[0];
+                        Object convertedValue = convertValue(value, parameterType);
+                        if (convertedValue != null || !parameterType.isPrimitive()) {
+                            setter.invoke(target, convertedValue);
+                        }
+                    }
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    throw new IllegalStateException("Impossible de copier la structure " + sourceClass.getName(), e);
+                }
+            }
+        }
+
+        private boolean isOrderPackage(Class<?> clazz) {
+            Package pkg = clazz.getPackage();
+            return pkg != null && pkg.getName().startsWith("com.cii.messaging.unece.order");
+        }
+
+        private Method findSetter(Class<?> targetClass, String name) {
+            for (Method method : targetClass.getMethods()) {
+                if (method.getName().equals(name) && method.getParameterCount() == 1) {
+                    return method;
+                }
+            }
+            return null;
+        }
+
+        private boolean isGetter(Method method) {
+            if (method.getParameterCount() != 0) {
+                return false;
+            }
+            String name = method.getName();
+            return (name.startsWith("get") && name.length() > 3 && !name.equals("getClass"))
+                    || (name.startsWith("is") && name.length() > 2);
+        }
+
+        private Object convertValue(Object value, Class<?> targetType) {
+            if (value == null) {
+                return null;
+            }
+            Class<?> sourceClass = value.getClass();
+            if (targetType.isPrimitive()) {
+                targetType = primitiveToWrapper(targetType);
+            }
+            if (targetType.isAssignableFrom(sourceClass)) {
+                return value;
+            }
+            if (targetType.isEnum() && value instanceof Enum<?>) {
+                @SuppressWarnings("unchecked")
+                Class<? extends Enum> enumClass = (Class<? extends Enum>) targetType;
+                return Enum.valueOf(enumClass, ((Enum<?>) value).name());
+            }
+            if (isOrderPackage(sourceClass)) {
+                Class<?> resolvedTarget = targetType == Object.class || !isOrderPackage(targetType)
+                        ? resolveOrderResponseClass(sourceClass)
+                        : targetType;
+                Object targetInstance = instantiate(resolvedTarget);
+                copyOrderBean(value, targetInstance);
+                return targetInstance;
+            }
+            return value;
+        }
+
+        private Object convertListItem(Object element) {
+            if (element == null) {
+                return null;
+            }
+            Class<?> elementClass = element.getClass();
+            if (element instanceof Enum<?>) {
+                Class<?> targetEnum = resolveOrderResponseClass(elementClass);
+                @SuppressWarnings("unchecked")
+                Class<? extends Enum> enumClass = (Class<? extends Enum>) targetEnum;
+                return Enum.valueOf(enumClass, ((Enum<?>) element).name());
+            }
+            if (isOrderPackage(elementClass)) {
+                Class<?> targetClass = resolveOrderResponseClass(elementClass);
+                Object targetInstance = instantiate(targetClass);
+                copyOrderBean(element, targetInstance);
+                return targetInstance;
+            }
+            return element;
+        }
+
+        private Class<?> resolveOrderResponseClass(Class<?> orderClass) {
+            String targetName = orderClass.getName().replace("com.cii.messaging.unece.order",
+                    "com.cii.messaging.unece.orderresponse");
+            try {
+                return Class.forName(targetName);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("Classe cible introuvable pour la conversion : " + targetName, e);
+            }
+        }
+
+        private Object instantiate(Class<?> clazz) {
+            try {
+                return clazz.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException("Impossible d'instancier la classe " + clazz.getName(), e);
+            }
+        }
+
+        private Class<?> primitiveToWrapper(Class<?> primitive) {
+            if (primitive == boolean.class) {
+                return Boolean.class;
+            }
+            if (primitive == byte.class) {
+                return Byte.class;
+            }
+            if (primitive == short.class) {
+                return Short.class;
+            }
+            if (primitive == int.class) {
+                return Integer.class;
+            }
+            if (primitive == long.class) {
+                return Long.class;
+            }
+            if (primitive == float.class) {
+                return Float.class;
+            }
+            if (primitive == double.class) {
+                return Double.class;
+            }
+            if (primitive == char.class) {
+                return Character.class;
+            }
+            return primitive;
         }
     }
 }
