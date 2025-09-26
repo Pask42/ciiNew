@@ -32,8 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -237,9 +237,12 @@ class OrderResponseGeneratorTest {
         return quantity;
     }
 
-    private Order lireEchantillonOrder(String resource)
-            throws IOException, URISyntaxException, CIIReaderException {
-        Path source = Path.of(getClass().getResource(resource).toURI());
-        return new OrderReader().read(source.toFile());
+    private Order lireEchantillonOrder(String resource) throws IOException, CIIReaderException {
+        try (InputStream inputStream = getClass().getResourceAsStream(resource)) {
+            if (inputStream == null) {
+                throw new IOException("Ressource introuvable : " + resource);
+            }
+            return new OrderReader().read(inputStream);
+        }
     }
 }
