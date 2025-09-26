@@ -140,6 +140,8 @@ Génère automatiquement un ORDER_RESPONSE (ORDERSP) à partir d’un ORDER exis
 La commande lit le message ORDER, reconstruit les entêtes (parties, montants, lignes) et produit un ORDER_RESPONSE
 cohérent avec les quantités demandées.
 
+Generated XML now declares the canonical CII prefixes (`rsm`, `ram`, `udt`, `qdt`) so that CLI outputs match UNECE interoperability requirements.
+
 ```bash
 # Générer une réponse acceptée pour order-sample.xml et l’écrire dans target/order-response.xml
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
