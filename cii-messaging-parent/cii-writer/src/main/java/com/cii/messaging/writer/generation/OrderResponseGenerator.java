@@ -45,7 +45,7 @@ import java.util.Objects;
  */
 public final class OrderResponseGenerator {
 
-    private static final DateTimeFormatter ISSUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final DateTimeFormatter ISSUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private OrderResponseGenerator() {
         // utilitaire
