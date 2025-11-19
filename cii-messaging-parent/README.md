@@ -149,131 +149,84 @@ java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
   --output target/order-response.xml cii-samples/src/main/resources/samples/order-sample.xml
 ```
 
-### Codes d'accusé de réception UNECE
+### Purpose codes officiels UNECE
 
-L’option `--ack-code` exploite les codes **UN/CEFACT Message function** . Pour une lecture plus rapide,
-les valeurs sont regroupées par thématique et présentées sous forme de listes courtes. Chaque entrée indique le
-code numérique, l’intitulé officiel en français et des conseils d’usage pour un ORDER_RESPONSE (`ORDRSP`).
+L’option `--ack-code` supporte également la table **UN/CEFACT Message Function/Purpose Code**. Voici la liste
+complète des valeurs officielles à utiliser dans vos ORDER_RESPONSE (`ORDRSP`) :
 
-# 📑 Codes de statut et disponibilité des documents (UNECE / CIOP-CIOR)
-
-## ✅ Acceptation & Validation
-- **1 – Accepté**  
-  Le document spécifié est accepté.  
-- **3 – Accepté sous condition**  
-  Le document spécifié est accepté sous certaines conditions.  
-- **10 – Document valide**  
-  Le document est actuellement valide.  
-- **44 – Accepté avec avertissements**  
-  Le document est accepté mais a généré des avertissements.  
-- **49 – Accepté sous conditions**  
-  Le document est accepté avec conditions et poursuivi sauf contestation.  
-
----
-
-## ❌ Rejet & Invalidité
-- **8 – Rejeté**  
-  Le document spécifié est rejeté.  
-- **11 – Document non disponible**  
-  Le document spécifié n’est pas disponible.  
-- **16 – Document non joint**  
-  Le document n’est pas ou ne peut pas être joint.  
-- **35 – Document incomplet**  
-  Le document est incomplet.  
-- **42 – En erreur**  
-  Le document est erroné.  
-- **50 – Rejeté, pas de traitement ultérieur**  
-  Le document est rejeté, une clarification est nécessaire.  
-- **41 – Validité révoquée**  
-  La validité du document a été révoquée.  
-- **40 – Validité suspendue**  
-  La validité du document est suspendue.  
-
----
-
-## 📦 Transmission & Acheminement
-- **2 – Accompagne les marchandises**  
-  Le document accompagne physiquement les biens.  
-- **4 – Arrivera par message EDI séparé**  
-  Le document/message sera transmis via un autre message EDI.  
-- **6 – Arrivera par moyens manuels**  
-  Le document/message ne sera pas envoyé par EDI.  
-- **7 – À établir et envoyer**  
-  Demande de génération et transmission du document/message.  
-- **9 – À imprimer**  
-  Le document doit être imprimé.  
-- **17 – Avec les marchandises**  
-  Le document n’est pas joint à la déclaration en douane mais aux biens.  
-- **18 – Joint, à retourner après visa**  
-  Le document est joint mais devra être restitué après validation douane.  
-- **19 – Document demandé**  
-  Une demande a été déposée pour ce document.  
-- **20 – Reçu pour expédition**  
-  Document valide à partir de la réception de la cargaison.  
-- **21 – Embarqué à bord**  
-  Document valide à partir du chargement sur le navire.  
-- **30 – Inclus dans la première transmission**  
-  Documents joints à la première transmission.  
-- **31 – Inclus dans la seconde transmission**  
-  Documents joints à la seconde transmission.  
-- **32 – Non requis (dispense accordée)**  
-  Document non nécessaire, dispense émise.  
-- **33 – Déjà en possession du destinataire**  
-  Document déjà disponible auprès du destinataire du message.  
-- **34 – Conservé par l’expéditeur**  
-  Document détenu par l’expéditeur ou son représentant.  
-- **36 – Déjà soumis**  
-  Document déjà transmis.  
-- **37 – Document complet**  
-  Le document est complet.  
-- **51 – Arrivera par voie électronique**  
-  Le document/message sera transmis électroniquement.  
-
----
-
-## 🏛️ Douanes & Réglementation
-- **12 – Document épuisé par la déclaration (joint)**  
-  Déclaration en douane ayant consommé le document, lequel est joint.  
-- **13 – Document non épuisé (joint)**  
-  Déclaration douane n’a pas épuisé le document, déjà déposé en douane.  
-- **14 – Document épuisé (préalablement déposé)**  
-  Document consommé, non joint mais déjà en douane.  
-- **15 – Document non épuisé (préalablement déposé)**  
-  Document encore valide pour futures déclarations, déjà en douane.  
-
----
-
-## ⚙️ Statut du traitement
-- **22 – Statut 0**  
-  Message au statut 0.  
-- **23 – Statut 1**  
-  Message au statut 1.  
-- **24 – Statut 2**  
-  Message au statut 2.  
-- **25 – Message en cours de développement**  
-  Message encore en élaboration.  
-- **26 – Non freté**  
-  Document ne contient pas les frais de transport.  
-- **27 – Freté**  
-  Document inclut les frais de transport.  
-- **28 – Archivé**  
-  Document/message archivé.  
-- **29 – Provisoire**  
-  Document/message sans statut officiel.  
-- **38 – Finalisé**  
-  Document terminé et officialisé.  
-- **39 – En attente**  
-  Document/message suspendu jusqu’à nouvel ordre.  
-- **43 – Reçu**  
-  Document reçu.  
-- **45 – En cours de traitement**  
-  Document en cours de traitement.  
-- **46 – En attente de réponse (sous requête)**  
-  Document bloqué dans l’attente d’une réponse.  
-- **47 – Payé**  
-  Document réglé.  
-- **48 – Accusé de réception**  
-  Document reconnu et soumis pour traitement.  
+- **1 – Annulation** : Message annulant une transmission précédente pour une transaction donnée.
+- **2 – Ajout** : Message contenant des éléments à ajouter.
+- **3 – Suppression** : Message contenant des éléments à supprimer.
+- **4 – Modification** : Message contenant des éléments à modifier.
+- **5 – Remplacement** : Message remplaçant un message précédent.
+- **6 – Confirmation** : Confirmation des détails d’une transmission précédente, si requis contractuellement.
+- **7 – Duplicata** : Double d’un message déjà généré.
+- **8 – Statut** : Le message référencé indique un statut.
+- **9 – Original** : Première transmission relative à une transaction donnée.
+- **10 – Non trouvé** : Numéro de référence non enregistré.
+- **11 – Réponse** : Réponse à un message ou document précédent.
+- **12 – Non traité** : Message reçu mais pas encore traité.
+- **13 – Demande** : Message référencé représentant une demande.
+- **14 – Notification préalable** : Notification anticipée d’informations à venir.
+- **15 – Rappel** : Transmission répétée d’un message en guise de rappel.
+- **16 – Proposition** : Contenu constituant une proposition.
+- **17 – Annulé, à réémettre** : Transaction annulée ; une nouvelle transmission suivra.
+- **18 – Réémission** : Nouvelle émission d’un message précédent.
+- **19 – Modification initiée par le vendeur** : Modification transmise par l’acheteur mais initiée par le vendeur.
+- **20 – Remplacer uniquement l’en-tête** : Remplacement limité à la section en-tête.
+- **21 – Remplacer les détails et le résumé** : Remplacement des lignes détaillées et du résumé.
+- **22 – Transmission finale** : Dernier message d’une série pour la transaction.
+- **23 – Transaction en attente** : Message à ne pas traiter jusqu’à nouvel ordre.
+- **24 – Instruction de livraison** : Instructions de livraison à court terme.
+- **25 – Prévision** : Prévisions à long terme.
+- **26 – Instruction + Prévision** : Combinaison des fonctions 24 et 25.
+- **27 – Non accepté** : Message signalant un refus d’acceptation.
+- **28 – Accepté, avec modification dans l’en-tête** : Accepté mais en-tête modifié.
+- **29 – Accepté sans modification** : Accepté intégralement.
+- **30 – Accepté, modification dans les détails** : Accepté mais lignes détaillées modifiées.
+- **31 – Copie** : Copie d’un message original déjà envoyé.
+- **32 – Approbation** : Autorisation d’exécuter le message référencé.
+- **33 – Modification de l’en-tête** : Mise à jour de la section en-tête.
+- **34 – Accepté avec amendement** : Accepté mais amendé.
+- **35 – Retransmission** : Transmission identique d’un message précédent.
+- **36 – Modification des détails** : Mise à jour des lignes détaillées uniquement.
+- **37 – Annulation d’un débit** : Annule un débit enregistré.
+- **38 – Annulation d’un crédit** : Annule un crédit enregistré.
+- **39 – Réversion d’une annulation** : Annule une annulation précédente.
+- **40 – Demande de suppression** : Demande de suppression de la transaction référencée.
+- **41 – Ordre de clôture / fin** : Dernier message d’une série d’appels de livraison.
+- **42 – Confirmation par un moyen spécifique** : Confirmation d’une transaction par un autre canal (ex. téléphone).
+- **43 – Transmission complémentaire** : Données électroniques venant compléter un autre canal.
+- **44 – Accepté sans réserve** : Acceptation sans aucune réserve.
+- **45 – Accepté avec réserves** : Acceptation sous réserve.
+- **46 – Provisoire** : Contenu provisoire.
+- **47 – Définitif** : Contenu définitif.
+- **48 – Accepté, contenu rejeté** : Message reçu mais non traitable (ex. raisons légales).
+- **49 – Litige résolu** : Litige résolu.
+- **50 – Retrait** : Retrait d’un message précédemment approuvé.
+- **51 – Autorisation** : Autorisation d’un message ou d’une transaction.
+- **52 – Amendement proposé** : Modification suggérée par l’expéditeur.
+- **53 – Test** : Message de test.
+- **54 – Extrait** : Sous-ensemble du message original.
+- **55 – Notification uniquement** : Informations utilisables à des fins d’analyse seulement.
+- **56 – Avis d’écritures comptabilisées** : Confirmation d’écritures passées au grand livre.
+- **57 – Avis d’éléments en attente de comptabilisation** : Éléments en attente d’enregistrement.
+- **58 – Préavis d’éléments nécessitant des informations supplémentaires** : Éléments nécessitant des informations additionnelles.
+- **59 – Éléments préavisés** : Éléments simplement préavisés.
+- **60 – Aucune action depuis le dernier message** : Aucun changement depuis la dernière transmission.
+- **61 – Planning complet** : Message représentant un planning complet.
+- **62 – Mise à jour du planning** : Mise à jour d’un planning existant.
+- **63 – Non accepté, provisoire** : Non accepté sous réserve de confirmation.
+- **64 – Vérification** : Message transmis pour vérification.
+- **65 – Litige non résolu** : Litige toujours ouvert.
+- **66 – Levée de garantie d’opération** : Informations sur la levée d’une opération garantie.
+- **67 – Fin d’une garantie d’opération** : Informations sur la fin d’une opération garantie.
+- **68 – Début d’une garantie d’opération** : Informations sur le début d’une opération garantie.
+- **69 – Nouvelle déclaration de données** : Nouvelles données déclaratives liées à une garantie.
+- **70 – Déclaration amendée** : Déclaration modifiée.
+- **71 – Refus du début d’une garantie d’opération** : Refus de démarrer l’opération garantie.
+- **72 – Informations sur les scellés (Début)** : Informations sur les scellés au début de l’opération.
+- **73 – Informations sur les scellés (Fin)** : Informations sur les scellés à la fin de l’opération.
 
 
 ## 🧪 Exemples en ligne de commande
