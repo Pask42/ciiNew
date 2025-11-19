@@ -64,7 +64,7 @@ class OrderResponseGeneratorTest {
                 response.getExchangedDocument().getStatusCode().getValue());
         assertEquals("6", response.getExchangedDocument().getStatusCode().getListAgencyID());
         assertEquals("6", response.getExchangedDocument().getTypeCode().getListAgencyID());
-        assertEquals("20240305120000",
+        assertEquals("20240305",
                 response.getExchangedDocument().getIssueDateTime().getDateTimeString().getValue());
         assertEquals(1, response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().size());
         com.cii.messaging.unece.orderresponse.SupplyChainTradeLineItemType lineItem =
@@ -128,7 +128,7 @@ class OrderResponseGeneratorTest {
         DateTimeType dateTime = new DateTimeType();
         DateTimeType.DateTimeString dateTimeString = new DateTimeType.DateTimeString();
         dateTimeString.setFormat("102");
-        dateTimeString.setValue("20240201093000");
+        dateTimeString.setValue("20240201");
         dateTime.setDateTimeString(dateTimeString);
         document.setIssueDateTime(dateTime);
         document.getName().add(text("Commande Test"));

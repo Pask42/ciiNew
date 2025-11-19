@@ -115,7 +115,7 @@ class InvoiceGeneratorTest {
         document.setID(id("INV-2025-0001"));
         document.getName().add(text("Facture client"));
         document.setTypeCode(documentCode("380"));
-        document.setIssueDateTime(dateTime("102", "20250301101500"));
+        document.setIssueDateTime(dateTime("102", "20250301"));
         return document;
     }
 

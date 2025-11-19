@@ -86,7 +86,7 @@ class DesadvGeneratorTest {
         exchangedDocument.setID(id("DESADV-2025-001"));
         exchangedDocument.getName().add(text("Avis d'expédition"));
         exchangedDocument.setTypeCode(documentCode("351"));
-        exchangedDocument.setIssueDateTime(dateTime("102", "20250116083000"));
+        exchangedDocument.setIssueDateTime(dateTime("102", "20250116"));
         despatchAdvice.setExchangedDocument(exchangedDocument);
 
         SupplyChainTradeTransactionType transaction = new SupplyChainTradeTransactionType();
@@ -113,7 +113,7 @@ class DesadvGeneratorTest {
 
         SupplyChainEventType despatchEvent = new SupplyChainEventType();
         despatchEvent.setID(id("EVENT-01"));
-        despatchEvent.setOccurrenceDateTime(dateTime("102", "20250116103000"));
+        despatchEvent.setOccurrenceDateTime(dateTime("102", "20250116"));
         despatchEvent.setTypeCode(code("85"));
         delivery.setActualDespatchSupplyChainEvent(despatchEvent);
 

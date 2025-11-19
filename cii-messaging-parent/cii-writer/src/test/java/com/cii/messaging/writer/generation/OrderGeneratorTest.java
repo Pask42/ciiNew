@@ -87,7 +87,7 @@ class OrderGeneratorTest {
         DateTimeType issueDate = new DateTimeType();
         DateTimeType.DateTimeString dateTimeString = new DateTimeType.DateTimeString();
         dateTimeString.setFormat("102");
-        dateTimeString.setValue("20240210103000");
+        dateTimeString.setValue("202402101");
         issueDate.setDateTimeString(dateTimeString);
         document.setIssueDateTime(issueDate);
         order.setExchangedDocument(document);

@@ -19,7 +19,7 @@
 				<ram:LineID>1</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233753312718</ram:GlobalID>
+				<ram:ID>3233753312718</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
@@ -40,7 +40,7 @@
 				<ram:LineID>2</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233753313814</ram:GlobalID>
+				<ram:ID>3233753313814</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
@@ -61,7 +61,7 @@
 				<ram:LineID>3</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233753319410</ram:GlobalID>
+				<ram:ID>3233753319410</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
@@ -82,7 +82,7 @@
 				<ram:LineID>4</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233753297411</ram:GlobalID>
+				<ram:ID>3233753297411</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
@@ -103,7 +103,7 @@
 				<ram:LineID>5</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233759999991</ram:GlobalID>
+				<ram:ID>3233759999991</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
@@ -124,7 +124,7 @@
 				<ram:LineID>6</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233753227210</ram:GlobalID>
+				<ram:ID>3233753227210</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
@@ -145,7 +145,7 @@
 				<ram:LineID>7</ram:LineID>
 			</ram:AssociatedDocumentLineDocument>
 			<ram:SpecifiedTradeProduct>
-				<ram:GlobalID>3233753163518</ram:GlobalID>
+				<ram:ID>3233753163518</ram:ID>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
 				<ram:NetPriceProductTradePrice>
