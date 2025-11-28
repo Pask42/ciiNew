@@ -103,7 +103,7 @@ public final class OrderResponseGenerationOptions {
     public static final class Builder {
         private String responseId;
         private String responseIdPrefix = "ORDRSP-";
-        private String acknowledgementCode = DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE;
+        private String acknowledgementCode = AcknowledgementCodes.DEFAULT_ACKNOWLEDGEMENT_CODE;
         private String documentTypeCode = "231";
         private LocalDateTime issueDateTime;
         private Clock clock = Clock.systemUTC();
@@ -144,11 +144,11 @@ public final class OrderResponseGenerationOptions {
             if (trimmed.isEmpty()) {
                 throw new IllegalArgumentException("Le code d'accusé de réception ne peut pas être vide");
             }
-            if (!DocumentStatusCodes.isValid(trimmed)) {
+            if (!AcknowledgementCodes.isValid(trimmed)) {
                 throw new IllegalArgumentException(String.format(
                         "Code d'accusé de réception '%s' invalide. Référez-vous à la liste UNECE : %s",
                         trimmed,
-                        DocumentStatusCodes.validCodes()));
+                        AcknowledgementCodes.validCodes()));
             }
             this.acknowledgementCode = trimmed;
             return this;

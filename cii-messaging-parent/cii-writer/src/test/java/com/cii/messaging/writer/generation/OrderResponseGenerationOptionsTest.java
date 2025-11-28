@@ -11,7 +11,7 @@ class OrderResponseGenerationOptionsTest {
     void utiliseCodeParDefautConforme() {
         OrderResponseGenerationOptions options = OrderResponseGenerationOptions.defaults();
 
-        assertEquals(DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE, options.getAcknowledgementCode());
+        assertEquals(AcknowledgementCodes.DEFAULT_ACKNOWLEDGEMENT_CODE, options.getAcknowledgementCode());
     }
 
     @Test
@@ -22,6 +22,6 @@ class OrderResponseGenerationOptionsTest {
                         .build());
 
         assertEquals("Code d'accusé de réception 'AP' invalide. Référez-vous à la liste UNECE : "
-                + DocumentStatusCodes.validCodes(), exception.getMessage());
+                        + AcknowledgementCodes.validCodes(), exception.getMessage());
     }
 }

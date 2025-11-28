@@ -4,7 +4,7 @@ import com.cii.messaging.model.order.Order;
 import com.cii.messaging.reader.OrderReader;
 import com.cii.messaging.reader.CIIReaderException;
 import com.cii.messaging.writer.CIIWriterException;
-import com.cii.messaging.writer.generation.DocumentStatusCodes;
+import com.cii.messaging.writer.generation.AcknowledgementCodes;
 import com.cii.messaging.writer.generation.OrderResponseGenerationOptions;
 import com.cii.messaging.writer.generation.OrderResponseGenerator;
 import org.slf4j.Logger;
@@ -41,8 +41,8 @@ public class RespondCommand extends AbstractCommand implements Callable<Integer>
 
     @Option(names = "--ack-code",
             description = "Code d'accusé de réception UNECE (ex: 29=Accepté, 42=Rejeté)",
-            defaultValue = DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE)
-    private String acknowledgementCode = DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE;
+            defaultValue = AcknowledgementCodes.DEFAULT_ACKNOWLEDGEMENT_CODE)
+    private String acknowledgementCode = AcknowledgementCodes.DEFAULT_ACKNOWLEDGEMENT_CODE;
 
     @Option(names = "--issue-date", description = "Date d'émission au format yyyyMMddHHmmss")
     private String issueDate;
