@@ -134,18 +134,18 @@ Génère automatiquement un ORDER_RESPONSE (ORDERSP) à partir d’un ORDER exis
 | `-o, --output <FILE>` | Fichier ORDER_RESPONSE à produire | `<INPUT>-ordersp.xml` dans le même dossier |
 | `--response-id <ID>` | Identifiant explicite du document ORDER_RESPONSE | Préfixe + ID de l’ORDER |
 | `--response-id-prefix <PREFIX>` | Préfixe utilisé pour générer l’ID si aucun n’est fourni | `ORDRSP-` |
-| `--ack-code <CODE>` | Code d’accusé de réception UNECE (1–51, ex. `29`=Accepté, `42`=Rejeté) | `29` |
+| `--ack-code <CODE>` | Code de fonction/objectif du message UN/CEFACT injecté dans ExchangedDocument/PurposeCode (1–51, ex. `29`=Accepté, `42`=Rejeté) | `29` |
 | `--issue-date <yyyyMMddHHmmss>` | Date d’émission forcée | Date courante |
 
 La commande lit le message ORDER, reconstruit les entêtes (parties, montants, lignes) et produit un ORDER_RESPONSE
-cohérent avec les quantités demandées.
+cohérent avec les quantités demandées.Le code d’accusé de réception est inscrit dans CrossIndustryOrderResponse/ExchangedDocument/PurposeCode en utilisant la liste officielle des Codes de Fonction/Objectif de Message UN/CEFACT.
 
 Generated XML now declares the canonical CII prefixes (`rsm`, `ram`, `udt`, `qdt`) so that CLI outputs match UNECE interoperability requirements.
 
 ```bash
 # Générer une réponse acceptée pour order-sample.xml et l’écrire dans target/order-response.xml
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
-  respond --ack-code AP --response-id-prefix ORDRSP- \
+  respond --ack-code 29 --response-id-prefix ORDRSP- \
   --output target/order-response.xml cii-samples/src/main/resources/samples/order-sample.xml
 ```
 
