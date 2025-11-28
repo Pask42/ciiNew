@@ -43,6 +43,26 @@ class RespondCommandTest {
     }
 
     @Test
+    void appliqueUnLineStatusCodeSpecifie() throws Exception {
+        Path input = copierEchantillon("/order-sample.xml");
+        Path output = tempDir.resolve("ordersp.xml");
+
+        int exitCode = new CommandLine(new RespondCommand()).execute(
+                input.toString(),
+                "--output", output.toString(),
+                "--line-status-code", "3",
+                "--issue-date", "20240305120000"
+        );
+
+        assertThat(exitCode).isZero();
+
+        OrderResponse response = lireOrderResponse(output);
+        assertThat(response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem())
+                .allSatisfy(line -> assertThat(line.getAssociatedDocumentLineDocument().getLineStatusCode().getValue())
+                        .isEqualTo("3"));
+    }
+
+    @Test
     void genereFichierParDefautDansMemeDossier() throws Exception {
         Path input = copierEchantillon("/order-sample.xml");
 

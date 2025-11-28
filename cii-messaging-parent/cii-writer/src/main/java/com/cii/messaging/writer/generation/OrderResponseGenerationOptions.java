@@ -13,6 +13,7 @@ public final class OrderResponseGenerationOptions {
     private final String responseIdPrefix;
     private final String acknowledgementCode;
     private final String documentTypeCode;
+    private final String lineStatusCode;
     private final LocalDateTime issueDateTime;
     private final Clock clock;
 
@@ -21,6 +22,7 @@ public final class OrderResponseGenerationOptions {
         this.responseIdPrefix = builder.responseIdPrefix;
         this.acknowledgementCode = builder.acknowledgementCode;
         this.documentTypeCode = builder.documentTypeCode;
+        this.lineStatusCode = builder.lineStatusCode;
         this.issueDateTime = builder.issueDateTime;
         this.clock = builder.clock;
     }
@@ -80,6 +82,16 @@ public final class OrderResponseGenerationOptions {
     }
 
     /**
+     * Code de statut de ligne UNECE (ActionCode/1229) à appliquer à chaque ligne.
+     * Lorsque {@code null}, le statut de la commande source est conservé.
+     *
+     * @return code optionnel ou {@code null}
+     */
+    public String getLineStatusCode() {
+        return lineStatusCode;
+    }
+
+    /**
      * Date d'émission explicite. Si {@code null}, l'horloge est utilisée.
      *
      * @return date d'émission souhaitée ou {@code null}
@@ -105,6 +117,7 @@ public final class OrderResponseGenerationOptions {
         private String responseIdPrefix = "ORDRSP-";
         private String acknowledgementCode = AcknowledgementCodes.DEFAULT_ACKNOWLEDGEMENT_CODE;
         private String documentTypeCode = "231";
+        private String lineStatusCode;
         private LocalDateTime issueDateTime;
         private Clock clock = Clock.systemUTC();
 
@@ -162,6 +175,31 @@ public final class OrderResponseGenerationOptions {
          */
         public Builder withDocumentTypeCode(String documentTypeCode) {
             this.documentTypeCode = Objects.requireNonNull(documentTypeCode, "documentTypeCode");
+            return this;
+        }
+
+        /**
+         * Force un code de statut de ligne (ActionCode/1229) pour toutes les lignes générées.
+         *
+         * @param lineStatusCode code valide ou {@code null} pour conserver la valeur source
+         * @return builder pour chaînage
+         */
+        public Builder withLineStatusCode(String lineStatusCode) {
+            if (lineStatusCode == null) {
+                this.lineStatusCode = null;
+                return this;
+            }
+            String trimmed = lineStatusCode.trim();
+            if (trimmed.isEmpty()) {
+                throw new IllegalArgumentException("Le code de statut de ligne ne peut pas être vide");
+            }
+            if (!LineStatusCodes.isValid(trimmed)) {
+                throw new IllegalArgumentException(String.format(
+                        "Code de statut de ligne '%s' invalide. Référez-vous à la liste UNECE : %s",
+                        trimmed,
+                        LineStatusCodes.validCodes()));
+            }
+            this.lineStatusCode = trimmed;
             return this;
         }
 

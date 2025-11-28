@@ -77,8 +77,8 @@ public final class OrderResponseGenerator {
         LocalDateTime issueDate = resolveIssueDate(resolved);
         String responseId = resolveResponseId(orderId, resolved, issueDate);
 
-        Mapper mapper = new Mapper(order, orderId);
-        return mapper.map(responseId, issueDate, resolved);
+        Mapper mapper = new Mapper(order, orderId, resolved);
+        return mapper.map(responseId, issueDate);
     }
 
     /**
@@ -137,13 +137,15 @@ public final class OrderResponseGenerator {
     private static final class Mapper {
         private final Order source;
         private final String orderId;
+        private final OrderResponseGenerationOptions options;
 
-        private Mapper(Order source, String orderId) {
+        private Mapper(Order source, String orderId, OrderResponseGenerationOptions options) {
             this.source = source;
             this.orderId = orderId;
+            this.options = options;
         }
 
-        private OrderResponse map(String responseId, LocalDateTime issueDate, OrderResponseGenerationOptions options) {
+        private OrderResponse map(String responseId, LocalDateTime issueDate) {
             OrderResponse response = new OrderResponse();
             response.setExchangedDocumentContext(mapContext());
             response.setExchangedDocument(mapDocument(responseId, issueDate, options));
@@ -304,7 +306,11 @@ public final class OrderResponseGenerator {
             DocumentLineDocumentType target = new DocumentLineDocumentType();
             if (sourceLineDoc != null) {
                 target.setLineID(copyId(sourceLineDoc.getLineID()));
-                target.setLineStatusCode(copyLineStatusCode(sourceLineDoc.getLineStatusCode()));
+            }
+            LineStatusCodeType resolvedStatus = resolveLineStatusCode(
+                    sourceLineDoc != null ? sourceLineDoc.getLineStatusCode() : null);
+            if (resolvedStatus != null) {
+                target.setLineStatusCode(resolvedStatus);
             }
             return target;
         }
@@ -318,6 +324,17 @@ public final class OrderResponseGenerator {
             statusCode.setValue(sourceStatus.getValue());
             statusCode.setListAgencyID(sourceStatus.getListAgencyID());
             return statusCode;
+        }
+
+        private LineStatusCodeType resolveLineStatusCode(
+                com.cii.messaging.unece.order.LineStatusCodeType sourceStatus) {
+            if (options.getLineStatusCode() != null) {
+                LineStatusCodeType statusCode = new LineStatusCodeType();
+                statusCode.setValue(options.getLineStatusCode());
+                statusCode.setListAgencyID("6");
+                return statusCode;
+            }
+            return copyLineStatusCode(sourceStatus);
         }
 
         private TradeProductType copyTradeProduct(com.cii.messaging.unece.order.TradeProductType sourceProduct) {
