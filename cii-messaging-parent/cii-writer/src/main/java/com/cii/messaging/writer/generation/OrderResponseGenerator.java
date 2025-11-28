@@ -17,6 +17,7 @@ import com.cii.messaging.unece.orderresponse.HeaderTradeDeliveryType;
 import com.cii.messaging.unece.orderresponse.HeaderTradeSettlementType;
 import com.cii.messaging.unece.orderresponse.IDType;
 import com.cii.messaging.unece.orderresponse.LineTradeDeliveryType;
+import com.cii.messaging.unece.orderresponse.LineStatusCodeType;
 import com.cii.messaging.unece.orderresponse.QuantityType;
 import com.cii.messaging.unece.orderresponse.ReferencedDocumentType;
 import com.cii.messaging.unece.orderresponse.SupplyChainTradeLineItemType;
@@ -303,8 +304,20 @@ public final class OrderResponseGenerator {
             DocumentLineDocumentType target = new DocumentLineDocumentType();
             if (sourceLineDoc != null) {
                 target.setLineID(copyId(sourceLineDoc.getLineID()));
+                target.setLineStatusCode(copyLineStatusCode(sourceLineDoc.getLineStatusCode()));
             }
             return target;
+        }
+
+        private LineStatusCodeType copyLineStatusCode(
+                com.cii.messaging.unece.order.LineStatusCodeType sourceStatus) {
+            if (sourceStatus == null) {
+                return null;
+            }
+            LineStatusCodeType statusCode = new LineStatusCodeType();
+            statusCode.setValue(sourceStatus.getValue());
+            statusCode.setListAgencyID(sourceStatus.getListAgencyID());
+            return statusCode;
         }
 
         private TradeProductType copyTradeProduct(com.cii.messaging.unece.order.TradeProductType sourceProduct) {
