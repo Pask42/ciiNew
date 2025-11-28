@@ -7,17 +7,17 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DocumentStatusCodesTest {
+class AcknowledgementCodesTest {
 
     @Test
     void chargeCodesDepuisLeSchemaD23B() {
-        Set<String> codes = DocumentStatusCodes.validCodes();
+        Set<String> codes = AcknowledgementCodes.validCodes();
 
         assertFalse(codes.isEmpty(), "La liste des codes UNECE ne doit pas être vide");
-        assertTrue(codes.contains(DocumentStatusCodes.DEFAULT_ACKNOWLEDGEMENT_CODE),
+        assertTrue(codes.contains(AcknowledgementCodes.DEFAULT_ACKNOWLEDGEMENT_CODE),
                 "Le code par défaut doit être présent dans la liste");
         assertTrue(codes.contains("1"), "Le premier code de la nomenclature doit être disponible");
-        assertTrue(codes.contains("51"), "Le dernier code de la nomenclature D23B doit être disponible");
+        assertTrue(codes.contains("73"), "Le dernier code de la nomenclature D23B doit être disponible");
         assertFalse(codes.contains("0"), "Les valeurs hors nomenclature doivent être rejetées");
     }
 }

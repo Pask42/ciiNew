@@ -9,7 +9,7 @@ import com.cii.messaging.unece.orderresponse.DateTimeType;
 import com.cii.messaging.unece.orderresponse.DocumentCodeType;
 import com.cii.messaging.unece.orderresponse.DocumentContextParameterType;
 import com.cii.messaging.unece.orderresponse.DocumentLineDocumentType;
-import com.cii.messaging.unece.orderresponse.DocumentStatusCodeType;
+import com.cii.messaging.unece.orderresponse.MessageFunctionCodeType;
 import com.cii.messaging.unece.orderresponse.ExchangedDocumentContextType;
 import com.cii.messaging.unece.orderresponse.ExchangedDocumentType;
 import com.cii.messaging.unece.orderresponse.HeaderTradeAgreementType;
@@ -192,10 +192,10 @@ public final class OrderResponseGenerator {
             typeCode.setListAgencyID("6");
             document.setTypeCode(typeCode);
 
-            DocumentStatusCodeType statusCode = new DocumentStatusCodeType();
-            statusCode.setValue(options.getAcknowledgementCode());
-            statusCode.setListAgencyID("6");
-            document.setStatusCode(statusCode);
+            MessageFunctionCodeType purposeCode = new MessageFunctionCodeType();
+            purposeCode.setValue(options.getAcknowledgementCode());
+            purposeCode.setListAgencyID("6");
+            document.setPurposeCode(purposeCode);
 
             DateTimeType dateTime = new DateTimeType();
             DateTimeType.DateTimeString dateTimeString = new DateTimeType.DateTimeString();

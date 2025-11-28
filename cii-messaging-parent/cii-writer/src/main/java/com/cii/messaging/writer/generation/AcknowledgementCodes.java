@@ -19,20 +19,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Liste utilitaire des codes UNECE valides pour {@code DocumentStatusCode} dans un ORDER_RESPONSE.
+ * Liste utilitaire des codes UNECE valides pour {@code MessageFunctionCodeType} dans un ORDER_RESPONSE.
  *
- * <p>Les codes correspondent à la liste officielle « Document Status Code » disponible dans les schémas
- * CrossIndustryOrderResponse D23B. La liste est chargée dynamiquement depuis le fichier XSD embarqué afin de garantir
- * une conformité stricte au standard UNECE, y compris lorsque la taxonomie évolue.</p>
+ * <p>Les codes correspondent à la liste officielle « Message Function Code » utilisée pour l'accusé de réception
+ * (PurposeCode) d'un document CrossIndustryOrderResponse D23B. La liste est chargée dynamiquement depuis le fichier
+ * XSD embarqué afin de garantir une conformité stricte au standard UNECE.</p>
  */
-public final class DocumentStatusCodes {
+public final class AcknowledgementCodes {
 
     /** Code indiquant une acceptation de la commande sans modification (valeur par défaut). */
     public static final String DEFAULT_ACKNOWLEDGEMENT_CODE = "1";
 
-    private static final String DOCUMENT_STATUS_RESOURCE =
+    private static final String MESSAGE_FUNCTION_RESOURCE =
             "/xsd/D23B/CrossIndustryOrderResponse_100pD23B_urn_un_unece_uncefact_codelist_standard_"
-                    + "UNECE_DocumentStatusCode_D23A.xsd";
+                    + "UNECE_MessageFunctionCode_D23A.xsd";
     private static final Set<String> VALID_CODES;
     private static final Set<String> FALLBACK_CODES = buildFallbackCodes();
 
@@ -40,7 +40,7 @@ public final class DocumentStatusCodes {
         VALID_CODES = loadCodes();
     }
 
-    private DocumentStatusCodes() {
+    private AcknowledgementCodes() {
         // utilitaire
     }
 
@@ -64,7 +64,7 @@ public final class DocumentStatusCodes {
     }
 
     private static Set<String> loadCodes() {
-        try (InputStream stream = DocumentStatusCodes.class.getResourceAsStream(DOCUMENT_STATUS_RESOURCE)) {
+        try (InputStream stream = AcknowledgementCodes.class.getResourceAsStream(MESSAGE_FUNCTION_RESOURCE)) {
             if (stream == null) {
                 return FALLBACK_CODES;
             }
@@ -111,7 +111,7 @@ public final class DocumentStatusCodes {
     }
 
     private static Set<String> buildFallbackCodes() {
-        Set<String> codes = IntStream.rangeClosed(1, 51)
+        Set<String> codes = IntStream.rangeClosed(1, 73)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableSet(codes);
