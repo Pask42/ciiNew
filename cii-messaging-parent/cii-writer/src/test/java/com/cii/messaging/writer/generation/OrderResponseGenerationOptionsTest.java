@@ -24,4 +24,24 @@ class OrderResponseGenerationOptionsTest {
         assertEquals("Code d'accusé de réception 'AP' invalide. Référez-vous à la liste UNECE : "
                         + AcknowledgementCodes.validCodes(), exception.getMessage());
     }
+
+    @Test
+    void accepteUnLineStatusCodeValide() {
+        OrderResponseGenerationOptions options = OrderResponseGenerationOptions.builder()
+                .withLineStatusCode("5")
+                .build();
+
+        assertEquals("5", options.getLineStatusCode());
+    }
+
+    @Test
+    void rejetteUnLineStatusCodeInvalide() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                OrderResponseGenerationOptions.builder()
+                        .withLineStatusCode("999")
+                        .build());
+
+        assertEquals("Code de statut de ligne '999' invalide. Référez-vous à la liste UNECE : "
+                        + LineStatusCodes.validCodes(), exception.getMessage());
+    }
 }

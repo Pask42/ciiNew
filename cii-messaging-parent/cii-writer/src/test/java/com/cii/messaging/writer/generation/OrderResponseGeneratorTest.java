@@ -136,6 +136,23 @@ class OrderResponseGeneratorTest {
         assertEquals(statusCode, lineItem.getAssociatedDocumentLineDocument().getLineStatusCode().getValue());
     }
 
+    @Test
+    void surchargeLeLineStatusCodeDepuisLesOptions() {
+        Order order = buildOrderWithStatus("5");
+
+        OrderResponse response = OrderResponseGenerator.genererDepuisOrder(order,
+                OrderResponseGenerationOptions.builder()
+                        .withIssueDateTime(LocalDateTime.of(2024, 3, 5, 12, 0))
+                        .withLineStatusCode("3")
+                        .build());
+
+        com.cii.messaging.unece.orderresponse.SupplyChainTradeLineItemType lineItem = response
+                .getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0);
+
+        assertEquals("3", lineItem.getAssociatedDocumentLineDocument().getLineStatusCode().getValue());
+        assertEquals("6", lineItem.getAssociatedDocumentLineDocument().getLineStatusCode().getListAgencyID());
+    }
+
     private static Order buildOrder() {
         Order order = new Order();
 

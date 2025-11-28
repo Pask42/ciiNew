@@ -135,17 +135,18 @@ Génère automatiquement un ORDER_RESPONSE (ORDERSP) à partir d’un ORDER exis
 | `--response-id <ID>` | Identifiant explicite du document ORDER_RESPONSE | Préfixe + ID de l’ORDER |
 | `--response-id-prefix <PREFIX>` | Préfixe utilisé pour générer l’ID si aucun n’est fourni | `ORDRSP-` |
 | `--ack-code <CODE>` | Code de fonction/objectif du message UN/CEFACT injecté dans ExchangedDocument/PurposeCode (1–51, ex. `29`=Accepté, `42`=Rejeté) | `29` |
+| `--line-status-code <CODE>` | Code UNECE **ActionCode/1229** appliqué à toutes les lignes (`LineStatusCode`), validé contre la liste officielle (ex. `3`=Changement, `5`=Accepté, `6`=Accepté avec modification, `7`=Rejeté, `10`=Non trouvé) | Valeur issue du ORDER |
 | `--issue-date <yyyyMMddHHmmss>` | Date d’émission forcée | Date courante |
 
 La commande lit le message ORDER, reconstruit les entêtes (parties, montants, lignes) et produit un ORDER_RESPONSE
-cohérent avec les quantités demandées.Le code d’accusé de réception est inscrit dans CrossIndustryOrderResponse/ExchangedDocument/PurposeCode en utilisant la liste officielle des Codes de Fonction/Objectif de Message UN/CEFACT.
+cohérent avec les quantités demandées. Le code d’accusé de réception est inscrit dans `CrossIndustryOrderResponse/ExchangedDocument/PurposeCode` en utilisant la liste officielle des Codes de Fonction/Objectif de Message UN/CEFACT. L’option `--line-status-code` force également `CrossIndustryOrderResponse/SupplyChainTradeTransaction/IncludedSupplyChainTradeLineItem/AssociatedDocumentLineDocument/LineStatusCode` pour chaque ligne en vérifiant que la valeur figure dans la liste UNECE (ActionCode/1229).
 
 Generated XML now declares the canonical CII prefixes (`rsm`, `ram`, `udt`, `qdt`) so that CLI outputs match UNECE interoperability requirements.
 
 ```bash
 # Générer une réponse acceptée pour order-sample.xml et l’écrire dans target/order-response.xml
 java -jar cii-cli/target/cii-cli-1.0.0-SNAPSHOT-jar-with-dependencies.jar \
-  respond --ack-code 29 --response-id-prefix ORDRSP- \
+  respond --ack-code 29 --response-id-prefix ORDRSP- --line-status-code 5 \
   --output target/order-response.xml cii-samples/src/main/resources/samples/order-sample.xml
 ```
 
@@ -233,11 +234,19 @@ complète des valeurs officielles à utiliser dans vos ORDER_RESPONSE (`ORDRSP`)
 
 Pour les réponses aux commandes **AMAZON**, le chemin XML
 `CrossIndustryOrderResponse/SupplyChainTradeTransaction/IncludedSupplyChainTradeLineItem/AssociatedDocumentLineDocument/LineStatusCode`
-doit véhiculer des codes spécifiques pour indiquer le statut de chaque ligne lors de l’envoi d’un message **OrderResponse (ORDRSP)** :
+doit véhiculer des codes spécifiques pour indiquer le statut de chaque ligne lors de l’envoi d’un message **OrderResponse (ORDRSP)**. La CLI vérifie la conformité des valeurs avec la liste officielle **UN/CEFACT ActionCode (1229)** extraite du schéma UNECE et accepte toute valeur publiée (1 à 119). Les codes les plus courants sont :
 
-- **3 – Changement** : La ligne est modifiée par rapport à la demande initiale.
-- **5 – Accepté** : La ligne est acceptée telle que demandée.
-- **10 – Non trouvé** : La ligne référencée n’a pas été identifiée dans la commande.
+| Code | Signification (fr) | Usage typique |
+|------|---------------------|---------------|
+| `1` | Ajout d’une ligne nouvelle | Ajout d’un article non présent initialement |
+| `2` | Suppression/annulation d’une ligne | Retrait complet de l’article demandé |
+| `3` | Changement | Ligne modifiée par rapport à la commande d’origine |
+| `5` | Accepté sans modification | Ligne acceptée telle que demandée |
+| `6` | Accepté avec modification | Ligne acceptée avec ajustements (quantité, date, prix, etc.) |
+| `7` | Rejeté / non accepté | Ligne refusée |
+| `10` | Ligne non trouvée | Identifiant de ligne introuvable dans la commande |
+
+Référez-vous à la publication officielle UN/CEFACT pour la liste exhaustive : <https://service.unece.org/trade/uncefact/publication/SupplyChainMGMT/CIOP/CIOR/HTML/001.htm>.
 
 
 ## 🧪 Exemples en ligne de commande

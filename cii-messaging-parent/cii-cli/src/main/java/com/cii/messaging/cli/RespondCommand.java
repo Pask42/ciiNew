@@ -50,6 +50,10 @@ public class RespondCommand extends AbstractCommand implements Callable<Integer>
     @Option(names = "--response-id-prefix", description = "Préfixe appliqué à l'identifiant si non fourni", defaultValue = "ORDRSP-")
     private String responseIdPrefix = "ORDRSP-";
 
+    @Option(names = "--line-status-code",
+            description = "Code UNECE ActionCode/1229 appliqué à toutes les lignes (ex: 3=Changement, 5=Accepté, 10=Non trouvé)")
+    private String lineStatusCode;
+
     @Override
     public Integer call() {
         configureLogging();
@@ -100,6 +104,9 @@ public class RespondCommand extends AbstractCommand implements Callable<Integer>
         }
         if (issueDate != null && !issueDate.isBlank()) {
             builder.withIssueDateTime(LocalDateTime.parse(issueDate.trim(), ISSUE_DATE_FORMAT));
+        }
+        if (lineStatusCode != null && !lineStatusCode.isBlank()) {
+            builder.withLineStatusCode(lineStatusCode);
         }
         return builder.build();
     }
