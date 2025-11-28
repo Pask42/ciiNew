@@ -36,7 +36,7 @@ class RespondCommandTest {
 
         OrderResponse response = lireOrderResponse(output);
         assertThat(response.getExchangedDocument().getID().getValue()).isEqualTo("ORDRSP-ORD-2024-001");
-        assertThat(response.getExchangedDocument().getStatusCode().getValue()).isEqualTo("42");
+        assertThat(response.getExchangedDocument().getPurposeCode().getValue()).isEqualTo("42");
         assertThat(response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem()).hasSize(2);
         assertThat(response.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0)
                 .getSpecifiedLineTradeDelivery().getAgreedQuantity().getValue()).isEqualByComparingTo("100");
