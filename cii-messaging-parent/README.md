@@ -198,6 +198,7 @@ complète des valeurs officielles à utiliser dans vos ORDER_RESPONSE (`ORDRSP`)
 - **42 – Confirmation par un moyen spécifique** : Confirmation d’une transaction par un autre canal (ex. téléphone).
 - **43 – Transmission complémentaire** : Données électroniques venant compléter un autre canal.
 - **44 – Accepté sans réserve** : Acceptation sans aucune réserve.
+
 - **45 – Accepté avec réserves** : Acceptation sous réserve.
 - **46 – Provisoire** : Contenu provisoire.
 - **47 – Définitif** : Contenu définitif.
@@ -227,6 +228,16 @@ complète des valeurs officielles à utiliser dans vos ORDER_RESPONSE (`ORDRSP`)
 - **71 – Refus du début d’une garantie d’opération** : Refus de démarrer l’opération garantie.
 - **72 – Informations sur les scellés (Début)** : Informations sur les scellés au début de l’opération.
 - **73 – Informations sur les scellés (Fin)** : Informations sur les scellés à la fin de l’opération.
+
+### AMAZON – LineStatusCode pour OrderResponse
+
+Pour les réponses aux commandes **AMAZON**, le chemin XML
+`CrossIndustryOrderResponse/SupplyChainTradeTransaction/IncludedSupplyChainTradeLineItem/AssociatedDocumentLineDocument/LineStatusCode`
+doit véhiculer des codes spécifiques pour indiquer le statut de chaque ligne lors de l’envoi d’un message **OrderResponse (ORDRSP)** :
+
+- **3 – Changement** : La ligne est modifiée par rapport à la demande initiale.
+- **5 – Accepté** : La ligne est acceptée telle que demandée.
+- **10 – Non trouvé** : La ligne référencée n’a pas été identifiée dans la commande.
 
 
 ## 🧪 Exemples en ligne de commande
