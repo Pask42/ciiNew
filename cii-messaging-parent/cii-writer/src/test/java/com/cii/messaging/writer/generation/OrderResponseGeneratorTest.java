@@ -16,6 +16,7 @@ import com.cii.messaging.unece.order.ISO3AlphaCurrencyCodeContentType;
 import com.cii.messaging.unece.order.LineTradeAgreementType;
 import com.cii.messaging.unece.order.LineTradeDeliveryType;
 import com.cii.messaging.unece.order.LineTradeSettlementType;
+import com.cii.messaging.unece.order.LineStatusCodeType;
 import com.cii.messaging.unece.order.QuantityType;
 import com.cii.messaging.unece.order.SupplyChainTradeLineItemType;
 import com.cii.messaging.unece.order.SupplyChainTradeTransactionType;
@@ -30,6 +31,8 @@ import com.cii.messaging.reader.OrderReader;
 import com.cii.messaging.writer.CIIWriterException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,6 +83,7 @@ class OrderResponseGeneratorTest {
                 .getSellerOrderReferencedDocument().getIssuerAssignedID().getValue());
         assertEquals(1, response.getSupplyChainTradeTransaction().getApplicableHeaderTradeSettlement()
                 .getSpecifiedTradeSettlementHeaderMonetarySummation().getGrandTotalAmount().size());
+        assertEquals("5", lineItem.getAssociatedDocumentLineDocument().getLineStatusCode().getValue());
     }
 
     @Test
@@ -114,6 +118,22 @@ class OrderResponseGeneratorTest {
                 .getNetPriceProductTradePrice().getChargeAmount().get(0).getValue());
         assertEquals(new BigDecimal("103.9"), firstLine.getSpecifiedLineTradeSettlement()
                 .getSpecifiedTradeSettlementLineMonetarySummation().getLineTotalAmount().get(0).getValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"3", "5", "10"})
+    void copieLeLineStatusCode(String statusCode) {
+        Order order = buildOrderWithStatus(statusCode);
+
+        OrderResponse response = OrderResponseGenerator.genererDepuisOrder(order,
+                OrderResponseGenerationOptions.builder()
+                        .withIssueDateTime(LocalDateTime.of(2024, 3, 5, 12, 0))
+                        .build());
+
+        com.cii.messaging.unece.orderresponse.SupplyChainTradeLineItemType lineItem = response
+                .getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().get(0);
+
+        assertEquals(statusCode, lineItem.getAssociatedDocumentLineDocument().getLineStatusCode().getValue());
     }
 
     private static Order buildOrder() {
@@ -183,10 +203,15 @@ class OrderResponseGeneratorTest {
     }
 
     private static SupplyChainTradeLineItemType buildLine() {
+        return buildLine("5");
+    }
+
+    private static SupplyChainTradeLineItemType buildLine(String statusCode) {
         SupplyChainTradeLineItemType line = new SupplyChainTradeLineItemType();
 
         DocumentLineDocumentType lineDoc = new DocumentLineDocumentType();
         lineDoc.setLineID(id("1"));
+        lineDoc.setLineStatusCode(lineStatusCode(statusCode));
         line.setAssociatedDocumentLineDocument(lineDoc);
 
         TradeProductType product = new TradeProductType();
@@ -209,6 +234,13 @@ class OrderResponseGeneratorTest {
         settlement.setSpecifiedTradeSettlementLineMonetarySummation(lineSummation);
         line.setSpecifiedLineTradeSettlement(settlement);
         return line;
+    }
+
+    private static Order buildOrderWithStatus(String statusCode) {
+        Order order = buildOrder();
+        order.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().clear();
+        order.getSupplyChainTradeTransaction().getIncludedSupplyChainTradeLineItem().add(buildLine(statusCode));
+        return order;
     }
 
     private static IDType id(String value) {
@@ -235,6 +267,13 @@ class OrderResponseGeneratorTest {
         quantity.setValue(new BigDecimal(value));
         quantity.setUnitCode(unit);
         return quantity;
+    }
+
+    private static LineStatusCodeType lineStatusCode(String value) {
+        LineStatusCodeType statusCode = new LineStatusCodeType();
+        statusCode.setValue(value);
+        statusCode.setListAgencyID("6");
+        return statusCode;
     }
 
     private Order lireEchantillonOrder(String resource) throws IOException, CIIReaderException {
